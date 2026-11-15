@@ -1,0 +1,1 @@
+try{var s=JSON.parse(localStorage.getItem('tt')||'{}');document.documentElement.dataset.theme=s.theme||'d'}catch(e){document.documentElement.dataset.theme='d'}
