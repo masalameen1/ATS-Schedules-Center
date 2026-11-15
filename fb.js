@@ -1,6 +1,6 @@
 /* Firebase layer: emulates the small db/user API the app uses, on Firestore + Firebase Auth */
 (function(){
-var cfg={apiKey:"AIzaSyAPH1OghTxNjGHeIByL94V4H3XKeHEYDpw",authDomain:"ats-substitution.firebaseapp.com",projectId:"ats-substitution",storageBucket:"ats-substitution.firebasestorage.app",messagingSenderId:"174547733670",appId:"1:174547733670:web:e088f5fbfeb69ecd25f867"};
+var cfg={apiKey:"AIzaSyBzia4lKoSi2KCns9xNWAJi5cri1Rd1fEo",authDomain:"ats-schedule-center-e2e1c.firebaseapp.com",projectId:"ats-schedule-center-e2e1c",storageBucket:"ats-schedule-center-e2e1c.firebasestorage.app",messagingSenderId:"278973444209",appId:"1:278973444209:web:333aa846b8ca1bbb266bd0"};
 window.__MAILURL=window.__MAILURL||'';var ADMIN=["hatem.hamdeh@actvet.gov.ae", "naser.alashab@actvet.gov.ae", "fahad.almansoori@actvet.gov.ae", "ahmad.debek@actvet.gov.ae", "tamer.ahmed@actvet.gov.ae", "furat.jasim@actvet.gov.ae", "abedalla.banihani@actvet.gov.ae", "waseem.alhausani@actvet.gov.ae", "mohammad.salamin@actvet.gov.ae", "mahmoud.yousef@actvet.gov.ae", "anjali.rajan@actvet.gov.ae", "masalameen@gmail.com"];
 var ok=typeof firebase!=='undefined';
 if(!ok){window.claude={use:async function(){return null}};window.__fbLogin=async function(){throw {code:'offline'}};window.__fbErr=function(){return 'Cannot reach the sign-in service.'};return}
