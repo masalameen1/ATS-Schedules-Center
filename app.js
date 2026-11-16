@@ -3245,14 +3245,14 @@ function wireAv(){const b=$('avb');if(!b)return;const n=F.t;
   const rows=E.rows.filter(r=>r.absent&&r.date),afterKeys=rows.map(key),fresh=rows.filter(r=>!before.includes(key(r))),gone=beforeRows.filter(r=>r.absent&&r.date&&!afterKeys.includes(key(r)));
   if(!fresh.length&&!gone.length)return;
   const tpc=r=>{let t=r.topic;if(t==null){try{const l=(LD[r.absent]||[]).find(x=>x.p===r.per&&x.c===r.cls&&x.d===dayIdx(r.date));t=l&&window.__plan?window.__plan.topic(l.k,l.c,r.date).text:''}catch(e){t=''}}t=String(t||'').replace(/\s+/g,' ').trim();return t.length>170?t.slice(0,167)+'…':t};
-  const ln=(r,p)=>p+(DAYS[dayIdx(r.date)]||'')+' '+r.date+(r.per?' · Period '+rng(r.per,spanOf(r)):'')+(r.cls?' · '+r.cls:'')+(r.room?' · Room '+r.room:'')+' · absent: '+r.absent+(p==='➕ '&&tpc(r)?' · 📚 موضوع الأسبوع · Topic: '+tpc(r):'');
+  const ln=(r,p)=>p+(DAYS[dayIdx(r.date)]||'')+' '+r.date+(window.__UL==='en'?((r.per?' · Period '+rng(r.per,spanOf(r)):'')+(r.cls?' · '+r.cls:'')+(r.room?' · Room '+r.room:'')+' · covering: '+r.absent+(p==='➕ '&&tpc(r)?' · 📚 Topic: '+tpc(r):'')):((r.per?' · الحصة '+rng(r.per,spanOf(r)):'')+(r.cls?' · '+r.cls:'')+(r.room?' · القاعة '+r.room:'')+' · عن المعلم: '+r.absent+(p==='➕ '&&tpc(r)?' · 📚 موضوع الأسبوع: '+tpc(r):'')));
   const M={};const hit=(n,t,line)=>{if(!n||/^resource room$/i.test(n))return;const m=M[n]||(M[n]={subIn:0,other:0,lines:[]});m[t]++;if(m.lines.length<6)m.lines.push(line)};
   fresh.forEach(r=>{hit(r.subst,'subIn',ln(r,'➕ '));hit(r.absent,'other',ln(r,'✎ '));if(r.subst&&M[r.subst]&&r.per)(M[r.subst].g=M[r.subst].g||new Set()).add(gOf(TDEPT[r.absent]||'na'))});gone.forEach(r=>{hit(r.subst,'other',ln(r,'✖ '));hit(r.absent,'other',ln(r,'✎ '))});
   const al=Object.entries(M).map(([n,m])=>{const nt=mkNote('occ','sub',[n],m.lines);
    if(m.subIn&&m.g&&m.g.size){const g=[...m.g][0],dn=(GROUPS.find(z=>z[0]===g)||[0,'the department'])[1],ld=Object.keys(LEAD).find(x=>gOf(LEAD[x].d)===g&&x!==n),me=(window.__getMyName&&window.__getMyName())||'',fr=ld||me||'Substitution coordinator';
     Object.assign(nt,{from:fr,fromEmail:ld?LEAD[ld].e:'',dep:g,depName:dn,
-     text:'📩 Message from '+fr+(ld?' (Department Leader — '+dn+')':'')+': you have been assigned substitution duty. Open the schedule to see the '+dn+' substitutions and the details.'+(window.__sigTxt?window.__sigTxt(g):''),
-     ar:'📩 رسالة من '+fr+(ld?' (قائد قسم '+dn+')':'')+': تم تكليفك بإشغال. افتح الجدول لرؤية إشغالات القسم وتفاصيلها.'+(window.__sigTxt?window.__sigTxt(g):'')})}
+     text:'📩 Substitution duty — Dear colleague, you have been assigned a substitution (details below). Thank you for your cooperation and commitment. Please open the schedule to review it.',
+     ar:'📩 تنبيه بإشغال — زميلي العزيز، تم تكليفك بإشغال (تفاصيله أدناه). نشكر لك تعاونك وحرصك. يُرجى فتح الجدول للاطلاع عليه.'})}
    return nt});
   try{const cur=await db.doc('coord/alerts').get();const old2=cur.exists&&Array.isArray(cur.data().list)?cur.data().list:[];
    {const seen=new Set();fresh.forEach(r=>{const k=r.absent+'|'+r.date;if(seen.has(k))return;seen.add(k);const g=gOf(TDEPT[r.absent]||'na'),ls=Object.keys(LEAD).filter(n=>n!==r.absent&&gOf(LEAD[n].d)===g&&!M[n]);if(!ls.length)return;const rr=rows.filter(x=>x.absent===r.absent&&x.date===r.date&&x.per),un=rr.filter(x=>!x.subst&&!x.act).length;al.push(mkNote('occ','sub',ls,['🚩 Absence in your department: '+r.absent+' on '+(DAYS[dayIdx(r.date)]||'')+' '+r.date+' — '+(rr.length||'no')+' period(s)'+(rr.length?', '+un+' not yet covered':'')]))})}
@@ -6483,19 +6483,21 @@ window.__aiJson=aiJson;
  .nI{border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin:8px 0;background:#fff}.nI.un{border-color:#5eead4;background:#f0fdfa}.nI b.t{display:block;font-size:14px}.nI .ts{font-size:11px;opacity:.65}
  .nI .ln{font-size:13px;margin:5px 0;padding:6px 8px;background:#f8fafc;border-radius:8px}.nI p{margin:5px 0;font-size:13px;line-height:1.45}.nI p.ar{direction:rtl;text-align:right}.nI .ac{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
  .nE{text-align:center;padding:22px;opacity:.7}
+ .nRp{margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0}.nRta{width:100%;box-sizing:border-box;border:1px solid #e2e8f0;border-radius:10px;padding:8px;font:inherit;font-size:13px;resize:vertical}.nRr{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.nRb{border:0;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;background:#f2f2f7;color:#1d1d1f}.nRb.accept{background:#e7f6ec;color:#117a37}.nRb.decline{background:#fdeceb;color:#c4261d}.nRb.sorry{background:#fff4e0;color:#8a4b00}.nRd{font-size:13px;font-weight:600;padding:6px 10px;border-radius:10px;background:#f2f2f7}.nRd.accept{background:#e7f6ec;color:#117a37}.nRd.decline{background:#fdeceb;color:#c4261d}.nRd.sorry{background:#fff4e0;color:#8a4b00}.nRs{border:1px solid #cfe3f7;background:#f3f9ff;border-radius:12px;padding:10px 12px;margin:8px 0}.nRi{border-top:1px solid #dbeafe;padding:7px 0;font-size:13px}.nRi .nRt{font-weight:600}.nRi p{margin:4px 0}
  @media(max-width:700px){#nPan{top:60px}}`;document.head.append(st);
  const me=()=>(TMAIL||(typeof MS!=='undefined'&&MS.me&&MS.me.email)||'anon').toLowerCase(),SK=()=>'tt_nr_'+me();
  let UID=null,upT=0,mdb=null;
  const load=()=>{try{return JSON.parse(localStorage.getItem(SK())||'null')||{}}catch(e){return{}}},put=o=>{try{localStorage.setItem(SK(),JSON.stringify(o))}catch(e){}clearTimeout(upT);upT=setTimeout(syncUp,800)};
- function syncUp(){if(!mdb||!UID)return;try{const S=load(),ids=new Set(ALL.map(a=>a.id)),pr=m=>{const o={};Object.keys(m||{}).forEach(k=>{if(ids.has(k)||!ALL.length)o[k]=1});return o};mdb.doc('inbox/'+UID).set({read:pr(S.read),del:pr(S.del),upd:Date.now()}).catch(()=>{})}catch(e){}}
- function mergeDown(d){try{if(!d)return;const S=load();let ch=false;['read','del'].forEach(k=>{const m=d[k]||{};S[k]=S[k]||{};Object.keys(m).forEach(i=>{if(!S[k][i]){S[k][i]=1;ch=true}})});if(ch){try{localStorage.setItem(SK(),JSON.stringify(S))}catch(e){}badge()}}catch(e){}}
- let ALL=[],db=null,first=true,toasted=new Set(),onlyUn=false;
+ function syncUp(){if(!mdb||!UID)return;try{const S=load(),ids=new Set(ALL.map(a=>a.id)),pr=m=>{const o={};Object.keys(m||{}).forEach(k=>{if(ids.has(k)||!ALL.length)o[k]=1});return o};mdb.doc('inbox/'+UID).set({read:pr(S.read),del:pr(S.del),rep:S.rep||{},who:me(),nm:(window.__getMyName&&window.__getMyName())||'',upd:Date.now()}).catch(()=>{})}catch(e){}}
+ function mergeDown(d){try{if(!d)return;const S=load();let ch=false;['read','del'].forEach(k=>{const m=d[k]||{};S[k]=S[k]||{};Object.keys(m).forEach(i=>{if(!S[k][i]){S[k][i]=1;ch=true}})});{const rp=d.rep||{};S.rep=S.rep||{};Object.keys(rp).forEach(i=>{if(!S.rep[i]){S.rep[i]=rp[i];ch=true}})}if(ch){try{localStorage.setItem(SK(),JSON.stringify(S))}catch(e){}badge()}}catch(e){}}
+ let REPS=[],ALL=[],db=null,first=true,toasted=new Set(),onlyUn=false;
  const mineL=()=>{const S=load();return ALL.filter(a=>!(S.del&&S.del[a.id])).sort((x,y)=>y.ts-x.ts)};
  const isUn=a=>{const S=load();return !(S.read&&S.read[a.id])};
  const w=document.createElement('button');w.id='nBell';w.type='button';w.title='Notifications | الإشعارات';w.setAttribute('aria-label','Notifications');w.innerHTML='🔔<span class="bd">0</span>';
  const pan=document.createElement('div');pan.id='nPan';document.body.append(pan);
  function place(){let h=document.getElementById('hdrR');if(!h){const t=document.querySelector('header.top');if(!t)return false;h=document.createElement('div');h.id='hdrR';t.append(h)}if(!h.contains(w))h.prepend(w);return true}
- function badge(){const n=mineL().filter(isUn).length;w.classList.toggle('has',n>0);w.querySelector('.bd').textContent=n>99?'99+':n;if(pan.classList.contains('on'))draw()}
+ const repNew=()=>{try{const s=load().repSeen||0;return REPS.filter(r=>(r.ts||0)>s).length}catch(e){return 0}};
+ function badge(){const n=mineL().filter(isUn).length+repNew();w.classList.toggle('has',n>0);w.querySelector('.bd').textContent=n>99?'99+':n;if(pan.classList.contains('on'))draw()}
  const when=ts=>new Date(ts).toLocaleString('en-GB',{timeZone:'Asia/Dubai',dateStyle:'medium',timeStyle:'short'});
  const SCH={exam:'Invigilation schedule | جدول المراقبة',sub:'Substitution schedule | جدول الإشغال',radio:'Morning broadcast | الإذاعة الصباحية'};
  function mark(id,v){const S=load();S.read=S.read||{};if(v)S.read[id]=1;else delete S.read[id];put(S);badge()}
@@ -6503,16 +6505,25 @@ window.__aiJson=aiJson;
   const hd=document.createElement('div');hd.className='nh';hd.innerHTML='<h3>🔔 Notifications | الإشعارات</h3><span class="sp"></span>';
   const mk=(t,f,c)=>{const b=document.createElement('button');b.type='button';b.className='btn '+(c||'sm');b.textContent=t;b.onclick=f;return b};
   hd.append(mk(onlyUn?'Show all | الكل':'Unread only | غير المقروء',()=>{onlyUn=!onlyUn;draw()}),mk('Mark all read | تعليم الكل',()=>{const S=load();S.read=S.read||{};L.forEach(a=>S.read[a.id]=1);put(S);badge()}),mk('✕',()=>closeP(),'rd sm'));pan.append(hd);
+  if(REPS.length){const AR_=window.__UL!=='en',KL={accept:AR_?'✔ قبل':'✔ Accepted',decline:AR_?'✖ رفض':'✖ Declined',sorry:AR_?'🙏 اعتذر':'🙏 Apologised'};const sec=document.createElement('div');sec.className='nRs';const h=document.createElement('b');h.textContent='↩ '+(AR_?'ردود المعلمين على الإشغال':'Teacher replies')+' ('+REPS.length+')';sec.append(h);
+   REPS.slice(0,20).forEach(r=>{const d=document.createElement('div');d.className='nRi '+(r.k||'');const t=document.createElement('div');t.className='nRt';const nb=document.createElement('bdi');nb.textContent=r.who||'—';t.append(nb,document.createTextNode(' — '+(KL[r.k]||'')+' · '+when(r.ts)));d.append(t);(r.l||[]).slice(0,3).forEach(x=>{const l=document.createElement('div');l.className='ln';l.textContent=x;d.append(l)});if(r.n){const q=document.createElement('p');q.textContent='“'+r.n+'”';d.append(q)}sec.append(d)});pan.append(sec)}
   if(!list.length){const e=document.createElement('div');e.className='nE';e.innerHTML=onlyUn?'You have no unread notifications.<br>لا توجد إشعارات غير مقروءة.':'No notifications yet.<br>لا توجد إشعارات بعد.';pan.append(e)}
   list.forEach(a=>{const d=document.createElement('div');d.className='nI'+(isUn(a)?' un':'');
    const t=document.createElement('b');t.className='t';t.textContent=(isUn(a)?'● ':'')+(a.title||'Notification | إشعار');d.append(t);
    const m=document.createElement('div');m.className='ts';m.textContent=when(a.ts)+' · '+(SCH[a.sched||(a.text&&/covers|Cover|absent/i.test(a.text)?'sub':'exam')]||'');d.append(m);
    (a.lines||[]).forEach(x=>{const l=document.createElement('div');l.className='ln';l.textContent=x;try{window.__plan&&window.__plan.linkLine(l,x)}catch(e){}d.append(l)});
-   const p1=document.createElement('p');p1.textContent=a.text;d.append(p1);if(a.ar){const p2=document.createElement('p');p2.className='ar';p2.textContent=a.ar;d.append(p2)}
+   {const isAr=window.__UL!=='en';const p1=document.createElement('p');p1.textContent=(isAr&&a.ar)?a.ar:a.text;if(isAr&&a.ar)p1.className='ar';d.append(p1)}
+   if(a.kind!=='sync'){const AR_=window.__UL!=='en',S0=load(),r0=S0.rep&&S0.rep[a.id],bx=document.createElement('div');bx.className='nRp';
+    const KL={accept:AR_?'✔ تم القبول':'✔ Accepted',decline:AR_?'✖ تم الرفض':'✖ Declined',sorry:AR_?'🙏 تم الاعتذار':'🙏 Apology sent'};
+    if(r0){const o=document.createElement('div');o.className='nRd '+r0.k;o.textContent=(KL[r0.k]||'')+(r0.n?' — '+r0.n:'');bx.append(o)}
+    else{const ta=document.createElement('textarea');ta.rows=2;ta.placeholder=AR_?'ملاحظة اختيارية تصل لمن أعدّ الإشغال…':'Optional note to the person who prepared the schedule…';ta.className='nRta';bx.append(ta);
+     const row=document.createElement('div');row.className='nRr';
+     [['accept',AR_?'✔ قبول':'✔ Accept'],['decline',AR_?'✖ رفض':'✖ Decline'],['sorry',AR_?'🙏 اعتذار':'🙏 Apologise']].forEach(([k,lb])=>{const b=document.createElement('button');b.type='button';b.className='nRb '+k;b.textContent=lb;b.onclick=ev=>{ev.stopPropagation();const S=load();S.rep=S.rep||{};S.rep[a.id]={k,n:ta.value.trim().slice(0,300),ts:Date.now(),t:a.title||'',l:(a.lines||[]).slice(0,4)};S.read=S.read||{};S.read[a.id]=1;put(S);badge();draw()};row.append(b)});bx.append(row)}
+    d.append(bx)}
    const ac=document.createElement('div');ac.className='ac';
    ac.append(mk('Open schedule | فتح الجدول',()=>{mark(a.id,1);pan.classList.remove('on');try{if((a.sched==='sub'||a.view==='sub')&&typeof goDuty==='function')goDuty();else showView(a.view||(a.sched==='sub'?'sub':'exam'))}catch(e){}},'go sm'),mk(isUn(a)?'Mark read | مقروء':'Mark unread | غير مقروء',()=>{mark(a.id,!isUn(a)?false:true);draw()}),mk('Delete | حذف',()=>{const S=load();S.del=S.del||{};S.del[a.id]=1;put(S);badge();draw()},'rd sm'));d.append(ac);pan.append(d)})}
  /* once the person has opened the bell and seen the notifications, they count as read and never come back as new (on every device) */
- function closeP(){if(!pan.classList.contains('on'))return;pan.classList.remove('on');const S=load();S.read=S.read||{};let ch=false;mineL().forEach(a=>{if(!S.read[a.id]){S.read[a.id]=1;ch=true}});if(ch){put(S);badge()}}
+ function closeP(){if(!pan.classList.contains('on'))return;pan.classList.remove('on');const S=load();S.read=S.read||{};let ch=false;if(REPS.length){const mx=Math.max(...REPS.map(r=>r.ts||0));if((S.repSeen||0)<mx){S.repSeen=mx;ch=true}}mineL().forEach(a=>{if(!S.read[a.id]){S.read[a.id]=1;ch=true}});if(ch){put(S);badge()}}
  w.onclick=e=>{e.stopPropagation();if(pan.classList.contains('on'))closeP();else{pan.classList.add('on');draw()}};
  document.addEventListener('click',e=>{if(pan.classList.contains('on')&&e.target.isConnected&&!pan.contains(e.target)&&e.target!==w)closeP()});
  function toast(n){let b=document.getElementById('smNote');if(!b){b=document.createElement('div');b.id='smNote';document.body.append(b)}const d=document.createElement('div');d.className='smN';const tx=document.createElement('span');tx.textContent='🔔 You have '+n+' new notification'+(n>1?'s':'')+' | لديك '+n+' إشعار'+(n>1?'ات':'')+' جديد'+(n>1?'ة':'');tx.onclick=()=>{d.remove();pan.classList.add('on');draw()};const x=document.createElement('button');x.type='button';x.textContent='✕';x.onclick=e=>{e.stopPropagation();d.remove()};d.append(tx,x);b.append(d);setTimeout(()=>d.remove(),15000)}
@@ -6523,6 +6534,7 @@ window.__aiJson=aiJson;
  async function init(){let ok=place();if(!ok)setTimeout(init,500);if(!ok)return;
   try{if(window.claude&&claude.use)db=await claude.use('db')}catch(e){}
   if(!db)return;mdb=db;try{const U=await claude.use('user');UID=U&&U.id?await U.id():null;if(UID)db.doc('inbox/'+UID).onSnapshot(s=>{if(s.exists)mergeDown(s.data())},()=>{})}catch(e){}
+  try{if(isAuth8())db.collection('inbox').onSnapshot(q=>{const o=[];(q.docs||[]).forEach(d=>{const x=d.data()||{};Object.keys(x.rep||{}).forEach(id=>o.push({id,who:x.nm||x.who||'',...x.rep[id]}))});o.sort((p,q2)=>(q2.ts||0)-(p.ts||0));REPS=o;badge()},()=>{})}catch(e){}
   db.doc('coord/alerts').onSnapshot(s=>{const l=s.exists&&Array.isArray(s.data().list)?s.data().list.map(a=>({...a})):[];ingest(l)},()=>{})}
  window.__notifMine=()=>mineL();
  window.__notifViewOf=a=>a.view||(a.sched==='sub'?'sub':a.sched==='radio'?'radio':'exam');
