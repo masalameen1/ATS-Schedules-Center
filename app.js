@@ -3534,6 +3534,8 @@ function drawMe(){const r=$('meRoot');if(!r)return;r.innerHTML='';const m=GM(),k
  V.forEach((e,i)=>{e.i=i;e.pl=e.pl||(e.loc?[e.loc]:[]);e.s=e.r[0][0];e.hay=[e.t,e.sub||'',e.d||'',e.loc||'',(e.det||[]).join(' '),(e.sites||[]).join(' '),e.pl.join(' '),e.lab,e.en.map(k=>EN[k].n+' '+EN[k].f).join(' '),CAT[e.c].t,e.note||''].join(' ').toLowerCase()});
  V.sort((a,b)=>a.s<b.s?-1:a.s>b.s?1:a.i-b.i);
  window.__actvEN=EN;
+ /* days with no students at school, taken from the calendar (breaks, holidays, Eid, National Day): the morning broadcast skips them */
+ window.__noSchoolDays=()=>{try{return V.filter(e=>e.en.includes('ATS')&&/\b(break|holiday|eid|national day|public holiday)\b|staff professional development|إجازة|عطلة|عيد/i.test(e.t)&&!/skills|challenge|workshop|exam/i.test(e.t)).flatMap(e=>e.r.map(x=>({f:x[0],t:x[1],n:e.t})))}catch(x){return[]}};
  window.__plEvents=(a,b)=>{try{return V.filter(e=>e.en.includes('ATS')&&e.r.some(x=>x[0]<=b&&x[1]>=a)).map(e=>e.t)}catch(x){return[]}};
  window.__actvOcc=iso=>{const out=[];V.forEach(e=>{const nm=e.t+(e.sub&&e.c==='skills'?' — '+e.sub:'')+' · '+(e.c==='skills'||e.en.length>2?'ACTVET':e.en.map(k=>EN[k].n).join('/'));
    const rg=e.r.find(([f,t])=>f<=iso&&iso<=t);if(!rg)return;
@@ -3641,7 +3643,7 @@ var RMN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'
 var rFmt=iso=>{const d=new Date(iso+'T12:00:00Z');return d.getUTCDate()+' '+RMN[d.getUTCMonth()]+' '+d.getUTCFullYear()};
 function radioCfg(E){const r=E.rows[0];if(!r||!Array.isArray(r.sup)){const b=JSON.parse(JSON.stringify(DEF_RADIO));E.rows=[b];return b}
  r.hol=Array.isArray(r.hol)?r.hol:[];r.over=r.over&&typeof r.over==='object'?r.over:{};return r}
-function radioList(c){const out=[];const hol=iso=>c.hol.find(x=>x.f&&x.t&&x.f<=iso&&iso<=x.t);let idx=0,k=0,pend=null;
+function radioList(c){const out=[];const NS=(()=>{try{return window.__noSchoolDays?window.__noSchoolDays():[]}catch(e){return[]}})();const hol=iso=>c.hol.find(x=>x.f&&x.t&&x.f<=iso&&iso<=x.t)||NS.find(x=>x.f<=iso&&iso<=x.t);let idx=0,k=0,pend=null;
  if(!c.sup.length||!c.start||!c.end)return out;
  for(let d=Date.parse(c.start+'T12:00:00Z'),end=Date.parse(c.end+'T12:00:00Z');d<=end;d+=864e5){const dt=new Date(d),wd=dt.getUTCDay();if(wd===0||wd===6)continue;const iso=dt.toISOString().slice(0,10),hh=hol(iso);
   if(hh){if(pend&&pend.n===hh.n)pend.t=iso;else{if(pend)out.push(pend);pend={hol:1,n:hh.n,f:iso,t:iso}}continue}
