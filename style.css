@@ -2869,3 +2869,14 @@ html body>.shell,html body>.wrap{width:100%}
 .saBx .saStc button,.saBx .saTkB{font-size:16px;padding:11px 16px;min-height:44px}
 .saBx .saTkT b{font-size:18px}
 .saBx .saSeat{font-size:15px}
+
+/* invigilation page: calm toolbar, no duplicate big buttons, clear "my duty" tab */
+.exBar{display:grid;gap:12px;margin-bottom:18px}
+.exBar .qwTbMain{width:100%;min-height:56px;font-size:1.06em;border-radius:18px;box-shadow:0 8px 22px -10px rgba(47,98,214,.6)}
+.exGrp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.exGrp .btn{min-height:48px;border-radius:14px;background:#fff;border:1px solid #dbe3ee;box-shadow:0 1px 3px rgba(15,23,42,.05);display:flex;align-items:center;justify-content:center;white-space:normal;font-weight:700}
+.exGrp .btn:first-child{background:linear-gradient(180deg,#f0fdf4,#dcfce7);border-color:#86efac;color:#166534}
+.exSm{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.exSm .btn{min-height:40px;padding:8px 14px;border-radius:12px;font-size:.92em;width:auto;flex:0 1 auto}
+#tcard .tdSeg .tdSg:first-child.on{background:linear-gradient(180deg,#22c55e,#15803d);color:#fff}
+#tcard .tdSeg .tdSg{font-size:1.05em;padding:13px 10px}
