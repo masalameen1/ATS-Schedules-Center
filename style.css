@@ -2896,3 +2896,47 @@ html body>.shell,html body>.wrap{width:100%}
 .saHT{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:1.05em}.saHT b{font-size:1.2em;color:#1e3a8a}.saHT span{font-weight:700;color:#334155}
 .saHC{display:flex;flex-wrap:wrap;gap:8px}.saHCh{border:2px solid;border-radius:999px;padding:7px 14px;font:inherit;font-weight:800;cursor:pointer}
 .saHO{color:#64748b;line-height:1.7}
+
+/* ===== Apple-style refinement: Morning Broadcast / Zero-period tables and filters ===== */
+html body #v_radio .rflt,html body #v_zero .rflt{background:rgba(255,255,255,.72)!important;-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border:1px solid rgba(60,60,67,.12)!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05)!important;padding:14px 16px!important;gap:10px!important}
+html body #v_radio .rfr,html body #v_zero .rfr{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;gap:8px!important;align-items:center}
+html body #v_radio .rfl,html body #v_zero .rfl{font-size:13px!important;font-weight:600!important;color:#6e6e73!important;min-width:64px;letter-spacing:.2px}
+html body #v_radio .rkey,html body #v_zero .rkey{background:#f2f2f7!important;color:#1d1d1f!important;border:0!important;border-radius:999px!important;box-shadow:none!important;text-shadow:none!important;font-size:15px!important;font-weight:500!important;padding:7px 15px!important;min-height:0!important;transition:background .15s,color .15s,transform .15s}
+html body #v_radio .rkey:hover,html body #v_zero .rkey:hover{background:#e5e5ea!important;transform:none!important}
+html body #v_radio .rkey.on,html body #v_zero .rkey.on{background:#1d1d1f!important;color:#fff!important}
+html body #v_radio .rkey.rreset,html body #v_zero .rkey.rreset{background:transparent!important;color:#d70015!important;font-weight:600!important}
+html body #v_radio .rsel,html body #v_zero .rsel{background:#f2f2f7!important;border:0!important;border-radius:12px!important;box-shadow:none!important;font-size:15px!important;font-weight:500!important;color:#1d1d1f!important;padding:8px 12px!important}
+html body #v_radio .tools{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;gap:10px!important;margin:6px 0 12px!important}
+html body #v_radio .tools input[type=text],html body #v_radio #q_radio{background:rgba(118,118,128,.12)!important;border:0!important;border-radius:12px!important;box-shadow:none!important;font-size:16px!important;font-weight:400!important;padding:11px 14px!important}
+html body #v_radio .tools .btn,html body #v_radio .rdl .btn{background:#f2f2f7!important;color:#0071e3!important;border:0!important;border-radius:999px!important;box-shadow:none!important;font-size:15px!important;font-weight:600!important;padding:9px 18px!important}
+html body #v_radio .tools .btn:hover,html body #v_radio .rdl .btn:hover{background:#e5e5ea!important}
+html body #v_radio #a_radio,html body #v_radio .rdl .btn:first-of-type{color:#0071e3!important}
+html body #v_radio .rtg{background:#f2f2f7!important;border:0!important;border-radius:999px!important;box-shadow:none!important;font-size:15px!important;font-weight:500!important;padding:9px 16px!important;color:#1d1d1f!important}
+html body #v_radio .rdl{background:rgba(255,255,255,.72)!important;border:1px solid rgba(60,60,67,.12)!important;border-radius:16px!important;box-shadow:none!important;padding:10px 14px!important}
+html body #v_radio .rdl b{font-weight:600!important;color:#1d1d1f!important;font-size:15px!important}
+html body #v_radio .scroll{background:rgba(255,255,255,.82)!important;border:1px solid rgba(60,60,67,.12)!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05)!important;overflow:hidden}
+html body #t_radio{background:transparent!important;border-collapse:separate!important;border-spacing:0!important;font-size:17px!important}
+html body #t_radio th,html body #t_radio td{border:0!important;border-bottom:1px solid rgba(60,60,67,.1)!important;background:transparent!important;box-shadow:none!important;padding:14px 14px!important;font-weight:400!important;color:#1d1d1f!important}
+html body #t_radio thead th{background:rgba(245,245,247,.9)!important;color:#6e6e73!important;font-size:13px!important;font-weight:600!important;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid rgba(60,60,67,.14)!important;position:sticky;top:0}
+html body #t_radio tbody tr:last-child td{border-bottom:0!important}
+html body #t_radio tbody tr:hover td{background:rgba(0,113,227,.04)!important}
+html body #t_radio td *{box-shadow:none!important;text-shadow:none!important}
+html body #t_radio td.rnum,html body #t_radio .rnum{color:#86868b!important;font-weight:500!important;font-variant-numeric:tabular-nums}
+html body #t_radio td.rday,html body #t_radio td.rdt,html body #t_radio td.rday *,html body #t_radio td.rdt *{background:transparent!important;border:0!important;border-radius:0!important;padding-left:0;padding-right:0;font-weight:500!important;color:#1d1d1f!important;font-size:17px!important}
+html body #t_radio td.rdt{color:#6e6e73!important;font-variant-numeric:tabular-nums}
+html body #t_radio .rsup,html body #t_radio .rsup input,html body #t_radio td input{background:transparent!important;border:0!important;border-radius:8px!important;box-shadow:none!important;color:#1d1d1f!important;font-size:17px!important;font-weight:600!important}
+html body #t_radio td input:focus{background:rgba(0,113,227,.08)!important;outline:2px solid rgba(0,113,227,.35)}
+html body #t_radio tr.rtoday td{background:rgba(255,204,0,.16)!important;color:#1d1d1f!important;font-weight:500!important}
+html body #t_radio tr.rtoday td:first-child{box-shadow:inset 4px 0 0 #ff9f0a!important}
+html body #t_radio tr.rhol td{background:rgba(120,120,128,.08)!important;color:#6e6e73!important;font-size:15px!important;font-weight:500!important}
+html body #t_radio .occ,html body #t_radio td .occTag,html body #t_radio td span[class*=oc]{background:rgba(255,159,10,.12)!important;border:0!important;border-radius:999px!important;color:#8a4b00!important;font-size:14px!important;font-weight:500!important}
+html body #v_radio .dlt{background:#f2f2f7!important;border:0!important;border-radius:999px!important;box-shadow:none!important}
+html body #v_radio .rcard,html body #v_radio .card{box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05)!important;border:1px solid rgba(60,60,67,.12)!important;border-radius:20px!important}
+
+/* occasion reminders: collapsible */
+html body #v_radio .rrem .rrh b{cursor:pointer;display:inline-flex;align-items:center;gap:8px;-webkit-user-select:none;user-select:none}
+html body #v_radio .rrem .rrh b::after{content:"⌄";font-size:20px;line-height:1;color:#86868b;transition:transform .2s}
+html body #v_radio.rremOpen .rrem .rrh b::after{transform:rotate(180deg)}
+html body #v_radio:not(.rremOpen) .rrem .rri{display:none!important}
+html body #v_radio .rrem{background:rgba(255,255,255,.72)!important;border:1px solid rgba(60,60,67,.12)!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05)!important}
+html body #v_radio .rrem .rri{border-bottom:1px solid rgba(60,60,67,.08)!important}
