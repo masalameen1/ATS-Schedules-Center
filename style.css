@@ -2861,3 +2861,11 @@ html body>.shell,html body>.wrap{width:100%}
  html body header.top#top #occ b{font-size:21px!important;line-height:1.2!important}
  html body header.top#top #occ span{font-size:15.5px!important;line-height:1.3!important}
 }
+
+/* larger attendance / seating screen */
+.saBx{width:min(1500px,98vw)!important;max-height:97vh!important;font-size:17px}
+.saBx .saBar input,.saBx .saBar select{font-size:16px;padding:11px 14px}
+.saBx .saR,.saBx .saTkR2{font-size:16px}
+.saBx .saStc button,.saBx .saTkB{font-size:16px;padding:11px 16px;min-height:44px}
+.saBx .saTkT b{font-size:18px}
+.saBx .saSeat{font-size:15px}
