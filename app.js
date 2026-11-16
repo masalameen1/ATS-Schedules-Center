@@ -4519,6 +4519,14 @@ subVis=function(r){const td=todayDubai();
  if(!_subVis0(r))return false;
  if(SUBS.st==='p'&&(r.subst||r.act))return false;if(SUBS.st==='c'&&!(r.subst||r.act))return false;
  if(SUBS.dep&&gOf(TDEPT[r.absent]||'na')!==SUBS.dep&&!(r.subst&&window.__nameHit&&window.__nameHit(r.subst)))return false;return true};
+/* a teacher who is not a schedule editor sees only his own duties and his department's, not everybody else's */
+const _subVis1=subVis;
+subVis=function(r){if(!_subVis1(r))return false;
+ try{if(ROLE==='student'||SUBOK||EDW||!window.__nameHit)return true;
+  const me=Object.keys(TDEPT).find(n=>window.__nameHit(n));
+  if(r.subst&&window.__nameHit(r.subst))return true;if(r.absent&&window.__nameHit(r.absent))return true;
+  if(!me)return false;const g=gOf(TDEPT[me]||'na');
+  return gOf(TDEPT[r.absent]||'na')===g||(!!r.subst&&gOf(TDEPT[r.subst]||'na')===g)}catch(e){return true}};
 const myDuties=()=>{if(ROLE==='student'||!window.__nameHit)return[];const td=todayDubai();return subRows().filter(r=>r.subst&&r.per&&!r.act&&r.date&&r.date>=td&&window.__nameHit(r.subst)).sort((a,b)=>(a.date+a.per).localeCompare(b.date+b.per))};
 const myLeadAbs=()=>{if(ROLE==='student'||!window.__nameHit)return[];const me=Object.keys(LEAD).find(n=>window.__nameHit(n));if(!me)return[];const g=gOf(LEAD[me].d),td=todayDubai();return subRows().filter(r=>r.absent&&r.date&&r.date>=td&&r.absent!==me&&gOf(TDEPT[r.absent]||'na')===g)};
 const dutyTxt=r=>(DAYS[dayIdx(r.date)]||'')+' '+r.date+' · Period '+rng(r.per,spanOf(r))+' ('+(tm({c:r.cls||'',d:dayIdx(r.date),p:r.per,s:spanOf(r)})||'time per timetable')+')';
@@ -6530,7 +6538,7 @@ window.__aiJson=aiJson;
  let LASTL=[];window.__notifRefresh=()=>{try{ingest(LASTL)}catch(e){}};
  function ingest(list){LASTL=list;window.__alLoaded=true;const mine=list.filter(a=>window.__alertMine(a)||(a.admin&&isAuth8()));ALL=mine;const S=load();
   if(!S.base){S.base=Date.now();S.read=S.read||{};mine.forEach(a=>{if((a.ts||0)<Date.now()-3*864e5)S.read[a.id]=1});put(S)}
-  const fresh=mineL().filter(a=>isUn(a)&&!toasted.has(a.id));fresh.forEach(a=>toasted.add(a.id));badge();/* no pop-up: new notifications are shown only inside the bell panel */}
+  const fresh=mineL().filter(a=>isUn(a)&&!toasted.has(a.id));fresh.forEach(a=>toasted.add(a.id));badge();if(fresh.length&&!pan.classList.contains('on')){try{toast(fresh.length)}catch(e){}try{if(navigator.vibrate)navigator.vibrate(120)}catch(e){}}}
  async function init(){let ok=place();if(!ok)setTimeout(init,500);if(!ok)return;
   try{if(window.claude&&claude.use)db=await claude.use('db')}catch(e){}
   if(!db)return;mdb=db;try{const U=await claude.use('user');UID=U&&U.id?await U.id():null;if(UID)db.doc('inbox/'+UID).onSnapshot(s=>{if(s.exists)mergeDown(s.data())},()=>{})}catch(e){}
