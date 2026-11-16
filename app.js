@@ -858,7 +858,7 @@ const FMT=(d)=>{try{return new Date(d+'T12:00:00+04:00').toLocaleDateString('en-
 const ms=(d,t)=>Date.parse(d+'T'+(t||'00:00')+':00+04:00');
 let S=clone(SEED);S.rest={};S.cat=[];let dirty=false,loaded=false,dayId=S.days[0].id,zf='',q='',onlyC=false,pick='',incl=false,rot=true,confirmClr=false,msg='';
 const ST={set(m){msg=m;const e=document.getElementById('exMsg');if(e)e.textContent=m}};
-window.__exDraw=()=>draw();window.__exDl={pdf:()=>dlPdf(),xlsx:()=>dlXlsx()};
+window.__exDraw=()=>draw();window.__exAuto=d=>autoAssign(d||day());window.__exDl={pdf:()=>dlPdf(),xlsx:()=>dlXlsx()};
 window.__exStudio=()=>{try{vm='studio';window.__vmAuto=false;window.__exAdv=true;draw()}catch(e){}};
 window.__EXD={get:()=>S,days:()=>S.days,cur:()=>day(),can:()=>canEd(),addDays:l=>{if(!canEd())return 0;let n=0;l.forEach(x=>{if(!x||!x.date||S.days.some(d=>d.date===x.date))return;S.days=[...S.days,{id:uid(),date:x.date,title:x.title||('Exam day '+x.date),type:x.type||'Paper',from:x.from||'09:00',to:x.to||'11:00',sess:[],inv:{},ovr:{},note:x.note||''}];n++});if(n){mark();try{draw()}catch(e){}saveQuiet()}return n}};
 const exOK=()=>isAuth8();
@@ -904,18 +904,27 @@ const isRest=(n,d)=>!!(d&&S.rest&&S.rest[n]===d.id);
 function pool(d){const ctr=new Set(S.controllers),sup=supSet();return names.filter(n=>!ctr.has(n)&&!authName(n)&&(incl||!sup.has(n))&&!isRest(n,d))}
 function prevInv(d){const i=S.days.indexOf(d);const p=[...S.days].filter(x=>x.date<d.date).sort((a,b)=>b.date.localeCompare(a.date))[0];const m={};if(p)S.venues.forEach(v=>(p.inv[v.id]||[]).forEach(n=>m[n]=v.id));return m}
 function studs(d,vid){return d.sess.filter(s=>s.v===vid).reduce((a,s)=>a+(+s.n||0),0)}
+const FEMX=n=>{try{return !!(window.__FEMS&&window.__FEMS.has(String(n).split(' ')[0]))}catch(e){return false}};
+const HZ={};
+function homeZone(n){if(n in HZ)return HZ[n];let z='';try{const c={};(typeof LD!=='undefined'&&LD[n]||[]).forEach(l=>{const m=/^\s*([A-Za-z]+)/.exec(l.r||'');if(m){const k=m[1].toUpperCase();c[k]=(c[k]||0)+1}});const ids=new Set(S.zones.map(x=>x.id));const best=Object.keys(c).filter(k=>ids.has(k)).sort((x,y)=>c[y]-c[x])[0];z=best||''}catch(e){}return HZ[n]=z}
+const NEED=(d,v)=>{const st=studs(d,v.id);return st>0?Math.max(1,Math.ceil(st/20)):v.need};
 function autoAssign(d){
  const used=assignedSet(d),pv=rot?prevInv(d):{};
  let free=pool(d).filter(n=>!used.has(n));
  const off=S.days.indexOf(d)*7%Math.max(1,free.length);free=free.slice(off).concat(free.slice(0,off));
  const vs=S.venues.filter(v=>d.sess.some(s=>s.v===v.id)||v.need>1||(d.inv[v.id]||[]).length).slice();
- const take=(v)=>{let i=free.findIndex(n=>pv[n]!==v.id&&!conflictsOf(d,v.id,n).length);if(i<0)i=free.findIndex(n=>!conflictsOf(d,v.id,n).length);if(i<0||i>=free.length)return null;const n=free.splice(i,1)[0];invs(d,v.id).push(n);return n};
+ vs.forEach(v=>{v.need=NEED(d,v)});
+ const gOf=v=>{const a=invs(d,v.id);if(!a.length)return null;const f=a.filter(FEMX).length;return f*2>=a.length?'f':'m'};
+ const take=(v,strict)=>{const g=gOf(v);let best=-1,bs=1e9;free.forEach((n,i)=>{if(conflictsOf(d,v.id,n).length)return;const hz=homeZone(n);if(strict&&hz!==v.zone)return;const sc=(hz===v.zone?0:6)+(pv[n]===v.id?2:0)+(g&&((FEMX(n)?'f':'m')!==g)?3:0);if(sc<bs){bs=sc;best=i}});if(best<0)return null;const n=free.splice(best,1)[0];invs(d,v.id).push(n);return n};
+ /* 1) each hall gets one invigilator per 20 students, from teachers whose own room is in the same block, women with women and men with men */
+ vs.slice().sort((a,b)=>(a.zone>b.zone?1:-1)||studs(d,b.id)-studs(d,a.id)).forEach(v=>{let g=0;while(free.length&&invs(d,v.id).length<v.need&&g++<60){if(!take(v,true))break}});
+ /* 2) remaining slots from anyone free */
  let guard=0;
  while(free.length&&guard++<500){let any=false;
-  vs.slice().sort((a,b)=>((b.need-invs(d,b.id).length)-(a.need-invs(d,a.id).length))||studs(d,b.id)-studs(d,a.id)).forEach(v=>{if(free.length&&invs(d,v.id).length<v.need){if(take(v))any=true}});
+  vs.slice().sort((a,b)=>((b.need-invs(d,b.id).length)-(a.need-invs(d,a.id).length))||studs(d,b.id)-studs(d,a.id)).forEach(v=>{if(free.length&&invs(d,v.id).length<v.need){if(take(v,false))any=true}});
   if(!any)break}
- const bySt=vs.slice().sort((a,b)=>studs(d,b.id)-studs(d,a.id));let k=0;
- while(free.length&&bySt.length){const v=bySt[k++%bySt.length];if(take(v))v.need=Math.max(v.need,invs(d,v.id).length)}
+ /* 3) everybody invigilates: the rest join the halls of their own block (then the busiest halls) */
+ let g3=0;while(free.length&&vs.length&&g3++<500){const n=free[0];const own=vs.filter(v=>v.zone===homeZone(n)&&!conflictsOf(d,v.id,n).length).sort((a,b)=>{const gm=x=>{const g=gOf(x);return g&&((FEMX(n)?'f':'m')!==g)?1.5:0};return invs(d,a.id).length/Math.max(1,a.need)+gm(a)-invs(d,b.id).length/Math.max(1,b.need)-gm(b)})[0];const v=own||vs.slice().sort((a,b)=>studs(d,b.id)/Math.max(1,invs(d,b.id).length)-studs(d,a.id)/Math.max(1,invs(d,a.id).length))[0];free.shift();if(!conflictsOf(d,v.id,n).length)invs(d,v.id).push(n)}
 }
 function suggest(d,v){
  const used=assignedSet(d),pv=rot?prevInv(d):{};
@@ -4674,7 +4683,7 @@ drawSub=function(E){try{if(!SUBS.__di&&!SUBS.mine&&ROLE==='teacher'&&E.rows&&E.r
 /* ===== ترحيب المعلم وفتح جدوله أولًا ===== */
 (function(){
  const AR={Ahmad:'أحمد',Ahmed:'أحمد',Mohammad:'محمد',Mohamed:'محمد',Muhammed:'محمد',Mohammed:'محمد',Ibrahim:'إبراهيم',Khaled:'خالد',Saleh:'صالح',Mahmoud:'محمود',Hussain:'حسين',Waseem:'وسيم',Tamer:'تامر',Karim:'كريم',Rami:'رامي',Ayman:'أيمن',Majed:'ماجد',Moath:'معاذ',Amro:'عمرو',Abdalla:'عبد الله',Abedalla:'عبد الله',Abdulrahman:'عبد الرحمن',Abdul:'عبد المجيد',Huthaifa:'حذيفة',Rashad:'رشاد',Ragheb:'راغب',Ammar:'عمار',Ezzat:'عزت',Hany:'هاني',Jamal:'جمال',Sobhi:'صبحي',Yazan:'يزن',Furat:'فرات',Feda:'فداء',Mona:'منى',Heba:'هبة',Nada:'ندى',Maha:'مها',Hayat:'حياة',Manar:'منار',Sawsan:'سوسن',Iman:'إيمان',Marwa:'مروة',Dana:'دانة',Sanaa:'سناء',Aysha:'عائشة',Fouzia:'فوزية',Deena:'دينا'};
- const FEM=new Set(['Dana','Heba','Mona','Anjali','Aysha','Fouzia','Iman','Marwa','Hayat','Maha','Sanaa','Nada','Anju','Deena','Manar','Sawsan']);
+ const FEM=new Set(['Dana','Heba','Mona','Anjali','Aysha','Fouzia','Iman','Marwa','Hayat','Maha','Sanaa','Nada','Anju','Deena','Manar','Sawsan']);window.__FEMS=FEM;
  const QS=[['المعلّم الذي يزرع المعرفة اليوم يحصد وطنًا مبدعًا غدًا.','The teacher who plants knowledge today reaps a creative nation tomorrow.'],['أنت لا تدرّس مادة فحسب، بل تصنع عقولًا تقود المستقبل.','You do not just teach a subject — you shape the minds that will lead the future.'],['كل حصة تتقنها لبنةٌ في صرح أجيال الإمارات.','Every lesson you master is a brick in the foundation of the UAE’s generations.'],['بإصرارك تتحوّل الصعوبات إلى إنجازات، وبشغفك تصير الصفوف منصّات إبداع.','With your determination, challenges become achievements; with your passion, classrooms become stages of creativity.'],['رسالتك أعمق من منهج وأبقى من جرس؛ أثرك يعيش في كل طالب.','Your mission runs deeper than a curriculum and outlasts a bell; your impact lives on in every student.'],['العظمة تُصنع في التفاصيل اليومية؛ فابدأ يومك بنيّة تُلهم وعزيمة لا تلين.','Greatness is built in daily details — start your day with an inspiring intention and unyielding resolve.'],['من أشعل شمعة علمٍ في عقل طالب، أنار طريقًا لا ينطفئ نوره.','Whoever lights a candle of knowledge in a student’s mind illuminates a path whose light never fades.'],['اليوم فرصة جديدة لتصنع الفرق؛ فاجعله حكاية نجاح يرويها طلابك.','Today is a new chance to make a difference — make it a success story your students will tell.']];
  const OCCG=[[/عيد الفطر|عيد الأضحى/,'عيد مبارك، كل عام وأنتم بخير 🌙','Eid Mubarak — wishing you a blessed Eid'],[/أول أيام شهر رمضان/,'رمضان مبارك، كل عام وأنتم بخير 🌙','Ramadan Mubarak — may it be a blessed month'],[/رأس السنة الهجرية/,'كل عام وأنتم بخير، وعام هجري سعيد','Happy Islamic New Year'],[/المولد النبوي/,'كل عام وأنتم بخير بمناسبة المولد النبوي الشريف','Wishing you a blessed Prophet’s Birthday'],[/الإسراء والمعراج/,'كل عام وأنتم بخير بذكرى الإسراء والمعراج','Blessings on the anniversary of Isra and Mi’raj'],[/يوم عرفة/,'يوم عرفة مبارك، تقبّل الله طاعاتكم','Blessed Day of Arafah'],[/UAE National Day/,'كل عام والإمارات بخير — عيد وطني مجيد 🇦🇪','Happy UAE National Day 🇦🇪'],[/UAE Flag Day/,'كل عام وأنتم بخير في يوم العلَم 🇦🇪','Happy UAE Flag Day 🇦🇪'],[/Commemoration Day/,'يوم الشهيد — رحم الله شهداء الوطن 🇦🇪','Commemoration Day — honouring our nation’s martyrs'],[/Teachers’ Day/,'كل عام وأنتم بخير في يوم المعلم 🍎','Happy Teachers’ Day — thank you for all you do'],[/New Year’s Day/,'كل عام وأنتم بخير، وعام جديد سعيد','Happy New Year'],[/Emirati Women’s Day/,'كل عام ونساء الإمارات بخير','Happy Emirati Women’s Day'],[/اليوم العالمي للغة العربية/,'كل عام وأنتم بخير في يوم اللغة العربية','Happy Arabic Language Day']];
  const me=()=>{try{return window.__nameHit?names.find(n=>window.__nameHit(n))||'':''}catch(e){return''}};
@@ -4965,7 +4974,7 @@ drawSub=function(E){try{if(!SUBS.__di&&!SUBS.mine&&ROLE==='teacher'&&E.rows&&E.r
   return (AR()?'السادة الزملاء الكرام،\nتحية طيبة وبعد،\n\n':'Dear colleagues,\n\n')+body+'\n'+T('التبديل ضمن الأيام المتبقية من الأسبوع، بلا تعارض مع الحصص الأخرى، ودون زيادة في العبء، ولا تضيع الحصة على الطلاب.','The swap is within the remaining days of this week, with no clash, no extra load, and no lesson lost for the students.')+'\n\n'+T('جدول التبديل:','Swap table:')+'\n'+rows.join('\n')+'\n\n'+T('التقديم والتأخير:','Earlier / later:')+'\n'+mvl.join('\n')+'\n\n'+T('أشكر الزملاء المشمولين في التبديل ('+nm.join('، ')+') على تعاونهم وتفهّمهم.','Many thanks to the teachers involved ('+nm.join(', ')+') for their cooperation.')+'\n'+T('كما أرجو التأكيد على إرسال الغياب إلى الأستاذتين شيخة وعائشة.','Please also make sure the absence is sent to Ms. Sheikha and Ms. Aaesha.')+'\n\n'+T('مع خالص الشكر والتقدير،','With sincere thanks,')+'\n'+(by||'')}
  function xlRows(o){const mv=moveNotes(o);return o.steps.map((s,j)=>({no:j+1,name:s.from,cls:s.l.c,subj:s.l.k,when:DN(s.l.d)+' '+T('الحصة ','P')+s.l.p+(s.l.s>1?'–'+(s.l.p+s.l.s-1):''),time:tmS(s.l),to:s.to,cmt:(mv[s.to]?mv[s.to].m:'')+(mv[s.to]&&mv[s.to].warn?' ⚠ '+T('فارق الفسحة','break difference'):''),note:(mv[s.to]?mv[s.to].m:'')+(mv[s.to]&&mv[s.to].warn?' ⚠ '+T('فارق الفسحة','break difference'):'')}))}
  async function exportXl(o,by){const X=xlRows(o),ppl=new Set(o.steps.map(s=>s.from));const blob=await window.__scXlsxAbs({title:AR()?'طلب تبديل حصص':'Lesson Swap Request',l2:'Applied Technology High School   |   '+(o.kind===2?T('تبديل ثنائي','2-way swap'):T('تبديل ثلاثي','3-way chain')),by:by||'',sum:[T('عدد المعلمين: ','Teachers: ')+ppl.size,T('الحصص: ','Lessons: ')+o.steps.length,T('النطاق: الأيام المتبقية من الأسبوع','Window: rest of this week')],cols:[['no','#',6],['name',T('المعلم (يعطي)','From teacher'),26],['cls',T('الصف','Class'),20],['subj',T('المقرر','Course'),14],['when',T('اليوم والحصة','Day & period'),20],['time',T('الوقت','Time'),16],['to',T('المعلم (يستلم)','To teacher'),26],['note',T('تقديم / تأخير','Earlier / later'),38]],rows:X,note:T('أرجو الموافقة على التبديل أعلاه. أشكر الزملاء المشمولين، وأؤكد إرسال الغياب إلى الأستاذتين شيخة وعائشة.','Please approve the swap above. Thanks to the teachers involved; the absence must be sent to Ms. Sheikha and Ms. Aaesha.')});await window.__dl('Lesson_Swap_'+new Date().toISOString().slice(0,10)+'.xlsx',blob)}
- function exportPdf(o,by){const X=xlRows(o);return window.__tblPdf({title:T('طلب تبديل حصص','Lesson swap request'),sub:'',head:['#',T('المعلم (يعطي)','From'),T('الصف · المقرر','Class · course'),T('اليوم والحصة','Day & period'),T('الوقت','Time'),T('المعلم (يستلم)','To'),T('تقديم / تأخير','Earlier / later')],rows:X.map(r=>({c:[String(r.no),r.name,r.cls+' · '+r.subj,r.when,r.time,r.to,r.note]})),widths:[4,17,18,14,12,17,18]})}
+ function exportPdf(o,by){const X=xlRows(o);return window.__tblPdf({title:T('طلب تبديل حصص','Lesson swap request'),sub:T('أرجو الموافقة على التبديل · الغياب يُرسل إلى الأستاذتين شيخة وعائشة','Approval requested · absence to be sent to Ms. Sheikha and Ms. Aaesha'),head:['#',T('المعلم (يعطي)','From'),T('الصف · المقرر','Class · course'),T('اليوم والحصة','Day & period'),T('الوقت','Time'),T('المعلم (يستلم)','To'),T('تقديم / تأخير','Earlier / later')],rows:X.map(r=>({c:[String(r.no),r.name,r.cls+' · '+r.subj,r.when,r.time,r.to,r.note]})),widths:[4,17,18,14,12,17,18]})}
  function deliver(box,o){const by=who()||T('منسق القسم','Department coordinator');const sec=el('div','swD');sec.append(el('h4','',T('الرسالة والتصدير للخيار المختار','Message and export for the chosen option')));const ta=el('textarea','swM');ta.readOnly=true;ta.value=msgOf(o,by);ta.rows=12;sec.append(ta);const ac=el('div','ocAc');ac.style.margin='8px 0 0';
   const c=el('button','','📋 '+T('نسخ الرسالة','Copy message'));runBtn(c,'',()=>copyTx(ta.value),T('تم النسخ','Copied'));
   const m=el('button','','✉ '+T('فتح في البريد','Open in email'));m.onclick=()=>{const to=[...new Set(o.steps.map(s=>s.from).concat(o.steps.map(s=>s.to)))].map(n=>{try{const a=(window.__emOf&&window.__emOf(n))||[];return String(a.find(x=>/@actvet\.gov\.ae$/i.test(x))||'')}catch(e){return ''}}).filter(Boolean);location.href='mailto:'+to.join(',')+'?cc='+CCM.join(',')+'&subject='+encodeURIComponent(T('طلب موافقة على تبديل حصص','Request for approval: lesson swap'))+'&body='+encodeURIComponent(ta.value)};
@@ -4974,7 +4983,7 @@ drawSub=function(E){try{if(!SUBS.__di&&!SUBS.mine&&ROLE==='teacher'&&E.rows&&E.r
   {const ppl=[...new Set(o.steps.map(s=>s.from))];const sm=el('div','ocT','🔁 '+ppl.join(' ⇄ '));sm.style.fontWeight='800';c.append(sm)}
   o.steps.forEach((s,j)=>{const d=el('div','ocS');d.append(el('span','',(j+1)+'. '),el('b','',s.from),document.createTextNode(' '+T('يعطي حصة','gives')+' '));const bi=el('bdi','',s.l.c+' · '+s.l.k);bi.style.fontWeight='700';d.append(bi,document.createTextNode(' · '+DN(s.l.d)+' '+T('ح','P')+s.l.p+(s.l.s>1?'–'+(s.l.p+s.l.s-1):'')+(tmS(s.l)?' ('+tmS(s.l)+') ':' ')+T('إلى','to')+' '),el('b','',s.to));c.append(d)});
   const mv=moveNotes(o);Object.keys(mv).forEach(n=>{const d=el('div','ocT');d.append(el('span','','👤 '),el('b','',n),el('span','',' — '+mv[n].m));if(mv[n].warn)d.append(el('span','ocTg r',' ⚠ '+T('فارق الفسحة بين العاشر والحادي عشر','Grade 10/11 break difference')));c.append(d)});
-  const b=el('button','swPick',sel?'✔ '+T('الخيار المختار','Chosen'):T('اختر هذا الخيار','Choose this option'));b.onclick=onPick;c.append(b);return c}
+  const b=el('button','swPick',sel?'✔ '+T('الخيار المختار','Chosen'):T('اختر هذا الخيار','Choose this option'));b.onclick=onPick;c.append(b);if(sel){const by=who()||T('منسق القسم','Department coordinator');const ac=el('div','ocAc');ac.style.margin='8px 0 0';const x=el('button','','⬇ Excel');runBtn(x,'',()=>exportXl(o,by));const pf=el('button','','⬇ PDF');runBtn(pf,'',async()=>{const bl=await exportPdf(o,by);await window.__dl('Lesson_Swap_'+new Date().toISOString().slice(0,10)+'.pdf',bl)});ac.append(el('span','ocT','⬇ '+T('تنزيل المقترح','Download proposal')+' '),x,pf);c.append(ac)}return c}
  function swapUI(){W={step:1,dept:'',A:'',day:-1,L1:null,res:[],pick:0,manual:false,mB:'',mL:null,q:''};drawSwap()}
  function drawSwap(){if(!W)return;const labs=[T('القسم','Department'),T('المعلم','Teacher'),T('اليوم','Day'),T('الحصة','Lesson'),T('الخيارات','Options')];
   const b=shell('🔄 '+T('تبديل الحصص بين المعلمين','Lesson swap between teachers'),T('القسم ← المعلم ← اليوم ← الحصة ← خيارات التبديل','Department → Teacher → Day → Lesson → Swap options'));b.classList.add('swz');
@@ -5713,10 +5722,30 @@ tr.mineH td{background:#ecfdf3!important}.mineH .thd b{color:#166534}.mineH .thd
   const keep=seg.filter(p=>!drop(p));
   return keep.length?keep.join(' · '):s;
  }
+ /* global Arabic UI dictionary: when Arabic is chosen every interface word is Arabic (names, course codes and class codes stay as data) */
+ const GXM=new Map([['Mon','الاثنين'],['Tue','الثلاثاء'],['Wed','الأربعاء'],['Thu','الخميس'],['Fri','الجمعة'],['Sat','السبت'],['Sun','الأحد'],
+  ['Open timetable','افتح الجدول'],['Change Colors','تغيير الألوان'],['Colors · Background · Frame','الألوان · الخلفية · الإطار'],['Ras Al Khaimah','رأس الخيمة'],['Applied Technology High School','مدرسة التكنولوجيا التطبيقية'],
+  ['Academic Year 2026–2027 · Term 1','العام الدراسي 2026–2027 · الفصل الأول'],['Academic Year 2026–2027 · Term 2','العام الدراسي 2026–2027 · الفصل الثاني'],['Academic Year 2026–2027 · Term 3','العام الدراسي 2026–2027 · الفصل الثالث'],
+  ['👩‍🏫 I am a Teacher','👩‍🏫 أنا معلم'],['🎓 I am a Student','🎓 أنا طالب'],['Great classrooms are built one lesson at a time.','الفصول المتميّزة تُبنى حصةً بعد حصة.'],
+  ['Sign in / ملفي','تسجيل الدخول / ملفي'],['Sign in','تسجيل الدخول'],['International Day for Tolerance','اليوم الدولي للتسامح'],
+  ['◀ Back','◀ رجوع'],['🏠 Home','🏠 الرئيسية'],['Teachers','المعلمون'],['⬇ Download','⬇ تنزيل'],['✕ Close','✕ إغلاق'],['Teacher','المعلم'],['Subject / Department','المادة / القسم'],['Class / Group','الصف / المجموعة'],['Course Code','رمز المقرر'],['Room','القاعة'],['Text Search','بحث نصي'],['Grade Level','المستوى الدراسي'],['⭐ Leaders only','⭐ القادة فقط'],['Days','الأيام'],
+  ['Monday','الاثنين'],['Tuesday','الثلاثاء'],['Wednesday','الأربعاء'],['Thursday','الخميس'],['Friday','الجمعة'],['Reset Filters ↺','إعادة ضبط المرشحات ↺'],['Regular Timing','التوقيت العادي'],['🌙 Ramadan 1447','🌙 رمضان 1447'],['📚 Sequential list: ON','📚 القائمة المتسلسلة: مفعّلة'],['📚 Sequential list: OFF','📚 القائمة المتسلسلة: متوقفة'],['⏰ Period bell','⏰ جرس الحصص'],['⚙ More: sounds & message','⚙ المزيد: الأصوات والرسالة'],['▶ Start','▶ ابدأ'],['⏹ End','⏹ انتهى'],['Focus ⤢','تركيز ⤢'],['Period','الحصة'],['Periods 1–4','الحصص 1–4'],['Mon–Thu','الاثنين–الخميس'],
+  ['Timings','الأوقات'],['Period timing','توقيت الحصص'],['Ramadan timing','توقيت رمضان'],['Zero period','الحصة الصفرية'],['Period timing, Ramadan timing and Zero Period in one place','توقيت الحصص ورمضان والحصة الصفرية في مكان واحد'],['▶ Show teacher timetables with this timing','▶ اعرض جداول المعلمين بهذا التوقيت'],['Grades 9–10','الصفان 9–10'],['Grades 11–12','الصفان 11–12'],['Monday – Thursday','الاثنين – الخميس'],['Timing','التوقيت'],['Duration','المدة'],['Break','الفسحة'],['Break 1','الفسحة 1'],['Break 2','الفسحة 2'],
+  ['Open the guide to learn how this page works in a minute','افتح الدليل لتتعرّف على هذه الصفحة في دقيقة'],['Your timetable, your day — organised, clear and always at hand.','جدولك ويومك — منظّم وواضح وفي متناول يدك.'],
+  ['National Charter','الميثاق الوطني'],['🏛️ THIS WEEK','🏛️ هذا الأسبوع'],['🏛️ NEXT CHARTER WEEK','🏛️ أسبوع الميثاق القادم'],['📅 Open the calendar','📅 افتح التقويم'],['📻 Morning broadcast','📻 الإذاعة الصباحية'],['Charter elements:','عناصر الميثاق:'],['All','الكل'],['Completed','منتهٍ'],['Now','الآن'],['Upcoming','قادم'],['💬 Messages shown on the interface during this week','💬 رسائل تظهر على الواجهة خلال هذا الأسبوع'],
+  ['Open the National Charter ▸','افتح الميثاق الوطني ▸'],['Open the Charter','افتح الميثاق'],['Close','إغلاق']]);
+ const MON=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],MEN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ const GXR=[[/^(\d+) min$/,'$1 دقيقة'],[/^Period (\d+)$/,'الحصة $1'],[/^Periods (\d+)[–-](\d+)$/,'الحصص $1–$2'],[/^Lessons: (\d+) · Periods: (\d+)$/,'الدروس: $1 · الحصص: $2'],[/^(\d+) teachers? match(?:es)? the filters$/,'$1 معلمًا يطابقون المرشحات'],[/^· Runs until (.+)$/,'· يستمر حتى $1'],[/^Runs until (.+)$/,'يستمر حتى $1'],[/^Starts in (\d+) days?$/,'يبدأ بعد $1 يوم'],[/^🏛️ Charter week: (.+)$/,'🏛️ أسبوع الميثاق: $1'],[/^G(\d+)[–-](\d+) · Break (\d?) ?· (.+)$/,'الصفوف $1–$2 · الفسحة $3 · $4'],[/^Mon (\d+) ([A-Z][a-z]{2})( · UAE)?$/,(m,d,mo,u)=>'الاثنين '+d+' '+MON[MEN.indexOf(mo)]+(u?' · الإمارات':'')],
+  [/^القادم: Period (\d+) Time (.+?) — 🔊 tap anywhere once to enable the bell$/,'القادم: الحصة $1 الساعة $2 — 🔊 المس الشاشة مرة واحدة لتفعيل الجرس']];
+ function gx(s){if(UL!=='ar'||!s||!LT.test(s))return s;const t=s.trim();if(!t)return s;const lead=s.slice(0,s.indexOf(t)),tail=s.slice(s.indexOf(t)+t.length);
+  let r=GXM.get(t);if(r!==undefined)return lead+r+tail;
+  for(const [rg,rp] of GXR){if(rg.test(t))return lead+t.replace(rg,rp)+tail}
+  let o=t;o=o.replace(/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g,(m,d,mo)=>d+' '+MON[MEN.indexOf(mo)]);o=o.replace(/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/g,m=>GXM.get(m));o=o.replace(/\bSept\b/,'سبتمبر');
+  return o===t?s:lead+o+tail}
  const SKIP=/^(SCRIPT|STYLE|TEXTAREA|INPUT|NOSCRIPT)$/;
  const DN=new WeakMap(),DA=new WeakMap(),DO=new WeakMap(),HID=new Set();
- function tx(n){if(DN.get(n)===n.data)return;try{if(n.parentNode&&n.parentNode.closest&&n.parentNode.closest('.noUL'))return}catch(e){}DO.set(n,n.data);let o=conv(n.data);o=sd(o,n);if(o!==n.data)n.data=o;DN.set(n,n.data)}
- function attrs(e){try{let m=DA.get(e);if(!m){m={};DA.set(e,m)}for(const a of ['title','placeholder','aria-label']){const v=e.getAttribute&&e.getAttribute(a);if(v&&m[a]!==v){m['o_'+a]=v;let o=conv(v);o=sd(o,e);if(o!==v)e.setAttribute(a,o);m[a]=o}}}catch(x){}}
+ function tx(n){if(DN.get(n)===n.data)return;try{if(n.parentNode&&n.parentNode.closest&&n.parentNode.closest('.noUL'))return}catch(e){}DO.set(n,n.data);let o=conv(n.data);o=sd(o,n);o=gx(o);if(o!==n.data)n.data=o;DN.set(n,n.data)}
+ function attrs(e){try{let m=DA.get(e);if(!m){m={};DA.set(e,m)}for(const a of ['title','placeholder','aria-label']){const v=e.getAttribute&&e.getAttribute(a);if(v&&m[a]!==v){m['o_'+a]=v;let o=conv(v);o=sd(o,e);o=gx(o);if(o!==v)e.setAttribute(a,o);m[a]=o}}}catch(x){}}
  function walk(root){
   try{
    if(root.nodeType===1){attrs(root);if(root.querySelectorAll)root.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(attrs)}
@@ -5979,6 +6008,7 @@ fab.onclick=goDuty;
  ];
  const TN={1:['الفصل الدراسي الأول','Term 1'],2:['الفصل الدراسي الثاني','Term 2'],3:['الفصل الدراسي الثالث','Term 3']};
  const iso=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai'}).format(new Date());
+ const CA=()=>window.__UL!=='en';
  const dd=(a,b)=>Math.round((new Date(b+'T12:00:00Z')-new Date(a+'T12:00:00Z'))/864e5);
  const weekOn=d=>W.find(w=>w.s<=d&&d<=w.e);
  const nextW=d=>W.find(w=>w.s>d);
@@ -6010,37 +6040,37 @@ fab.onclick=goDuty;
  setTimeout(show,700);setInterval(show,600000);
  function mini(){const m=document.getElementById('chMini');if(!m)return;const d=iso(),w=weekOn(d),nx=!w&&nextW(d),t=w||(nx&&dd(d,nx.s)<=7?nx:null);
   if(!t){m.hidden=true;return}const q=w?dayMsg(w,d):null,n=dd(d,t.s);
-  m.innerHTML='<span class="chTag">🏛️ National Charter · الميثاق الوطني</span> <b>'+t.en+' · '+t.ar+'</b>'+(w?'':' <small>(in '+n+' day'+(n>1?'s':'')+')</small>')+(q?'<div class="cmA">'+q[0]+'</div><div class="cmE">'+q[1]+'</div>':'');
+  m.innerHTML='<span class="chTag">🏛️ '+(CA()?'الميثاق الوطني':'National Charter')+'</span> <b>'+(CA()?t.ar:t.en)+'</b>'+(w?'':' <small>('+(CA()?'بعد '+n+' يوم':'in '+n+' day'+(n>1?'s':''))+')</small>')+(q?'<div class="cmA">'+q[0]+'</div><div class="cmE">'+q[1]+'</div>':'');
   m.title='Open the National Charter';m.hidden=false;m.onclick=()=>showView('charter')}
- window.__chLine=()=>{const d=iso(),w=weekOn(d),nx=!w&&nextW(d);if(w)return'<span>🏛️ Charter week: '+w.en+'</span>';if(nx&&dd(d,nx.s)<=7)return'<span>🏛️ Charter: '+nx.en+' in '+dd(d,nx.s)+' day'+(dd(d,nx.s)>1?'s':'')+'</span>';return''};
+ window.__chLine=()=>{const d=iso(),w=weekOn(d),nx=!w&&nextW(d);if(w)return'<span>🏛️ '+(CA()?'أسبوع الميثاق: '+w.ar:'Charter week: '+w.en)+'</span>';if(nx&&dd(d,nx.s)<=7)return'<span>🏛️ '+(CA()?'الميثاق: '+nx.ar+' بعد '+dd(d,nx.s)+' يوم':'Charter: '+nx.en+' in '+dd(d,nx.s)+' day'+(dd(d,nx.s)>1?'s':''))+'</span>';return''};
  if(window.__occHead)window.__occHead();setInterval(()=>{mini()},3600000);
  /* radio card */
  function radio(){const r=document.getElementById('v_radio');if(!r)return;let c=document.getElementById('chRad');if(!c){c=document.createElement('div');c.id='chRad';const b=r.querySelector('.vban');if(b)b.after(c);else r.prepend(c)}
   const d=iso(),w=weekOn(d)||nextW(d);if(!w){c.style.display='none';return}const on=weekOn(d)===w;
-  c.style.display='';c.innerHTML='<span class="chTag">🏛️ National Charter</span> <b>'+(on?'This week: ':'Next charter week: ')+w.en+' · '+w.ar+'</b> ('+rngT(w)+')<br>'+
-   'Suggested broadcast focus — '+w.el.map(k=>EL[k][1]+' / '+EL[k][0]).join(' · ')+' <button class="btn sm" id="chRadGo">Open the Charter</button>';
+  c.style.display='';c.innerHTML='<span class="chTag">🏛️ National Charter</span> <b>'+(CA()?(on?'هذا الأسبوع: ':'أسبوع الميثاق القادم: ')+w.ar:(on?'This week: ':'Next charter week: ')+w.en)+'</b> ('+rngT(w)+')<br>'+
+   (CA()?'محور الإذاعة المقترح — ':'Suggested broadcast focus — ')+w.el.map(k=>EL[k][CA()?0:1]).join(' · ')+' <button class="btn sm" id="chRadGo">'+(CA()?'افتح الميثاق':'Open the Charter')+'</button>';
   document.getElementById('chRadGo').onclick=()=>showView('charter')}
  /* charter view */
  const root=document.getElementById('chRoot');let FIL='';
  function draw(){if(!root)return;const d=iso(),cur=weekOn(d),nx=nextW(d),hw=cur||nx;root.innerHTML='';
   if(hw){const hero=document.createElement('div');hero.className='chHero';const left=cur?'Runs until '+fmt(cur.e):'Starts in '+dd(d,nx.s)+' day'+(dd(d,nx.s)>1?'s':'');
-   hero.innerHTML='<span class="chTag">🏛️ '+(cur?'THIS WEEK':'NEXT CHARTER WEEK')+'</span><h3>'+hw.en+' <span class="ar">· '+hw.ar+'</span></h3><div><b>'+rngT(hw)+'</b> · '+left+'</div>'+
-    '<p>'+hw.de+'</p><p class="ar" style="direction:rtl">'+hw.da+'</p><div class="cgE" style="display:flex;gap:6px;flex-wrap:wrap">'+hw.el.map(k=>'<span class="chEl">'+EL[k][0]+' · '+EL[k][1]+'</span>').join('')+'</div>'+
+   hero.innerHTML='<span class="chTag">🏛️ '+(cur?'THIS WEEK':'NEXT CHARTER WEEK')+'</span><h3>'+(CA()?hw.ar:hw.en)+'</h3><div><b>'+rngT(hw)+'</b> · '+left+'</div>'+
+    '<p'+(CA()?' class="ar" style="direction:rtl"':'')+'>'+(CA()?hw.da:hw.de)+'</p><div class="cgE" style="display:flex;gap:6px;flex-wrap:wrap">'+hw.el.map(k=>'<span class="chEl">'+EL[k][CA()?0:1]+'</span>').join('')+'</div>'+
     '<div class="bt"><button class="btn" id="chCal">📅 Open the calendar</button><button class="btn" id="chRd">📻 Morning broadcast</button></div>';
    root.append(hero);hero.querySelector('#chCal').onclick=()=>{if(window.__occOpen)window.__occOpen()};hero.querySelector('#chRd').onclick=()=>showView('radio')}
-  const fl=document.createElement('div');fl.className='chFil';fl.append(Object.assign(document.createElement('b'),{textContent:'Charter elements: '}));
+  const fl=document.createElement('div');fl.className='chFil';fl.append(Object.assign(document.createElement('b'),{textContent:CA()?'عناصر الميثاق: ':'Charter elements: '}));
   const all=Object.keys(EL).filter(k=>W.some(w=>w.el.includes(k)));
   const mk=(k,l)=>{const b=document.createElement('button');b.className='chip'+(FIL===k?' on':'');b.textContent=l;b.onclick=()=>{FIL=FIL===k?'':k;draw()};fl.append(b)};
-  mk('','All');all.forEach(k=>mk(k,EL[k][1]+' · '+EL[k][0]));root.append(fl);
+  mk('',CA()?'الكل':'All');all.forEach(k=>mk(k,EL[k][CA()?0:1]));root.append(fl);
   const g=document.createElement('div');g.className='chTerms';
-  [1,2,3].forEach(t=>{const col=document.createElement('div');col.className='chTerm';col.innerHTML='<h4>'+TN[t][1]+' · '+TN[t][0]+'</h4>';
+  [1,2,3].forEach(t=>{const col=document.createElement('div');col.className='chTerm';col.innerHTML='<h4>'+TN[t][CA()?0:1]+'</h4>';
    W.filter(w=>w.t===t).forEach(w=>{const st=w===cur?['Now','now']:w.e<d?['Completed','']:['Upcoming','nx'];const x=document.createElement('div');x.className='chW'+(w===cur?' now':w.e<d?' done':'')+((FIL&&!w.el.includes(FIL))?' dim':'');
     if(FIL&&!w.el.includes(FIL))x.style.opacity='.3';
-    x.innerHTML='<div class="hd"><b>'+w.en+' <span class="ar">· '+w.ar+'</span></b><span class="st '+st[1]+'">'+st[0]+'</span></div><div class="dt">📅 '+rngT(w)+'</div><p>'+w.de+'</p><p class="ar" style="direction:rtl">'+w.da+'</p>'+
-     '<div class="els">'+w.el.map(k=>'<span class="chEl'+(FIL===k?' on':'')+'">'+EL[k][1]+' · '+EL[k][0]+'</span>').join('')+'</div>'+
-     '<details class="chMsgs"><summary>💬 Messages shown on the interface during this week</summary>'+w.m.map(m=>'<p>• '+m[1]+'<br><span class="ar" style="direction:rtl;display:block">'+m[0]+'</span></p>').join('')+'</details>';
+    x.innerHTML='<div class="hd"><b>'+(CA()?w.ar:w.en)+'</b><span class="st '+st[1]+'">'+st[0]+'</span></div><div class="dt">📅 '+rngT(w)+'</div><p'+(CA()?' class="ar" style="direction:rtl"':'')+'>'+(CA()?w.da:w.de)+'</p>'+
+     '<div class="els">'+w.el.map(k=>'<span class="chEl'+(FIL===k?' on':'')+'">'+EL[k][CA()?0:1]+'</span>').join('')+'</div>'+
+     '<details class="chMsgs"><summary>💬 '+(CA()?'رسائل تظهر على الواجهة خلال هذا الأسبوع':'Messages shown on the interface during this week')+'</summary>'+w.m.map(m=>'<p'+(CA()?' class="ar" style="direction:rtl"':'')+'>• '+(CA()?m[0]:m[1])+'</p>').join('')+'</details>';
     col.append(x)});g.append(col)});root.append(g);
-  const n=document.createElement('p');n.style.cssText='font-size:12px;opacity:.75;margin-top:10px';n.textContent='Source: Charter Weeks 2026–2027 (AR/EN). Charter weeks also appear in the occasions calendar and the Morning Broadcast schedule, and their messages carry the “National Charter programme” tag.';root.append(n)}
+  const n=document.createElement('p');n.style.cssText='font-size:12px;opacity:.75;margin-top:10px';n.textContent=CA()?'المصدر: أسابيع الميثاق 2026–2027. تظهر أسابيع الميثاق أيضًا في تقويم المناسبات وجدول الإذاعة الصباحية، وتحمل رسائلها وسم «برنامج الميثاق الوطني».':'Source: Charter Weeks 2026–2027. Charter weeks also appear in the occasions calendar and the Morning Broadcast schedule, and their messages carry the “National Charter programme” tag.';root.append(n)}
  const sv=showView;showView=function(id){sv(id);if(id==='charter')draw();if(id==='radio')radio()};
  draw();radio();setInterval(()=>{if(root&&!root.closest('.view').hidden)draw();radio()},60000);
  window.__chShow=show;
