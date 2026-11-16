@@ -10,7 +10,7 @@ const escH=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 let save={};try{save=JSON.parse(localStorage.getItem('tt')||'{}')}catch(e){}
 let ROLE='',TMAIL='';try{ROLE=sessionStorage.getItem('tt_role')||'';TMAIL=sessionStorage.getItem('tt_mail')||''}catch(e){}
 /* administration team: the only accounts that can edit exam invigilation, substitutions, meetings, Zero Period and the other schedules */
-const ADMINMAIL=['mohammad.salamin@actvet.gov.ae','hatem.hamdeh','hatem.talal','naser.alashab','fahad.almansoori','ahmad.debek','tamer.ahmed','furat.jasim','abedalla.banihani','waseem.alhausani','mohammad.salamin','mahmoud.yousef','anjali.rajan'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
+const ADMINMAIL=['mohammad.salamin'+'@actvet.gov.ae','hatem.hamdeh','hatem.talal','naser.alashab','fahad.almansoori','ahmad.debek','tamer.ahmed','furat.jasim','abedalla.banihani','waseem.alhausani','mohammad.salamin','mahmoud.yousef','anjali.rajan'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
 let MGR=ROLE==='teacher'&&ADMINMAIL.includes((TMAIL||'').toLowerCase());
 /* the authorized-teachers list is visible only to the 16 named coordinators (screen button and page) */
 const SALMAIL=['naser.alashab','hatem.hamdeh','hatem.talal','ahmad.debek','tamer.ahmed','abdullah.abbas','abedalla.banihani','furat.jasim','alia.omran','aaesha.alnuaimi','heba.alshehhi','badryya.alshehhi','kalthoom.alkhatri','mohammad.salamin','khawla.alnaqbi','easa.ebrahimouh','fahad.almansoori'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
@@ -36,6 +36,11 @@ const NOTE_TXT={
  zero:{t:'Zero Period | الحصة الصفرية',en:'Dear colleague, you are listed in the Zero Period schedule. Please review the details in '+NOTE_APP+'. Thank you for your cooperation.',ar:'زميلي العزيز، أنت مسجَّل في جدول الحصة الصفرية. يرجى مراجعة التفاصيل في '+NOTE_APP+'. شكرًا لتعاونك.'},
  radio:{t:'Morning broadcast schedule updated | تحديث جدول الإذاعة الصباحية',en:'Dear colleague, the morning broadcast schedule has been updated and you are listed as the teacher in charge. Please review the latest details in '+NOTE_APP+'. Thank you for your cooperation.',ar:'زميلي العزيز، تم تحديث جدول الإذاعة الصباحية وأنت مسجَّل كمعلم مسؤول. يرجى مراجعة آخر التفاصيل في '+NOTE_APP+'. شكرًا لتعاونك.'},
  occ:{t:'Substitution schedule updated | تحديث جدول الإشغال',en:'Dear colleague, the substitution schedule has been updated, and the change may affect your assigned duties. Please review the latest details in '+NOTE_APP+'. Thank you for your cooperation.',ar:'زميلي العزيز، تم تحديث جدول الإشغال، وقد يؤثر هذا التغيير على مهامك المكلَّف بها. يرجى مراجعة آخر التفاصيل في '+NOTE_APP+'. شكرًا لتعاونك.'}};
+/* e-mail the same alert to each concerned teacher's school mailbox (only when the mail relay / Microsoft sign-in is configured) */
+window.__mailNotes=async function(list){try{if(!window.__sendMail||!list||!list.length)return 0;let n=0;const sent=new Set();
+ for(const a of list){const lines=(a.lines||[]).map(x=>'• '+x).join('\n');const body=(a.ar||'')+'\n\n'+(a.text||'')+(lines?'\n\n'+lines:'')+'\n\n— ATS Schedule Center · مركز جداول ATS';
+  for(const e of (a.emails||[])){const m=String(e).toLowerCase();if(!/@actvet\.gov\.ae$/.test(m)||sent.has(m+a.id))continue;sent.add(m+a.id);try{await window.__sendMail({to:[m],subject:(a.title||'ATS')+' · إشعار من مركز الجداول',body});n++}catch(x){}}}
+ return n}catch(e){return 0}};
 function mkNote(kind,sched,names,lines){const m=NOTE_TXT[kind];return{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts:Date.now(),names,kind,sched,view:sched==='sub'?'sub':sched==='radio'?'radio':sched==='zero'?'zero':'exam',title:m.t,text:m.en,ar:m.ar,lines:(lines||[]).slice(0,6),emails:(names||[]).flatMap(n=>{try{return window.__emOf?window.__emOf(n):[]}catch(e){return[]}})}}
 /* asks the person who prepared a schedule whether the affected teachers should really be notified; nothing is sent unless they say yes */
 window.__dl=async function(name,blob){if(/\.xlsx$/i.test(name)&&window.__brandX)try{blob=await window.__brandX(blob)}catch(e){}let d=null;try{if(window.claude&&claude.use)d=await claude.use('downloads')}catch(e){}
@@ -2287,10 +2292,10 @@ function examDiff(prevKeys,prevSig,cur,sigOf){const P={},C={},put=(M,n,did,sg)=>
   if(!ps.length&&cs.length){types.add('add');cs.forEach(g=>lines.push('➕ '+sigLine(g)))}else if(ps.length&&!cs.length){types.add('rem');ps.forEach(g=>lines.push('✖ '+(sigLine(g)||'previous assignment')))}else if(a!==b){types.add('chg');cs.forEach(g=>lines.push('✎ '+sigLine(g)))}});
   if(types.size)out.push({n,kind:types.size===1&&types.has('add')?'assign':types.size===1&&types.has('rem')?'cancel':'change',lines})});return out}
 async function sendExamNotes(diff){if(!EDB||!diff||!diff.length)return 0;const al0=diff.map(x=>mkNote(x.kind,'exam',[x.n],x.lines));
- const cur=await EDB.doc('coord/alerts').get();const old=cur.exists&&Array.isArray(cur.data().list)?cur.data().list:[];const al=dedupeNotes(old,al0);if(!al.length)return 0;await EDB.doc('coord/alerts').set({list:[...old,...al].slice(-300)});return al.length}
+ const cur=await EDB.doc('coord/alerts').get();const old=cur.exists&&Array.isArray(cur.data().list)?cur.data().list:[];const al=dedupeNotes(old,al0);if(!al.length)return 0;await EDB.doc('coord/alerts').set({list:[...old,...al].slice(-300)});window.__mailNotes(al);return al.length}
 async function sendExamAlerts(fresh){if(!EDB||!fresh.length)return 0;const G={};fresh.forEach(f=>{const k=f.n+'|'+f.d.id;(G[k]||(G[k]={n:f.n,d:f.d,h:[]})).h.push(f.v)});
  const al=Object.values(G).map(g=>({id:newId(),ts:Date.now(),names:[g.n],text:'📝 Exam invigilation: you are assigned on '+((g.d.date&&['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(g.d.date+'T12:00:00Z').getUTCDay()])||'')+' '+(g.d.date||'')+' · '+g.h.map(v=>{const[a,b]=vInt(g.d,v.id);return v.name+' ('+hm(a)+'–'+hm(b)+')'}).join(' + ')+(g.d.title?' — '+g.d.title:'')+'.'}));
- const cur=await EDB.doc('coord/alerts').get();const old=cur.exists&&Array.isArray(cur.data().list)?cur.data().list:[];await EDB.doc('coord/alerts').set({list:[...old,...al].slice(-200)});return al.length}
+ const cur=await EDB.doc('coord/alerts').get();const old=cur.exists&&Array.isArray(cur.data().list)?cur.data().list:[];await EDB.doc('coord/alerts').set({list:[...old,...al].slice(-200)});window.__mailNotes(al);return al.length}
 function rosterAssign(d){const {list}=rosterParse(),out=[];if(!list.length)return['⚠ Add at least one invigilator name first.'];
  const skipped=[];let free=list.filter(n=>{const w=rosterOk(d,n);if(w)skipped.push(n+' ('+w+')');return !w});const C=RS.cons;if(C)free=free.filter(n=>!C.exclude.includes(n)||(skipped.push(n+' (excluded by your instructions)'),false));
  const T=rosterTargets(d);if(!T.length)return['⚠ No halls with sections on this day'+(RS.teachOnly?' match the teacher-invigilated halls of the Excel plan. Load the Excel halls first (Bulk setup), or untick “Only halls the Excel plan staffs with teachers”.':'.')];
@@ -3256,7 +3261,7 @@ function wireAv(){const b=$('avb');if(!b)return;const n=F.t;
      rows.filter(r=>r.absent&&r.per&&r.date&&ds.has(r.date)).forEach(r=>{const g=gOf(TDEPT[r.absent]||'na');(M[g]=M[g]||[]).push(r)});
      const ord=GROUPS.map(z=>z[0]).filter(Boolean);return Object.keys(M).sort((a,b)=>(a===mg?-1:b===mg?1:ord.indexOf(a)-ord.indexOf(b))).map(g=>({k:g,name:(GROUPS.find(z=>z[0]===g)||[0,'Other staff'])[1],rows:M[g],mine:g===mg}))}))){SEEN.subSeen=Date.now()+1;persist();E.msg('✔ Saved — no notification was sent (your choice)');return}
    const al2=dedupeNotes(old2,window.__selNotes(al));if(!al2.length){SEEN.subSeen=Date.now()+1;persist();E.msg('✔ Saved — the same notification was already sent, so nothing was repeated');return}
-   await db.doc('coord/alerts').set({list:[...old2,...al2].slice(-300)});
+   await db.doc('coord/alerts').set({list:[...old2,...al2].slice(-300)});window.__mailNotes(al2);
    SEEN.subSeen=Date.now()+1;persist();
    E.msg('✔ Saved — notification sent to: '+[...new Set(al2.flatMap(a=>a.names))].join(', '))}catch(e){E.msg('Saved, but the notification could not be sent')}
  };
@@ -3275,7 +3280,7 @@ function wireAv(){const b=$('avb');if(!b)return;const n=F.t;
   e0.msg('✔ Saved — waiting for your confirmation before notifying');
   if(!(await window.__askNotify(nm,'الإذاعة الصباحية'))){e0.msg('✔ Saved — no notification was sent (your choice)');return}
   try{const cur=await EDB.doc('coord/alerts').get(),o=cur.exists&&Array.isArray(cur.data().list)?cur.data().list:[];
-   const al3=dedupeNotes(o,window.__selNames(nm).map(n=>mkNote('radio','radio',[n],M[n])));if(!al3.length){e0.msg('✔ Saved — the same notification was already sent, so nothing was repeated');return}await EDB.doc('coord/alerts').set({list:[...o,...al3].slice(-300)});e0.msg('✔ Saved — notification sent to: '+al3.flatMap(a=>a.names).join(', '))}catch(x){e0.msg('Saved, but the notification could not be sent')}}
+   const al3=dedupeNotes(o,window.__selNames(nm).map(n=>mkNote('radio','radio',[n],M[n])));if(!al3.length){e0.msg('✔ Saved — the same notification was already sent, so nothing was repeated');return}await EDB.doc('coord/alerts').set({list:[...o,...al3].slice(-300)});window.__mailNotes(al3);e0.msg('✔ Saved — notification sent to: '+al3.flatMap(a=>a.names).join(', '))}catch(x){e0.msg('Saved, but the notification could not be sent')}}
 })();
 
 /* ===== DEPARTMENT MEETING ===== */
@@ -3823,7 +3828,7 @@ function drawZero(E){if(typeof ZP==='undefined')return;const box=$('t_zero'),q=$
   if($('zaAnnOff'))$('zaAnnOff').onclick=()=>{ZCFG.ann=null;msg='Banner hidden';sv();try{window.__zeroAnn&&window.__zeroAnn()}catch(e){}panel()};
   $('zaNtf').onclick=async()=>{const nm=[...new Set(zS().map(r=>r[3]).filter(Boolean))];if(!nm.length){msg='⚠ No teachers are named in the Zero Period schedule.';panel();return}
    if(!(await window.__askNotify(nm,'الحصة الصفرية'))){msg='No notification was sent (your choice)';panel();return}
-   try{if(!db)throw 0;const cur=await db.doc('coord/alerts').get(),o=cur.exists&&Array.isArray(cur.data().list)?cur.data().list:[];const iso=$('zaAnnD').value;const al=dedupeNotes(o,window.__selNames(nm).map(n=>mkNote('zero','zero',[n],[iso?'📅 '+iso+' · '+ZCFG.t.s+'–'+ZCFG.t.e:''])));if(!al.length){msg='✔ The same notification was already sent';panel();return}await db.doc('coord/alerts').set({list:[...o,...al].slice(-300)});msg='✔ Notification sent to: '+al.flatMap(a=>a.names).join(', ')}catch(e){msg='⚠ The notification could not be sent'}panel()};
+   try{if(!db)throw 0;const cur=await db.doc('coord/alerts').get(),o=cur.exists&&Array.isArray(cur.data().list)?cur.data().list:[];const iso=$('zaAnnD').value;const al=dedupeNotes(o,window.__selNames(nm).map(n=>mkNote('zero','zero',[n],[iso?'📅 '+iso+' · '+ZCFG.t.s+'–'+ZCFG.t.e:''])));if(!al.length){msg='✔ The same notification was already sent';panel();return}await db.doc('coord/alerts').set({list:[...o,...al].slice(-300)});window.__mailNotes(al);msg='✔ Notification sent to: '+al.flatMap(a=>a.names).join(', ')}catch(e){msg='⚠ The notification could not be sent'}panel()};
   $('zaOn').onclick=()=>{if(dv()){ZCFG.act[dv()]=true;sv();redraw();try{tick()}catch(e){}}};
   $('zaOff').onclick=()=>{if(dv()){ZCFG.act[dv()]=false;sv();redraw();try{tick()}catch(e){}}};
   $('zaS').onchange=$('zaE').onchange=()=>{ZCFG.t={s:$('zaS').value||'10:30',e:$('zaE').value||'11:10'};sv();redraw()};
