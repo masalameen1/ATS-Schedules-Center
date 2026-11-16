@@ -2880,3 +2880,13 @@ html body>.shell,html body>.wrap{width:100%}
 .exSm .btn{min-height:40px;padding:8px 14px;border-radius:12px;font-size:.92em;width:auto;flex:0 1 auto}
 #tcard .tdSeg .tdSg:first-child.on{background:linear-gradient(180deg,#22c55e,#15803d);color:#fff}
 #tcard .tdSeg .tdSg{font-size:1.05em;padding:13px 10px}
+
+/* this term's exam days: suggested plan, approve or edit */
+.finPn{border:1px solid #dbe3ee;border-radius:18px;background:#fff;padding:6px 14px 14px;margin:0 0 16px}
+.finPn>summary{cursor:pointer;font-weight:800;padding:12px 2px;color:#1e3a8a;font-size:1.02em}
+.finL{display:grid;gap:10px}
+.finR{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border:1px solid #e2e8f0;border-radius:14px;padding:12px 14px;background:#f8fafc}
+.finR.new{border-color:#fcd34d;background:#fffbeb}.finR.chg{border-color:#93c5fd;background:#eff6ff}.finR.ok{border-color:#86efac;background:#f0fdf4}
+.finT{display:grid;gap:2px;flex:1 1 260px}.finT b{font-size:1.02em}.finS{color:#334155;font-size:.92em}.finI{color:#64748b}
+.finA{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.finB{font-weight:800;font-size:.85em;border-radius:999px;padding:4px 10px}.finB.new{background:#fef3c7;color:#92400e}.finB.chg{background:#dbeafe;color:#1e40af}.finB.ok{background:#dcfce7;color:#166534}
