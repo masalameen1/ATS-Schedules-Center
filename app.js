@@ -5280,7 +5280,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  /* entry button for authorised users */
  setInterval(()=>{try{const old=document.querySelector('#homec #absBtn');if(old)old.remove()}catch(e){}},1500);
  window.__absCan=canAbs;window.__absCmt=cmtOK;
- const SEE=['heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae','hatem.talal@actvet.gov.ae','mohammad.salamin@actvet.gov.ae'];window.__absSee=()=>ROLE!=='student'&&(SEE.includes(em())||isOwn()||canAbs());
+ const SEE=['heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae','hatem.talal@actvet.gov.ae','mohammad.salamin@actvet.gov.ae'];window.__absSee=()=>ROLE!=='student'&&(SEE.includes(em())||isOwn()||canAbs()||isAuth8());
 })();
 /* ===== school logo on every page ===== */
 (function(){const src=()=>((document.querySelector('header.top .logo img')||{}).src||'');
