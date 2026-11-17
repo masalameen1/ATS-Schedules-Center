@@ -4638,8 +4638,15 @@ drawSub=function(E){try{if(!SUBS.__di&&!SUBS.mine&&ROLE==='teacher'&&E.rows&&E.r
    const ab=[...new Set(E.rows.filter(x=>x.date===date&&x.absent).map(x=>x.absent))];(cur.ab||[]).forEach(n=>{if(!ab.includes(n))ab.push(n)});if(!ab.includes(absent))ab.push(absent);
    ab.forEach(n=>{const b=h('button','chip'+(n===absent?' on':''),n);b.type='button';b.onclick=()=>{if(n!==absent)openDay(E,date,n,false)};sp.append(b)});
    if(SUBOK){const dl=h('datalist');dl.id='dyAbDl';names.slice().sort().forEach(n=>{if(!ab.includes(n)){const o=h('option');o.value=n;dl.append(o)}});
-    const ip=h('input','dyAbIn');ip.setAttribute('list','dyAbDl');ip.placeholder='➕ معلم غائب آخر في نفس اليوم · Add another absent teacher…';
-    const go=()=>{const v=ip.value.trim();if(v&&names.includes(v))openDay(E,date,v,true)};ip.onchange=go;sp.append(ip,dl)}
+    const ip=h('input','dyAbIn');ip.type='search';ip.autocomplete='off';ip.placeholder='🔍 ➕ ابحث عن معلم غائب آخر في نفس اليوم · Search & add another absent teacher…';
+    const go=()=>{const v=ip.value.trim();if(v&&names.includes(v))openDay(E,date,v,true)};
+    {let pp=null;const cl=()=>{if(pp){pp.remove();pp=null}};
+     const op=()=>{cl();const t=ip.value.trim().toLowerCase(),L=names.slice().sort().filter(n=>!ab.includes(n)&&(!t||n.toLowerCase().includes(t)));if(!L.length)return;
+      const p=h('div','gsP noUL');p.dir='ltr';L.forEach(n=>{const d=h('div','');const a=h('span','gsN',n);d.append(a);d.onmousedown=e=>{e.preventDefault();cl();ip.value=n;go()};p.append(d)});
+      document.body.append(p);pp=p;const r=ip.getBoundingClientRect();p.style.minWidth=Math.max(280,r.width)+'px';p.style.left=Math.min(Math.max(8,r.left),Math.max(8,innerWidth-p.offsetWidth-8))+'px';p.style.top=(r.bottom+6)+'px';p.style.maxHeight=Math.max(160,Math.min(360,innerHeight-r.bottom-20))+'px'};
+     ip.oninput=op;ip.onfocus=op;ip.onclick=op;ip.onkeydown=e=>{if(e.key==='Escape')cl();if(e.key==='Enter'){const f=pp&&pp.firstChild;if(f&&ip.value.trim()){e.preventDefault();ip.value=f.textContent;cl();go()}else go()}};
+     const gone=e=>{if(!ip.isConnected){cl();document.removeEventListener('mousedown',gone,true);return}if(pp&&!pp.contains(e.target)&&e.target!==ip)cl()};document.addEventListener('mousedown',gone,true)}
+    sp.append(ip)}
    c.append(sp)}
   c.append(h('div','',"Department: "+((GROUPS.find(g=>g[0]===gOf(TDEPT[absent]||'na'))||[0,'—'])[1])+(SUBOK?' · choose a substitute for each period, or let the system fill them from the coordinated suggestions (same department first, lightest load).':'')));
   const ls0=d>=0&&d<=4?lessonsSp(absent,d).sort((a,b)=>a.p-b.p):[];
