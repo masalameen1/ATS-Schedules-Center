@@ -2945,3 +2945,10 @@ html body #v_radio .rrem .rri{border-bottom:1px solid rgba(60,60,67,.08)!importa
 #t_sub tr.infS .infC{display:inline-flex;flex-direction:column;gap:1px;margin:2px 14px 2px 0;min-width:86px;vertical-align:top}
 #t_sub tr.infS .infC i{font-style:normal;font-size:11px;color:#6e6e73;font-weight:600}
 #t_sub tr.infS .infC b{font-size:13px;color:#1d1d1f;font-weight:700}
+/* notification detail table */
+.nDt{margin:8px 0 2px}.nDs{overflow-x:auto;border:1px solid #e5e5ea;border-radius:12px}
+.nDt table{border-collapse:collapse;width:100%;font-size:12px;background:#fff}
+.nDt th{background:#f5f5f7;color:#6e6e73;font-weight:600;text-align:start;padding:6px 8px;white-space:nowrap}
+.nDt td{padding:6px 8px;border-top:1px solid #f0f0f3;color:#1d1d1f;vertical-align:top}
+.nDa{display:flex;gap:6px;margin-top:6px}.nDa button{border:0;border-radius:980px;background:#f5f5f7;color:#0071e3;padding:5px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.smDl{margin:8px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
