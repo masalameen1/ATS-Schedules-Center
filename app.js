@@ -4483,7 +4483,11 @@ function openPanel(){if(!cur||!sample)return;panel.innerHTML='';panel.style.disp
  function fly(from,e){const r=from.getBoundingClientRect(),f=document.createElement('span');f.className='lvFly';f.textContent=e;f.style.left=(r.left+r.width/2-14+(Math.random()*30-15))+'px';f.style.top=(r.bottom+4)+'px';document.body.append(f);setTimeout(()=>f.remove(),2300)}
  function setN(n){const b=box.querySelector('#lvN b');if(b)b.textContent=n;box.querySelector('#lvN').lastChild.textContent=' online'}
  (async function(){try{if(window.claude&&claude.use)room=await claude.use('room')}catch(e){}
-  if(!room){return}
+  if(!room){try{const db=await claude.use('db'),U=await claude.use('user'),id=db&&U&&U.id?await U.id():null;if(!db||!id)return;
+   const nm=()=>(window.__getMyName&&window.__getMyName())||'';let last=[];
+   const beat=()=>{if(document.hidden)return;db.doc('presence/'+id).set({t:Date.now(),n:nm()}).catch(()=>{})};beat();setInterval(beat,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)beat()});
+   const show=()=>{const now=Date.now(),L=last.filter(x=>now-(+x.t||0)<120000);window.__online=L.map(x=>x.n||'');setN(Math.max(1,L.length));const lv=box.querySelector('#lvN');if(lv)lv.title='المتواجدون الآن · Online now ('+L.length+'): '+L.map(x=>x.n).filter(Boolean).join('، ')};
+   db.collection('presence').onSnapshot(q=>{last=(q.docs||[]).map(d=>d.data()||{});show()},()=>{});setInterval(show,20000)}catch(e){}return}
   const t0=Date.now();
   room.onPeers(peers=>{const ids=new Set();peers.forEach(p=>{if(p.kind==='agent')return;ids.add(p.by||p.peer)});setN(Math.max(1,ids.size));
    peers.forEach(p=>{if(p.isMe||p.kind==='agent')return;const r=p.presence&&p.presence.r;if(!r||typeof r.k!=='string'||!EM.includes(r.k))return;const t=+r.t||0;
