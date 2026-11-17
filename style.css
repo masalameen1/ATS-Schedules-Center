@@ -2994,3 +2994,15 @@ html body :is(#v_sub) .subDays{background:#fff;border:1px solid var(--il-line);b
 .pkBx.saBx .saAsk b{flex:1 1 160px;font-size:13px}
 .pkBx.saBx .saAsk button{margin:0}
 .pkBx.saBx .saHSum{padding:8px 12px;margin-bottom:6px}
+
+/* teacher duty card: squarer, tidier, timer only near the exam */
+.tdMine{max-width:620px;margin-inline:auto!important}
+.tdMine .tdGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tdMine .tdClock{padding:12px!important}
+.tdMine .tdBig{font-size:2.2em}
+.tdMini{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px!important}
+.tdMini small{color:#64748b;font-size:.8em}
+.tdMini .btn{padding:6px 12px!important;font-size:.85em;border-radius:12px}
+.tdMine .tdClock .btn{padding:6px 12px;font-size:.85em}
+.tdThanks{margin-top:12px!important;padding:14px 16px;border-radius:18px;background:linear-gradient(135deg,#ecfdf5,#fef9c3);text-align:center;display:flex;flex-direction:column;gap:4px;color:#14532d}
+.tdThanks small{color:#4b5563}
