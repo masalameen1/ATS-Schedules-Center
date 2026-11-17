@@ -2433,7 +2433,7 @@ const remCfg=()=>({lead:24,arrive:'',note:'',...(S.rem||{})});
 const grn=b=>{[['background','linear-gradient(180deg,#22c55e,#15803d)'],['color','#fff'],['border-color','transparent']].forEach(([k,v])=>b.style.setProperty(k,v,'important'));return b};
 function tdClockEl(a,compact,withBtn){const t0=ms(a.date,a.from),t1=ms(a.date,a.to);const wrap=el('div','tdCkW'),box=el('div','tdClock'+(compact?' tdClk2':'')),big=el('div','tdBig'),sub=el('small'),bar=el('i'),pg=el('div','tdBar');pg.append(bar);box.append(el('small','','⏱ المؤقت الإلكتروني · Electronic timer'),big,sub,pg);wrap.append(box);box.hidden=true;
  const f2=x=>{x=Math.max(0,Math.round(x/1000));return [Math.floor(x/3600),Math.floor(x%3600/60),x%60].map(v=>String(v).padStart(2,'0')).join(':')};
- const tick=()=>{const n=Date.now();const on=n>=t0-30*6e4&&n<=t1;if(box.hidden===on)box.hidden=!on;if(!on)return;
+ const tick=()=>{const n=Date.now();const on=n>=t0-20*6e4&&n<=t1;if(box.hidden===on)box.hidden=!on;if(!on)return;
   if(n<t0){big.textContent=f2(t0-n);sub.textContent='متبقي على البدء · until start';bar.style.width='0'}
   else{big.textContent=f2(t1-n);sub.textContent='متبقي على الانتهاء · until end';bar.style.width=Math.min(100,(n-t0)/Math.max(1,t1-t0)*100)+'%'}};tick();
  const iv=setInterval(()=>{if(!wrap.isConnected&&wrap.__seen){clearInterval(iv);return}if(wrap.isConnected)wrap.__seen=1;tick()},1000);wrap.__box=box;return wrap}
@@ -3125,8 +3125,8 @@ function tick(){
  else if(now<st){ph='wait';left=st-now;txt=(ET.prac?'PRACTICE · ':'')+'Exam starts in'}
  else if(now<en){left=en-now;ph=left<=5*6e4?'crit':left<=15*6e4?'warn':'run';txt=(ET.prac?'PRACTICE · ':'')+'Time remaining'}
  else{ph='end';left=0;txt='Time is up — collect the papers'}
- let idle=false;if(ph==='wait'&&!ready&&!ET.prac&&left>30*6e4){idle=true;txt='🕘 يبدأ الاختبار الساعة '+fs+' — يظهر العدّ التنازلي قبل البدء بنصف ساعة · Exam starts at '+fs+'; the countdown appears 30 min before'}
- const T=Math.floor(left/1000),DN=new Date(now+4*36e5),H=idle?DN.getUTCHours():Math.floor(T/3600),M=idle?DN.getUTCMinutes():Math.floor(T%3600/60),S2=idle?DN.getUTCSeconds():T%60;
+ let idle=false;if(ph==='wait'&&!ready&&!ET.prac&&left>20*6e4){idle=true;txt='🕘 يبدأ الاختبار الساعة '+fs+' — يعمل المؤقت تلقائياً قبل البدء بـ 20 دقيقة · Exam starts at '+fs+'; the timer starts automatically 20 min before'}
+ const T=Math.floor(left/1000),DN=new Date(now+4*36e5),H=idle?(+String(fs).split(':')[0]||0):Math.floor(T/3600),M=idle?(+String(fs).split(':')[1]||0):Math.floor(T%3600/60),S2=idle?0:T%60;
  const frac=ph==='wait'?0:ph==='end'?1:Math.max(0,Math.min(1,(now-st)/(en-st)));
  const rem=ph==='wait'?1:1-frac;
  const html=clockHtml(ET.style,H,M,S2,ph==='wait'?1:ph==='end'?0:1-frac,ph);
