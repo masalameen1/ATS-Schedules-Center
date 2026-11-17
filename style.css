@@ -2975,3 +2975,6 @@ html body #t_sub tr.infS td{background:#f8faff!important}
 html body :is(#v_radio,#v_zero) .rcard{padding:20px!important}
 html body :is(#v_radio,#v_zero) .rrem{border-radius:20px!important}
 html body :is(#v_sub,#v_exam,#v_exs,#v_finals) .subDays{background:#fff;border:1px solid var(--il-line);border-radius:18px;padding:12px 16px;font-weight:700;color:var(--il-navy)}
+/* gate language switch */
+#gate .gateLang{position:absolute;top:14px;inset-inline-end:14px;border:1px solid #d6dff0;background:#fff;color:#1c3f8f;border-radius:980px;padding:7px 14px;font:700 13px Inter,Cairo,sans-serif;cursor:pointer;box-shadow:0 4px 12px -6px rgba(28,63,143,.4);z-index:3}
+#gate .gateLang:hover{background:#eef3ff}
