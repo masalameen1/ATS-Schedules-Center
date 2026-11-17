@@ -3018,3 +3018,6 @@ html body :is(#v_sub) .subDays{background:#fff;border:1px solid var(--il-line);b
 .hsRow small{font-weight:800}
 .tdStu.hsOpen{cursor:pointer}
 .tdStu .hsGo{display:block;margin-top:6px;font-weight:700;color:#0f766e}
+
+/* non-authorised users: only their own duties */
+body.subRO #v_sub .tools,body.subRO #v_sub .scroll,body.subRO #subCtl>*:not(#myDuty):not(#roNote){display:none!important}
