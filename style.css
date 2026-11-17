@@ -2878,8 +2878,6 @@ html body>.shell,html body>.wrap{width:100%}
 .exGrp .btn:first-child{background:linear-gradient(180deg,#f0fdf4,#dcfce7);border-color:#86efac;color:#166534}
 .exSm{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .exSm .btn{min-height:40px;padding:8px 14px;border-radius:12px;font-size:.92em;width:auto;flex:0 1 auto}
-#tcard .tdSeg .tdSg:first-child.on{background:linear-gradient(180deg,#22c55e,#15803d);color:#fff}
-#tcard .tdSeg .tdSg{font-size:1.05em;padding:13px 10px}
 
 /* this term's exam days: suggested plan, approve or edit */
 .finPn{border:1px solid #dbe3ee;border-radius:18px;background:#fff;padding:6px 14px 14px;margin:0 0 16px}
