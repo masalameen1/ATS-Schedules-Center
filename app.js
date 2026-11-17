@@ -5381,7 +5381,7 @@ document.addEventListener('change',e=>{try{const t=e.target,a=t&&t.dataset&&t.da
  +".gsN{direction:ltr;unicode-bidi:isolate;font-weight:800;white-space:nowrap}.gsD{font-weight:700;opacity:.85;white-space:nowrap;font-size:13px}"
  +".gsP{position:fixed;z-index:100050;overflow:auto;overscroll-behavior:contain;padding:6px;border-radius:16px;background:linear-gradient(180deg,#f0fdf4,#dcfce7);border:2px solid #34d399;box-shadow:0 22px 50px -14px rgba(5,60,40,.55);min-width:280px}"
  +".gsP>div{padding:9px 12px;border-radius:11px;font:700 14.5px Inter,Cairo,sans-serif;color:#064e3b;cursor:pointer}.gsP>div:hover{background:#a7f3d0}.gsP>div.on{background:#059669;color:#fff}.gsP>div.dis{opacity:.5;cursor:not-allowed}.gsP>div.dis:hover{background:none}.gsP>div.gsH{cursor:default;font-size:12px;opacity:.75;padding:6px 12px}.gsP>div.gsH:hover{background:none}"
- +".gsA{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.gsA button{border:1.5px solid #34d399;background:#fff;color:#065f46;border-radius:999px;padding:4px 11px;font:700 12px Inter,Cairo,sans-serif;cursor:pointer}.gsA button:hover{background:#d1fae5}.gsA input{flex:1;min-width:140px;padding:6px 10px;border-radius:10px;border:1.5px solid #34d399;font:600 13px Inter,Cairo,sans-serif;background:#fff;color:#064e3b}";
+ +".gsP>.gsQ{position:sticky;top:0;z-index:2;display:block;width:100%;box-sizing:border-box;margin:0 0 6px;padding:9px 12px;border-radius:12px;border:1.5px solid #34d399;background:#fff;color:#064e3b;font:600 14px Inter,Cairo,sans-serif;outline:0}.gsP>.gsQ:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.18)}.gsA{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.gsA button{border:1.5px solid #34d399;background:#fff;color:#065f46;border-radius:999px;padding:4px 11px;font:700 12px Inter,Cairo,sans-serif;cursor:pointer}.gsA button:hover{background:#d1fae5}.gsA input{flex:1;min-width:140px;padding:6px 10px;border-radius:10px;border:1.5px solid #34d399;font:600 13px Inter,Cairo,sans-serif;background:#fff;color:#064e3b}";
  const st=document.createElement('style');st.textContent=css;document.head.append(st);
  const L=()=>((window.__UL||localStorage.getItem('tt_ul')||'ar')==='en')?'en':'ar';
  const H=window.__gsH=window.__gsH||{};
@@ -5413,11 +5413,13 @@ document.addEventListener('change',e=>{try{const t=e.target,a=t&&t.dataset&&t.da
    const p=document.createElement('div');p.className='gsP noUL';p.dir=getComputedStyle(b).direction;
    [...sel.options].forEach((o,i)=>{const d=document.createElement('div');lab(o,d);if(i===sel.selectedIndex)d.classList.add('on');if(o.disabled)d.classList.add('dis');
     d.onclick=()=>{if(o.disabled)return;closeP();apply(o.value,true)};p.append(d)});
+   {const q=document.createElement('input');q.type='search';q.className='gsQ noUL';q.placeholder=L()==='en'?'🔍 Search for a teacher…':'🔍 ابحث عن معلم…';q.autocomplete='off';const rows=[...p.children];
+    q.oninput=()=>{const t=q.value.trim().toLowerCase();rows.forEach(d=>{d.style.display=(!t||d.textContent.toLowerCase().includes(t))?'':'none'});if(plc)plc()};q.onkeydown=e=>{e.stopPropagation();if(e.key==='Escape')closeP();if(e.key==='Enter'){const f=rows.find(d=>d.style.display!=='none'&&!d.classList.contains('dis')&&!d.classList.contains('gsH')&&q.value.trim());if(f)f.click()}};p.prepend(q)}
    document.body.append(p);pop=p;p.style.minWidth=Math.max(280,b.getBoundingClientRect().width)+'px';
    plc=()=>{if(!pop)return;const r=b.getBoundingClientRect(),below=innerHeight-r.bottom-14,above=r.top-14,full=p.scrollHeight+6,up=below<Math.min(full,360)&&above>below,room=Math.max(160,up?above:below);
     p.style.maxHeight=Math.min(room,innerHeight-24)+'px';p.style.left=Math.min(Math.max(8,r.left),Math.max(8,innerWidth-p.offsetWidth-8))+'px';
     if(up){p.style.top='';p.style.bottom=(innerHeight-r.top+6)+'px'}else{p.style.bottom='';p.style.top=(r.bottom+6)+'px'}};
-   plc();const on=p.querySelector('.on');if(on)on.scrollIntoView({block:'center'})};
+   plc();const on=p.querySelector('.on');if(on)on.scrollIntoView({block:'center'});try{p.querySelector('.gsQ').focus({preventScroll:true})}catch(x){}};
   w.append(b,A);(host||sel.parentNode).append(w)};
 }catch(e){}})();
 
