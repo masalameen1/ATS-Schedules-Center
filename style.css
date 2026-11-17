@@ -2953,26 +2953,25 @@ html body #v_radio .rrem .rri{border-bottom:1px solid rgba(60,60,67,.08)!importa
 .nDa{display:flex;gap:6px;margin-top:6px}.nDa button{border:0;border-radius:980px;background:#f5f5f7;color:#0071e3;padding:5px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
 .smDl{margin:8px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 /* ===== ILSP-style look: radio · zero period · substitution · exams ===== */
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals){--il-navy:#14213d;--il-line:#e3e8f2;--il-mut:#64708a;--il-b1:#3f86f2;--il-b2:#2a63cf;--il-be:#1f4aa5;--il-g1:#58b894;--il-g2:#3a9d7a;--il-ge:#2b7a5e;background:linear-gradient(180deg,#f6f8fc,#eef3f9)!important;color:var(--il-navy)}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) :is(.pgBar,#ovbar,.vbar){background:linear-gradient(100deg,#1c3f8f 0%,#265a98 58%,#2d6f78 100%)!important;border-bottom:4px solid #d9ae3c!important;border-radius:20px 20px 0 0!important}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) .card{background:#fff!important;border:1px solid var(--il-line)!important;border-radius:24px!important;box-shadow:0 1px 2px rgba(20,33,61,.04),0 14px 34px -22px rgba(28,63,143,.28)!important}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) .vban{background:linear-gradient(135deg,#fff 0%,#edf6f3 100%)!important;border:1px solid var(--il-line)!important;border-radius:26px!important;box-shadow:0 14px 34px -22px rgba(28,63,143,.3)!important}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) .vban :is(h1,h2,h3){color:var(--il-navy)!important;font-weight:800!important;letter-spacing:-.01em}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) :is(.btn.go,button.occ.hot,button.cpq,.btn.gosave){background:linear-gradient(180deg,var(--il-b1),var(--il-b2))!important;color:#fff!important;border:0!important;border-bottom:4px solid var(--il-be)!important;border-radius:16px!important;font-weight:700!important;box-shadow:0 8px 18px -10px rgba(42,99,207,.7)!important}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) :is(.btn.gosave,.btn.ok){background:linear-gradient(180deg,var(--il-g1),var(--il-g2))!important;border-bottom-color:var(--il-ge)!important;box-shadow:0 8px 18px -10px rgba(58,157,122,.7)!important}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) :is(.btn:not(.go):not(.gosave),.ovb,.chip,select,input[type=search],input[type=text],input[type=date]){background:#fff!important;color:var(--il-navy)!important;border:1px solid var(--il-line)!important;border-radius:16px!important;font-weight:600}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) .chip{border-radius:980px!important}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) .chip.on{background:linear-gradient(180deg,var(--il-b1),var(--il-b2))!important;color:#fff!important;border-color:transparent!important}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) table{border-collapse:separate;border-spacing:0;border:1px solid var(--il-line);border-radius:18px;overflow:hidden;background:#fff}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) th{background:#f4f6fb!important;color:var(--il-mut)!important;font-size:12px;font-weight:700;letter-spacing:.02em;border-bottom:1px solid var(--il-line)!important}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) td{border-bottom:1px solid #eef1f7!important;color:var(--il-navy)}
-html body :is(#v_radio,#v_zero,#v_sub,#v_exam,#v_exs,#v_finals) tbody tr:hover td{background:#f8faff}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals){--il-navy:#14213d;--il-line:#e3e8f2;--il-mut:#64708a;--il-b1:#3f86f2;--il-b2:#2a63cf;--il-be:#1f4aa5;--il-g1:#58b894;--il-g2:#3a9d7a;--il-ge:#2b7a5e;background:linear-gradient(180deg,#f6f8fc,#eef3f9)!important;color:var(--il-navy)}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) :is(.pgBar,#ovbar,.vbar){background:linear-gradient(100deg,#1c3f8f 0%,#265a98 58%,#2d6f78 100%)!important;border-bottom:4px solid #d9ae3c!important;border-radius:20px 20px 0 0!important}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) .card{background:#fff!important;border:1px solid var(--il-line)!important;border-radius:24px!important;box-shadow:0 1px 2px rgba(20,33,61,.04),0 14px 34px -22px rgba(28,63,143,.28)!important}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) .vban{background:linear-gradient(135deg,#fff 0%,#edf6f3 100%)!important;border:1px solid var(--il-line)!important;border-radius:26px!important;box-shadow:0 14px 34px -22px rgba(28,63,143,.3)!important}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) .vban :is(h1,h2,h3){color:var(--il-navy)!important;font-weight:800!important;letter-spacing:-.01em}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) :is(.btn.go,button.occ.hot,button.cpq,.btn.gosave){background:linear-gradient(180deg,var(--il-b1),var(--il-b2))!important;color:#fff!important;border:0!important;border-bottom:4px solid var(--il-be)!important;border-radius:16px!important;font-weight:700!important;box-shadow:0 8px 18px -10px rgba(42,99,207,.7)!important}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) :is(.btn.gosave,.btn.ok){background:linear-gradient(180deg,var(--il-g1),var(--il-g2))!important;border-bottom-color:var(--il-ge)!important;box-shadow:0 8px 18px -10px rgba(58,157,122,.7)!important}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) :is(.btn:not(.go):not(.gosave),.ovb,.chip,select,input[type=search],input[type=text],input[type=date]){background:#fff!important;color:var(--il-navy)!important;border:1px solid var(--il-line)!important;border-radius:16px!important;font-weight:600}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) .chip{border-radius:980px!important}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) .chip.on{background:linear-gradient(180deg,var(--il-b1),var(--il-b2))!important;color:#fff!important;border-color:transparent!important}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) table{border-collapse:separate;border-spacing:0;border:1px solid var(--il-line);border-radius:18px;overflow:hidden;background:#fff}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) th{background:#f4f6fb!important;color:var(--il-mut)!important;font-size:12px;font-weight:700;letter-spacing:.02em;border-bottom:1px solid var(--il-line)!important}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) td{border-bottom:1px solid #eef1f7!important;color:var(--il-navy)}
+html body :is(#v_sub,#v_exam,#v_exs,#v_finals) tbody tr:hover td{background:#f8faff}
 html body #t_sub tr.dayH td{background:linear-gradient(100deg,#1c3f8f,#265a98 60%,#2d6f78)!important;border-top:0!important;border-bottom:3px solid #d9ae3c!important}
 html body #t_sub tr.dayH.todayD td{background:linear-gradient(100deg,#b7791f,#d9ae3c)!important;color:#fff!important}
 html body #t_sub tr.depH td{background:#eaf1fc!important;color:#1c3f8f!important;font-weight:800}
 html body #t_sub tr.depH.mineD td{background:#e3f4ec!important;color:#1f6b52!important}
 html body #t_sub tr.infS td{background:#f8faff!important}
-html body :is(#v_radio,#v_zero) .rcard{padding:20px!important}
 html body :is(#v_radio,#v_zero) .rrem{border-radius:20px!important}
 html body :is(#v_sub,#v_exam,#v_exs,#v_finals) .subDays{background:#fff;border:1px solid var(--il-line);border-radius:18px;padding:12px 16px;font-weight:700;color:var(--il-navy)}
 /* gate language switch */
