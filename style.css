@@ -3072,3 +3072,18 @@ html body .qwTb.qwTb .btn,html body .qwTb.qwTb>.btn:nth-child(n),html body .qwTb
 
 #vBack{position:fixed;inset-inline-start:14px;bottom:14px;z-index:60;height:40px;padding:0 18px;border-radius:999px;border:1px solid rgba(15,23,42,.12);background:rgba(255,255,255,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 6px 20px rgba(15,23,42,.18);font:inherit;font-size:15px;font-weight:700;color:#0f172a;cursor:pointer}
 #vBack[hidden],body.ov #vBack{display:none}
+
+/* attendance sheet: one compact row per student — name, then Present / Absent / Late side by side */
+.saTake .saTkL{display:flex!important;flex-direction:column;gap:5px;grid-template-columns:none!important}
+.saTake .saTkR2{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center;gap:6px 12px;padding:6px 10px!important;border-radius:12px!important;min-height:0!important}
+.saTake .saTkT{display:flex!important;align-items:center;gap:8px;min-width:0;flex-wrap:nowrap}
+.saTake .saTkT i{flex:0 0 auto;min-width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#e2e8f0;font-style:normal;font-size:12px;font-weight:800}
+.saTake .saTkT b{flex:1 1 auto;min-width:0;font-size:15px;line-height:1.25;font-weight:700}
+.saTake .saTkT small{flex:0 0 auto;font-size:12px;color:#64748b;font-weight:700}
+.saTake .saTkBs{display:flex!important;flex-direction:row!important;gap:6px;flex-wrap:nowrap;margin:0!important}
+.saTake .saTkB{width:auto!important;height:34px!important;min-height:0!important;padding:0 13px!important;font-size:13px!important;font-weight:700;border-radius:999px!important;white-space:nowrap;flex:0 0 auto;box-shadow:none!important;background:#fff;border:1px solid #cbd5e1;color:#0f172a}
+.saTake .saTkB.p.on{background:#16a34a!important;border-color:#16a34a!important;color:#fff!important}
+.saTake .saTkB.a.on{background:#dc2626!important;border-color:#dc2626!important;color:#fff!important}
+.saTake .saTkB.l.on{background:#d97706!important;border-color:#d97706!important;color:#fff!important}
+.saTake .saTkLt{grid-column:1/-1}
+@media(max-width:620px){.saTake .saTkR2{grid-template-columns:1fr!important}.saTake .saTkBs{justify-content:stretch}.saTake .saTkB{flex:1 1 0}}
