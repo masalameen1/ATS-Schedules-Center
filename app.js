@@ -2497,16 +2497,16 @@ function teacherCard(o){const ed=!!(o&&o.ed)||canEd();
  {const dn=window.__docsRender&&window.__docsRender('inv');if(dn)c.append(dn)}
  if(!ed&&BK.tOpen===undefined)BK.tOpen=true;
  if(!ed){const ob=el('button','tdOpen'+(BK.tOpen?' on':''),(BK.tOpen?'▲ إخفاء مراقباتي · Hide my invigilation':'👤 اضغط لترى مراقباتك · Show my invigilation'));ob.type='button';if(!BK.tOpen)grn(ob);ob.onclick=()=>{BK.tOpen=!BK.tOpen;draw()};c.append(ob)}
- if(!ed&&!BK.tOpen)return c;
+ const absB0=()=>{if(window.__absSee&&window.__absSee()&&window.__absOpen&&!c.querySelector('#absBtn')){const b0=el('button','btn','🚫 الغياب من كل الشعب · Absentees');b0.id='absBtn';b0.type='button';b0.onclick=()=>window.__absOpen();[['background','#fff1f0'],['color','#c4261d'],['border','1px solid #ffd6d2'],['border-radius','999px'],['padding','6px 14px'],['font-size','.82rem'],['font-weight','600'],['cursor','pointer'],['margin','6px 0'],['width','auto'],['display','inline-flex'],['box-shadow','none']].forEach(([k,v])=>b0.style.setProperty(k,v,'important'));c.append(b0)}};if(!ed&&!BK.tOpen){absB0();return c}
  let I={pub:false,list:[],pubAt:0};try{I=window.__exInfo(ed)}catch(e){}
  if(!BK.tScope)BK.tScope=(I.list||[]).length?'me':'all';
  const rc=remCfg(),now=Date.now(),td=todayDubai(),bi=(en,ar,cl)=>{const d=el('div',cl||'tmsg');d.append(el('div','',en),el('div','ar',ar));return d};
  if(I.pub&&I.pubAt)c.append(el('div','tcm','Last published | آخر نشر: '+fmtT(I.pubAt)));
- if(!I.pub&&!ed){c.append(bi('The invigilation schedule has not been published yet.','لم يُنشر جدول المراقبة بعد.','tmsg warn'));return c}
+ if(!I.pub&&!ed){c.append(bi('The invigilation schedule has not been published yet.','لم يُنشر جدول المراقبة بعد.','tmsg warn'));absB0();return c}
  let rn=[];try{rn=(window.__notifMine?window.__notifMine():[]).filter(n=>n.sched==='exam'&&n.ts>now-7*864e5).slice(0,2)}catch(e){}
  rn.forEach(n=>c.append(el('div','tchg','🔄 Recent change | تغيير حديث: '+((n.lines&&n.lines[0])||n.title)+' ('+fmtT(n.ts)+')')));
  const ALL=I.all||[];
- if(!I.list.length&&!ALL.length){c.append(bi('No invigilation assignments are published yet.','لا توجد مراقبات منشورة حاليًا.'));return c}
+ if(!I.list.length&&!ALL.length){c.append(bi('No invigilation assignments are published yet.','لا توجد مراقبات منشورة حاليًا.'));absB0();return c}
  const sc=ALL.length?(BK.tScope||'all'):'me';if(I.hidden&&!ed)c.append(el('div','tmsg warn','🔒 You can see only your own invigilation duties.'));if(ed&&canEd()){const sw=el('button','tdShow'+(S.hideAll?'':' on'),S.hideAll?'🔒 الجدول العام مخفي عن المعلمين — اضغط لعرضه للجميع · Show to everyone':'🌐 الجدول معروض للجميع (كل المعلمين يرون كل المراقبات) — اضغط للإخفاء · Hide');sw.type='button';sw.onclick=()=>{if(S.hideAll)delete S.hideAll;else S.hideAll=1;mark();saveQuiet();draw()};c.append(sw)}if(ed&&!I.pub)c.append(el('div','tmsg warn','📝 مسودة — لم تُنشر بعد للمراقبين · Draft, not yet published to invigilators'));
  const isTbl=sc==='all'&&(BK.tView||'crd')==='tbl',big=isTbl&&BK.tBig===true;c.classList.toggle('tcBig',big);if(big){const cx=el('button','tdBigX','✕ تصغير · Exit full view');cx.type='button';cx.onclick=()=>{BK.tBig=false;draw()};c.prepend(cx)}else if(isTbl){const bb=el('button','tdBigB','⛶ عرض أكبر · Bigger view');bb.type='button';bb.onclick=()=>{BK.tBig=true;draw()};c.append(bb)}
  if(ALL.length){const sg=el('div','tdSeg');[['all','📋 كل المراقبات · All invigilations'],['me','👤 مراقبتي · Mine']].forEach(([k,t])=>{const b=el('button','tdSg'+(sc===k?' on':''),t);b.type='button';if(k==='me')grn(b);b.onclick=()=>{BK.tScope=k;draw()};sg.append(b)});c.append(sg)}
