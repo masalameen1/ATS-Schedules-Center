@@ -2515,7 +2515,7 @@ if(ed&&canEd()&&BK.tDay!=='*'){const cur=SRC.find(x=>x.date===BK.tDay);if(cur){c
  const hay=a=>[a.hall,a.zone,a.title,(a.subjects||[]).join(' '),(a.classes||[]).join(' '),a.name||'',a.sup||'',(a.others||[]).join(' ')].join(' ').toLowerCase();
  const F=BK.tF||(BK.tF={hall:'',zone:'',name:'',subj:'',type:'',when:''});
  const nameKeys=new Set();if(F.name)ALL.forEach(a=>{if(a.name===F.name)nameKeys.add(a.date+'|'+a.did+'|'+a.hall)});
- const okF=a=>{if(F.hall&&a.hall!==F.hall)return false;if(F.zone&&a.zone!==F.zone)return false;if(F.subj&&!(a.subjects||[]).includes(F.subj))return false;if(F.type&&a.type!==F.type)return false;if(F.when==='up'&&a.date<td)return false;if(F.when==='today'&&a.date!==td)return false;if(F.when==='past'&&a.date>=td)return false;if(F.name&&sc==='all'&&!nameKeys.has(a.date+'|'+a.did+'|'+a.hall))return false;return true};
+ const okF=a=>{if(F.hall&&a.hall!==F.hall)return false;if(F.gr&&!(a.classes||[]).some(c=>{const m=/(\d{2})/.exec(String(c));return m&&m[1]===F.gr}))return false;if(F.zone&&a.zone!==F.zone)return false;if(F.subj&&!(a.subjects||[]).includes(F.subj))return false;if(F.type&&a.type!==F.type)return false;if(F.when==='up'&&a.date<td)return false;if(F.when==='today'&&a.date!==td)return false;if(F.when==='past'&&a.date>=td)return false;if(F.name&&sc==='all'&&!nameKeys.has(a.date+'|'+a.did+'|'+a.hall))return false;return true};
  const nz=s=>String(s||'').toLowerCase().replace(/[ً-ٰٟـ]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/\s+/g,' ').trim();
  const HN=new Map();ALL.forEach(a=>{const k=keyOf(a);const s=HN.get(k)||new Set();[a.name,...(a.others||[])].forEach(x=>{if(x)s.add(x)});HN.set(k,s)});
  const hayF=a=>nz(hay(a)+' '+[...(HN.get(keyOf(a))||[])].join(' ')+' '+a.date+' '+FMT(a.date)+' '+(a.from||'')+' '+(a.to||'')+' '+(a.type||'')+' '+(a.sup||'')+' '+((a.cn||[]).map(x=>x.c).join(' ')));
@@ -2524,7 +2524,7 @@ if(ed&&canEd()&&BK.tDay!=='*'){const cur=SRC.find(x=>x.date===BK.tDay);if(cur){c
  {const fl=el('div','tdFil');const uq=f=>[...new Set(SRC.flatMap(f).filter(Boolean))].sort((x,y)=>String(x).localeCompare(String(y),'ar'));
   const sel=(k,lab,opts)=>{if(opts.length<2&&!F[k])return;const s=el('select','tdSel');s.append(new Option(lab,''));opts.forEach(o=>{const v=Array.isArray(o)?o[0]:o,t=Array.isArray(o)?o[1]:o;s.append(new Option(t,v))});s.value=F[k]||'';if(s.value!==(F[k]||''))F[k]='';s.onchange=()=>{F[k]=s.value;renderList()};fl.append(s)};
   sel('when','⏰ الوقت · When',[['up','قادمة · Upcoming'],['today','اليوم · Today'],['past','منتهية · Done']]);
-  sel('hall','🏫 القاعة · Hall',uq(a=>[a.hall]));sel('zone','📍 المنطقة · Zone',uq(a=>[a.zone]));
+  sel('hall','🏫 القاعة · Hall',uq(a=>[a.hall]));sel('zone','📍 المنطقة · Zone',uq(a=>[a.zone]));{const gO=c=>{const m=/(\d{2})/.exec(String(c));return m?+m[1]:0};sel('gr','🎓 الصف · Grade',[...new Set(SRC.flatMap(a=>(a.classes||[]).map(gO)).filter(Boolean))].sort((x,y)=>x-y).map(g=>[String(g),'الصف '+g+' · Grade '+g]))}
   if(sc==='all')sel('name','👤 المراقب · Invigilator',uq(a=>[a.name]));
   sel('subj','📘 المادة · Subject',uq(a=>a.subjects||[]));sel('type','📝 النوع · Type',uq(a=>[a.type]));
   const rs=el('button','tdRs','↺ مسح الفلاتر · Reset');rs.type='button';rs.onclick=()=>{BK.tF=null;BK.tQ='';BK.tSel='';draw()};fl.append(rs);c.append(fl)}
