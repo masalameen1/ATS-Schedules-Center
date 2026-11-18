@@ -911,7 +911,7 @@ let S=clone(SEED);S.rest={};S.cat=[];let dirty=false,loaded=false,dayId=S.days[0
   return{day,venues}};
  const ens=()=>{try{if(todayDubai()>DATE)return;if(!sp)sp=build();if(!sp)return;
   if(!_d.some(x=>x.id===sp.day.id))_d.push(sp.day);sp.venues.forEach(v=>{if(!_v.some(x=>x.id===v.id))_v.push(v)});
-  const ex=_d.find(x=>x.id===sp.day.id)||sp.day;if(ex!==sp.day&&!ex.__sy){ex.__sy=1;ex.note=sp.day.note;ex.title=sp.day.title;ex.from=sp.day.from;ex.to=sp.day.to;ex.inv=sp.day.inv;ex.sess=sp.day.sess;sp.venues.forEach(v=>{const w=_v.find(x=>x.id===v.id);if(w&&w!==v){w.name=v.name;w.zone=v.zone;w.sup=v.sup;w.sp=1}})}
+  const ex=_d.find(x=>x.id===sp.day.id)||sp.day;if(ex!==sp.day&&!ex.__sy2){ex.__sy2=1;ex.note=sp.day.note;ex.title=sp.day.title;ex.from=sp.day.from;ex.to=sp.day.to;ex.inv=sp.day.inv;ex.sess=sp.day.sess;sp.venues.forEach(v=>{const w=_v.find(x=>x.id===v.id);if(w&&w!==v){w.name=v.name;w.zone=v.zone;w.sup=v.sup;w.sp=1}})}
   if(window.__CLSN&&Date.now()-last>5000&&!sp.cn){last=Date.now();let any=0;ex.sess.forEach(s=>{const c=cnt(s.cls);if(c&&!+s.n){s.n=c;any=1}});if(any)sp.cn=1}}catch(e){}};
  Object.defineProperty(S,'days',{get(){ens();return _d},set(v){_d=v},enumerable:true,configurable:true});
  Object.defineProperty(S,'venues',{get(){ens();return _v},set(v){_v=v},enumerable:true,configurable:true});
