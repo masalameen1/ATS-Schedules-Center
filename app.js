@@ -11,7 +11,7 @@ const escH=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 let save={};try{save=JSON.parse(localStorage.getItem('tt')||'{}')}catch(e){}
 let ROLE='',TMAIL='';try{ROLE=sessionStorage.getItem('tt_role')||'';TMAIL=sessionStorage.getItem('tt_mail')||''}catch(e){}
 /* administration team: the only accounts that can edit exam invigilation, substitutions, meetings, Zero Period and the other schedules */
-const ADMINMAIL=['mohammad.salamin'+'@actvet.gov.ae','hatem.hamdeh','hatem.talal','naser.alashab','fahad.almansoori','ahmad.debek','tamer.ahmed','furat.jasim','abedalla.banihani','waseem.alhausani','mohammad.salamin','mahmoud.yousef','anjali.rajan'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
+const ADMINMAIL=['mohammad.salamin'+'@actvet.gov.ae','hatem.hamdeh','hatem.talal','naser.alashab','fahad.almansoori','ahmad.debek','tamer.ahmed','furat.jasim','abedalla.banihani','waseem.alhausani','mohammad.salamin','mahmoud.yousef','anjali.rajan','heba.alshehhi'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
 let MGR=ROLE==='teacher'&&ADMINMAIL.includes((TMAIL||'').toLowerCase());
 /* the authorized-teachers list is visible only to the 16 named coordinators (screen button and page) */
 const SALMAIL=['naser.alashab','hatem.hamdeh','hatem.talal','ahmad.debek','tamer.ahmed','abdullah.abbas','abedalla.banihani','furat.jasim','alia.omran','aaesha.alnuaimi','heba.alshehhi','badryya.alshehhi','kalthoom.alkhatri','mohammad.salamin','khawla.alnaqbi','easa.ebrahimouh','fahad.almansoori'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
