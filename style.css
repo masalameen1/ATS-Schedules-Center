@@ -3052,3 +3052,10 @@ html body .qwTb.qwTb .btn,html body .qwTb.qwTb>.btn:nth-child(n),html body .qwTb
 
 #v_exam #exRoot .tdSeg .tdSg{padding:7px 12px!important;font-size:14px!important;min-height:0!important}
 #v_exam #exRoot .tdSeg{margin:6px 0!important}
+
+.hsSec{margin:10px 0}
+.hsSecH{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:6px 10px;margin-bottom:6px;background:#eef3fb;border-inline-start:6px solid #334155;border-radius:10px}
+.hsMini{font-size:.82em;color:#475569;font-weight:600}
+
+.tdSb{font:inherit;font-size:14px;font-weight:700;padding:0 14px;height:38px;border-radius:12px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;cursor:pointer}
+.tdFil .tdSb{flex:0 0 auto}
