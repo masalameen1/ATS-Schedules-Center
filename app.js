@@ -2755,7 +2755,21 @@ function catCard(d){catList();
 
 /* ---- student view of the published final-exam schedule (read-only) ---- */
 const SB={g:'',cls:'',q:''};
-function drawStu(){ROOT.innerHTML='';const w=el('section','card exc exStu');w.append(el('h3','exh','🏫 Exam Halls & Seating · توزيع القاعات والمقاعد'));w.append(el('p','exs','Find your class: hall, zone, time and the seat numbers reserved for your section · ابحث عن صفك لمعرفة القاعة والمقاعد'));
+/* student view: only the exam hall each class / student is distributed to (no invigilators, no other data) */
+function drawStuHall(){ROOT.innerHTML='';const w=el('section','card exc exStu');w.append(el('h3','exh','🏫 قاعات الاختبار · Exam Halls'));w.append(el('p','exs','اختر صفك لمعرفة القاعة التي وُزّع عليها كل طالب · Choose your class to see your exam hall'));
+ const RS=(typeof saRoster==='function'?saRoster():[]).filter(r=>r&&r[1]);const clsAll=[...new Set(RS.map(r=>r[1]))].sort((a,b)=>a.localeCompare(b,'en',{numeric:true})),grades=[...new Set(RS.map(r=>r[0]))].sort((a,b)=>a-b);
+ if(!SB.cls&&!SB.g&&!SB.init){SB.init=1;try{const sv=localStorage.getItem('tt_stuHallCls')||'';if(sv&&clsAll.includes(sv))SB.cls=sv}catch(e){}}
+ const fr=el('div','exRow exFil'),gs=el('select');[['','الصف · All grades'],...grades.map(g=>[String(g),'الصف '+g+' · Grade '+g])].forEach(([v,t])=>{const o=el('option','',t);o.value=v;gs.append(o)});gs.value=SB.g||'';gs.onchange=()=>{SB.g=gs.value;SB.cls='';draw()};
+ const cs=el('select');[['','الشعبة · Class'],...clsAll.filter(c=>!SB.g||String(RS.find(r=>r[1]===c)[0])===SB.g).map(c=>[c,c])].forEach(([v,t])=>{const o=el('option','',t);o.value=v;cs.append(o)});cs.value=SB.cls||'';cs.onchange=()=>{SB.cls=cs.value;try{localStorage.setItem('tt_stuHallCls',cs.value)}catch(e){}draw()};
+ const qi=el('input');qi.type='search';qi.placeholder='🔎 اسم الطالب · Student name';qi.value=SB.q||'';qi.oninput=()=>{SB.q=qi.value;clearTimeout(qi._t);qi._t=setTimeout(()=>{draw();const n=ROOT.querySelector('.exStu input[type=search]');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}},250)};
+ fr.append(gs,cs,qi);w.append(fr);
+ const q=(SB.q||'').trim().toLowerCase();if(!SB.cls&&!q){w.append(el('p','exs','اختر الشعبة أو ابحث بالاسم · Pick a class or search by name'));ROOT.append(w);return}
+ const hall=r=>String(r[10]||'').trim()||'—',list=RS.filter(r=>(!SB.cls||r[1]===SB.cls)&&(!q||String(r[2]).toLowerCase().includes(q))).sort((a,b)=>a[1].localeCompare(b[1],'en',{numeric:true})||String(a[2]).localeCompare(String(b[2])));
+ if(!list.length){w.append(el('p','exs','لا نتائج · No results'));ROOT.append(w);return}
+ const hc={};list.forEach(r=>{hc[hall(r)]=(hc[hall(r)]||0)+1});if(SB.cls)w.append(el('p','exs','القاعات · Halls: '+Object.keys(hc).sort().map(h=>h+' ('+hc[h]+')').join('  ·  ')));
+ const tb=el('table','stuT'),th=el('tr');['#','الطالب · Student',SB.cls?'':'الشعبة · Class','القاعة · Hall'].filter(Boolean).forEach(x=>th.append(el('th','',x)));tb.append(th);
+ list.slice(0,300).forEach((r,i)=>{const tr=el('tr');tr.append(el('td','',String(i+1)),el('td','',r[2]));if(!SB.cls)tr.append(el('td','',r[1]));const hb=el('b','',hall(r));const td=el('td');td.append(hb);tr.append(td);tb.append(tr)});w.append(tb);ROOT.append(w)}
+function drawStu(){if(window.__EXR&&window.__EXR.length)return drawStuHall();ROOT.innerHTML='';const w=el('section','card exc exStu');w.append(el('h3','exh','🏫 Exam Halls & Seating · توزيع القاعات والمقاعد'));w.append(el('p','exs','Find your class: hall, zone, time and the seat numbers reserved for your section · ابحث عن صفك لمعرفة القاعة والمقاعد'));
  if(!S.pubAt){w.append(el('p','exs','The final exam schedule has not been published yet. Please check again later.'));ROOT.append(w);return}
  const rows=[];const SC={};S.days.forEach(d=>d.sess.forEach(sx=>{if(!sx.cls||/^no\s*exam$/i.test((sx.code||'').trim()))return;const v=venue(sx.v),ce=catFind(sx.code);const sk=d.id+'|'+sx.v+'|'+(sx.from||d.from)+'|'+(sx.to||d.to),nS=+sx.n||0,s0=(SC[sk]||0)+1;SC[sk]=(SC[sk]||0)+nS;rows.push({seat:nS?(nS>1?s0+'–'+(s0+nS-1):''+s0):'',nS,zn:v?((zone(v.zone)||{}).name||''):'',d,date:d.date||'',from:sx.from||d.from,to:sx.to||d.to,hall:v?v.name:'',cls:sx.cls,code:sx.code||'',subj:sx.subj||(ce&&ce.subject)||'',ty:tyOf(sx,d),reqs:catItems(ce)})}));
  const clsAll=[...new Set(rows.map(r=>r.cls))].sort((a,b)=>a.localeCompare(b,'en',{numeric:true}));
