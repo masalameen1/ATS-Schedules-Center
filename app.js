@@ -2298,7 +2298,7 @@ function paint1(){bx.innerHTML='';const hd=el('div','pkH');hd.append(btn('‹ ر
   q.oninput=draw2;draw2();tb.append(list);bx.append(tb);
   const act=el('div','saBar');{const sv=grn(sendAbs());sv.classList.add('saSendBtn');act.append(sv)}if(F.hall!=='*'||!F.all){act.append(btn('✓ الكل حاضر في هذه القاعة · Mark all present',()=>{saSet(d,H.flatMap(h=>h.seats.map(s=>s.id)),0);paint()},'sm'))}bx.append(act)}
  paint()}
-function drawSimple(d){try{if(!(d.sess&&d.sess.length)){const td=todayDubai(),ok=x=>x.sess&&x.sess.length,alt=S.days.find(x=>x.date===td&&ok(x))||S.days.filter(x=>ok(x)&&x.date>=td).sort((a,b)=>a.date<b.date?-1:1)[0]||S.days.find(ok);if(alt&&alt!==d){dayId=alt.id;d=alt}}}catch(e){}const sy=ROOT.scrollTop;ROOT.innerHTML='';if(!BK.tScope){try{BK.tScope=(window.__exInfo(true).list||[]).length?'me':'all'}catch(e){}}const w=el('div','ix spW');
+function drawSimple(d){try{if(!(d.sess&&d.sess.length)){const td=todayDubai(),ok=x=>x.sess&&x.sess.length,alt=S.days.find(x=>x.date===td&&ok(x))||S.days.filter(x=>ok(x)&&x.date>=td).sort((a,b)=>a.date<b.date?-1:1)[0]||S.days.find(ok);if(alt&&alt!==d){dayId=alt.id;d=alt}}}catch(e){}const sy=ROOT.scrollTop;ROOT.innerHTML='';if(!BK.tScope){try{BK.tScope=((window.__exInfo(true).list||[]).length&&!(canEd()||isAuth8()))?'me':'all'}catch(e){}}const w=el('div','ix spW');
  const hs=S.venues.filter(v=>d.sess.some(z=>z.v===v.id)||(d.inv[v.id]||[]).length);
  const tot=hs.reduce((a,v)=>a+(d.inv[v.id]||[]).length,0),need=hs.reduce((a,v)=>a+(v.need||1),0),stu=hs.reduce((a,v)=>a+studs(d,v.id),0),low=hs.filter(v=>(d.inv[v.id]||[]).length<(v.need||1)).length;
  const pub=S.pubAt&&!S.draft&&!dirty;
@@ -2517,7 +2517,7 @@ function teacherCard(o){const ed=!!(o&&o.ed)||canEd();
  if(!ed){const ob=el('button','tdOpen'+(BK.tOpen?' on':''),(BK.tOpen?'▲ إخفاء مراقباتي · Hide my invigilation':'👤 اضغط لترى مراقباتك · Show my invigilation'));ob.type='button';if(!BK.tOpen)grn(ob);ob.onclick=()=>{BK.tOpen=!BK.tOpen;draw()};c.append(ob)}
  const finB0=()=>{if(window.__finOK&&window.__finOK()&&!c.querySelector('#finBtn')){const f0=el('button','btn','📑 التقرير النهائي للاختبار · Final Exam Report');f0.id='finBtn';f0.type='button';const L0=f0.textContent;f0.onclick=async()=>{f0.textContent='… ';try{await window.__finalReport()}catch(e){}f0.textContent=L0};[['background','#eef2ff'],['color','#1e3a8a'],['border','1px solid #c7d2fe'],['border-radius','999px'],['padding','6px 14px'],['font-size','.82rem'],['font-weight','600'],['cursor','pointer'],['margin','6px 6px 6px 0'],['width','auto'],['display','inline-flex'],['box-shadow','none']].forEach(([k,v])=>f0.style.setProperty(k,v,'important'));c.append(f0)}};const absB0=()=>{if(window.__absSee&&window.__absSee()&&window.__absOpen&&!c.querySelector('#absBtn')){const b0=el('button','btn','🚫 الغياب من كل الشعب · Absentees');b0.id='absBtn';b0.type='button';b0.onclick=()=>window.__absOpen();[['background','#fff1f0'],['color','#c4261d'],['border','1px solid #ffd6d2'],['border-radius','999px'],['padding','6px 14px'],['font-size','.82rem'],['font-weight','600'],['cursor','pointer'],['margin','6px 0'],['width','auto'],['display','inline-flex'],['box-shadow','none']].forEach(([k,v])=>b0.style.setProperty(k,v,'important'));c.append(b0)}finB0()};if(!ed&&!BK.tOpen){absB0();return c}
  let I={pub:false,list:[],pubAt:0};try{I=window.__exInfo(ed)}catch(e){}
- if(!BK.tScope)BK.tScope=(I.list||[]).length?'me':'all';
+ if(!BK.tScope)BK.tScope=((I.list||[]).length&&!(canEd()||isAuth8()))?'me':'all';
  const rc=remCfg(),now=Date.now(),td=todayDubai(),bi=(en,ar,cl)=>{const d=el('div',cl||'tmsg');d.append(el('div','',en),el('div','ar',ar));return d};
  if(I.pub&&I.pubAt)c.append(el('div','tcm','Last published | آخر نشر: '+fmtT(I.pubAt)));
  if(!I.pub&&!ed){c.append(bi('The invigilation schedule has not been published yet.','لم يُنشر جدول المراقبة بعد.','tmsg warn'));absB0();return c}
@@ -2532,7 +2532,7 @@ function teacherCard(o){const ed=!!(o&&o.ed)||canEd();
  if(sc==='me'&&!I.list.length)c.append(bi('You have no invigilation assignments currently published.','لا توجد لديك مراقبات منشورة حاليًا.'));
  const nx=I.list.findIndex(a=>a.date>=td);
  const dts=[...new Set(SRC.map(a=>a.date))].sort();if(!dts.length)return c;
- if(BK.tDay!=='*'&&!dts.includes(BK.tDay))BK.tDay=dts.includes(td)?td:(dts.find(x=>x>=td)||dts[dts.length-1]);
+ if(!BK.__dInit){BK.__dInit=1;if(!BK.tDay||BK.tDay==='*')BK.tDay=dts.includes(td)?td:(dts.find(x=>x>=td)||dts[dts.length-1])}if(BK.tDay!=='*'&&!dts.includes(BK.tDay))BK.tDay=dts.includes(td)?td:(dts.find(x=>x>=td)||dts[dts.length-1]);
  {const tb=el('div','tdTabs');const ix=dts.indexOf(BK.tDay);
   const nv=(t,k)=>{const b=el('button','tdTab nav',t);b.type='button';b.disabled=BK.tDay==='*'||k<0&&ix<=0||k>0&&ix>=dts.length-1;b.onclick=()=>{BK.tDay=dts[ix+k];draw()};return b};
   tb.append(nv('‹ السابق · Prev',-1),nv('التالي · Next ›',1));
