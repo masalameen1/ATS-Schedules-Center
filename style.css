@@ -3021,3 +3021,17 @@ html body :is(#v_sub) .subDays{background:#fff;border:1px solid var(--il-line);b
 
 /* non-authorised users: only their own duties */
 body.subRO #v_sub .tools,body.subRO #v_sub .scroll,body.subRO #subCtl>*:not(#myDuty):not(#roNote){display:none!important}
+
+/* compact absentees modal */
+#absC{padding:12px 16px!important}
+#absC .abh{margin-bottom:4px!important;gap:10px}
+#absC .abh h3{font-size:19px!important;margin:0}
+#absC .abh .btn{padding:5px 14px!important;font-size:14px!important;min-height:0!important}
+#absC .abf{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 8px!important;margin:6px 0!important}
+#absC .abf select,#absC .abf input[type=search]{width:100%!important;min-width:0;height:36px!important;margin:0!important;padding:4px 10px!important;font-size:14px!important}
+#absC .abf select:first-child{grid-column:span 2}
+#absC .abf label{grid-column:span 2;display:flex;align-items:center;gap:6px;font-size:13px;margin:0!important;white-space:nowrap}
+#absC .abf input[type=search]{grid-column:span 2}
+#absC .abx{margin:6px 0!important;gap:6px!important}
+#absC .abx .btn{padding:5px 14px!important;font-size:14px!important;min-height:0!important}
+#absC .abx .abm,#absC .abx span{font-size:13px}
