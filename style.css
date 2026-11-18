@@ -3069,3 +3069,6 @@ html body .qwTb.qwTb .btn,html body .qwTb.qwTb>.btn:nth-child(n),html body .qwTb
 #absC .abExB.ok.on{background:#16a34a!important;border-color:#16a34a!important;color:#fff!important}
 #absC .abExB.no.on{background:#dc2626!important;border-color:#dc2626!important;color:#fff!important}
 #absC .abrc select{max-width:130px}#absC .abrc input{min-width:120px}
+
+#vBack{position:fixed;inset-inline-start:14px;bottom:14px;z-index:60;height:40px;padding:0 18px;border-radius:999px;border:1px solid rgba(15,23,42,.12);background:rgba(255,255,255,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 6px 20px rgba(15,23,42,.18);font:inherit;font-size:15px;font-weight:700;color:#0f172a;cursor:pointer}
+#vBack[hidden],body.ov #vBack{display:none}
