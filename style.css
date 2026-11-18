@@ -3059,3 +3059,13 @@ html body .qwTb.qwTb .btn,html body .qwTb.qwTb>.btn:nth-child(n),html body .qwTb
 
 .tdSb{font:inherit;font-size:14px;font-weight:700;padding:0 14px;height:38px;border-radius:12px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;cursor:pointer}
 .tdFil .tdSb{flex:0 0 auto}
+
+#absC .abr{grid-template-columns:36px 2.2fr .6fr 1fr 1fr 1.3fr 1fr 1.5fr 1fr 3.6fr!important}
+#absC .abrc{grid-column:9 / span 2;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#absC .abEx{display:inline-flex;gap:6px;flex:0 0 auto}
+#absC .abExB{border-radius:999px!important;height:30px!important;min-height:0!important;padding:0 12px!important;font-size:13px!important;font-weight:700;white-space:nowrap;width:auto!important;display:inline-flex;align-items:center;gap:4px;cursor:pointer;box-shadow:none!important}
+#absC .abExB.ok{background:#ecfdf3!important;border:1px solid #a7e3bf!important;color:#0a7a3d!important}
+#absC .abExB.no{background:#fff1f0!important;border:1px solid #ffc9c4!important;color:#c4261d!important}
+#absC .abExB.ok.on{background:#16a34a!important;border-color:#16a34a!important;color:#fff!important}
+#absC .abExB.no.on{background:#dc2626!important;border-color:#dc2626!important;color:#fff!important}
+#absC .abrc select{max-width:130px}#absC .abrc input{min-width:120px}
