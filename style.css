@@ -3035,3 +3035,20 @@ body.subRO #v_sub .tools,body.subRO #v_sub .scroll,body.subRO #subCtl>*:not(#myD
 #absC .abx{margin:6px 0!important;gap:6px!important}
 #absC .abx .btn{padding:5px 14px!important;font-size:14px!important;min-height:0!important}
 #absC .abx .abm,#absC .abx span{font-size:13px}
+
+/* compact invigilation toolbar */
+body .qwTb{display:flex!important;flex-wrap:wrap!important;gap:6px!important;margin:0 0 10px!important;align-items:center}
+body .qwTb>*,body .qwTb>.qwTbMain,body .qwTb>.qwTbMain+*,body .qwTb>.btn:nth-child(n){grid-column:auto!important;flex:0 0 auto!important;width:auto!important}
+body .qwTb .btn,body .qwTb>.btn:nth-child(n){min-height:36px!important;height:36px;padding:0 14px!important;font-size:14px!important;font-weight:700;border-radius:12px!important;white-space:nowrap!important;box-shadow:none!important;width:auto!important}
+body .qwTb .qwTbMain,body .qwTb>.qwTbMain{min-height:36px!important;height:36px;font-size:14px!important;border-radius:12px!important;box-shadow:0 2px 8px -3px rgba(47,98,214,.5)!important;width:auto!important}
+body .qwTb>.btn:nth-child(n):not(.qwTbMain):not([class*=grn]):not(.green){background:#fff}
+
+html body .qwTb.qwTb .btn,html body .qwTb.qwTb>.btn:nth-child(n),html body .qwTb.qwTb .qwTbMain{height:36px!important;min-height:36px!important;font-size:14px!important;padding:0 14px!important;line-height:1!important;border-radius:12px!important;box-shadow:none!important;width:auto!important;flex:0 0 auto!important}
+html body .qwTb.qwTb{gap:6px!important}
+
+html body .qwTb.qwTb .btn,html body .qwTb.qwTb>.btn:nth-child(n),html body .qwTb.qwTb .qwTbMain,html body .qwTb.qwTb button{font-size:14px!important;line-height:1.1!important}
+
+#v_exam #exRoot .qwTb.qwTb .btn,#v_exam #exRoot .qwTb.qwTb .qwTbMain,#v_exam #exRoot .qwTb.qwTb button{font-size:14px!important;line-height:1.1!important;height:36px!important;min-height:36px!important;padding:0 14px!important}
+
+#v_exam #exRoot .tdSeg .tdSg{padding:7px 12px!important;font-size:14px!important;min-height:0!important}
+#v_exam #exRoot .tdSeg{margin:6px 0!important}
