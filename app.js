@@ -900,18 +900,27 @@ let S=clone(SEED);S.rest={};S.cat=[];let dirty=false,loaded=false,dayId=S.days[0
  const nz=k=>{let s=String(k||'').replace(/\s+/g,'').replace('[ADV]','[AD]');const m=/^A12\[(ENE|ENI)\]\/(\d+)$/.exec(s);if(m)return '12'+m[1]+m[2];const q=/^(A\d\d)((?:\[[A-Z]+\])+)\/(\d+)$/.exec(s);if(q)return q[1]+q[2].match(/\[[A-Z]+\]/g).sort().join('')+'/'+q[3];return s};
  let cx=null;const cnt=c=>{if(!cx){cx={};Object.keys(window.__CLSN||{}).forEach(k=>{cx[nz(k)]=window.__CLSN[k]})}return cx[nz(c)]||0};
  let _d=S.days,_v=S.venues,sp=null,last=0;
- const build=()=>{const sess=[],venues=[],inv={},vm=new Map();let n=0;
+ const build=()=>{const sess=[],venues=[],inv={},vm=new Map(),SG={};let n=0;
   GRP.forEach((G,gi)=>{const z=TX(G.st).w.find(e=>e[0]==G.p);if(!z)return;const [a,b]=z[1].split(' - ').map(p2);const seen=new Set();
    ALL.filter(l=>l.d===DI&&G.g.includes(gOf(l.c))&&l.p<=G.p&&G.p<=l.p+l.s-1).sort((x,y)=>String(nmR(x.r)).localeCompare(nmR(y.r),'en',{numeric:true})||String(x.c).localeCompare(y.c)).forEach(l=>{const k=l.c+'|'+l.t+'|'+nmR(l.r);if(seen.has(k))return;seen.add(k);
     const rn=nmR(l.r),vk=gi+'|'+rn;let v=vm.get(vk);if(!v){v={id:'spv'+(venues.length+1),zone:zOf(rn),name:rn,need:1,sup:G.sup,sp:1};vm.set(vk,v);venues.push(v);inv[v.id]=[]}
-    if(!inv[v.id].includes(l.t))inv[v.id].push(l.t);sess.push({id:'sps'+(++n),v:v.id,cls:l.c,n:0,subj:'Social Studies',code:'',from:a,to:b,ty:'Electronic',rm:0,ek:''})})});
+    if(!inv[v.id].includes(l.t))inv[v.id].push(l.t);sess.push({id:'sps'+(++n),v:v.id,cls:l.c,n:0,subj:'Social Studies',code:'',from:a,to:b,ty:'Electronic',rm:0,ek:''});SG['sps'+n]=gi})});
+  /* hall = the ExamRoom column of the approved student list (mixed classes per hall); invigilators = teachers of those classes, 1 per 17 students */
+  if(!window.__EXR)return null;
+  try{const RS=saRoster();if(sess.length&&RS&&RS.some(r=>r[10])){const NS=[],NV=[],NI={};let n2=0;
+   GRP.forEach((G,gi)=>{const ss=sess.filter(s=>SG[s.id]===gi);if(!ss.length)return;const ks=new Set(ss.map(s=>saKey(s.cls))),a=ss[0].from,b=ss[0].to,by=new Map();
+    RS.forEach(r=>{if(!G.g.includes(+r[0])||!ks.has(saKey(r[1])))return;const rn=String(r[10]||'').trim()||'TBC';let o=by.get(rn);if(!o){o={};by.set(rn,o)}o[r[1]]=(o[r[1]]||0)+1});
+    const tk={};ALL.filter(l=>l.d===DI&&G.g.includes(gOf(l.c))&&l.p<=G.p&&G.p<=l.p+l.s-1).forEach(l=>{const k=saKey(l.c);(tk[k]=tk[k]||[]).includes(l.t)||tk[k].push(l.t)});const pool=[...new Set(Object.values(tk).flat())],used=new Set(),H=[];
+    by.forEach((cl,rn)=>{const tot=Object.values(cl).reduce((x,y)=>x+y,0),sv=SEED.venues.find(x=>rmKey(x.name)===rmKey(rn)),v={id:'spv'+(NV.length+1),zone:(sv&&sv.zone)||zOf(rn),name:rn,need:1,sup:G.sup,sp:1};NV.push(v);NI[v.id]=[];Object.keys(cl).sort().forEach(c=>NS.push({id:'sps'+(++n2),v:v.id,cls:c,n:cl[c],subj:'Social Studies',code:'',from:a,to:b,ty:'Electronic',rm:1,ek:''}));H.push({v,cl,need:Math.max(1,Math.ceil(tot/17))})});
+    H.sort((x,y)=>y.need-x.need).forEach(h=>{const mine=[];Object.keys(h.cl).forEach(c=>(tk[saKey(c)]||[]).forEach(t=>{if(!mine.includes(t))mine.push(t)}));const pick=[...mine.filter(t=>!used.has(t)),...pool.filter(t=>!used.has(t)&&!mine.includes(t))].slice(0,h.need);pick.forEach(t=>used.add(t));NI[h.v.id]=pick})});
+   if(NS.length){sess.splice(0,sess.length,...NS);venues.splice(0,venues.length,...NV);Object.keys(inv).forEach(k=>delete inv[k]);Object.assign(inv,NI)}}}catch(e){}
   if(!sess.length)return null;
   const day={id:'sp20261118',date:DATE,sp:1,title:'End of Term 1 · MoE Trial Electronic Examination — Social Studies (SwiftAssess)',type:'Electronic',from:sess.map(s=>s.from).sort()[0],to:sess.map(s=>s.to).sort().pop(),sess,inv,ovr:{},
    note:'Platform: SwiftAssess · Exam duration: 50 minutes (the lesson period). Grades 9–10: Period 2 (Exam Supervisor: Mr. Waseem). Grades 11–12: Period 3 (Exam Supervisor: Mr. Abdullah Abass). Make sure the SwiftAssess application on the Android or iOS tablet is updated to the latest version before the examination. Make sure the device is fully charged. Be ready to start at the scheduled time and follow all examination instructions.'};
   return{day,venues}};
  const ens=()=>{try{if(todayDubai()>DATE)return;if(!sp)sp=build();if(!sp)return;
   if(!_d.some(x=>x.id===sp.day.id))_d.push(sp.day);sp.venues.forEach(v=>{if(!_v.some(x=>x.id===v.id))_v.push(v)});
-  const ex=_d.find(x=>x.id===sp.day.id)||sp.day;if(ex!==sp.day&&!ex.__sy2){ex.__sy2=1;ex.note=sp.day.note;ex.title=sp.day.title;ex.from=sp.day.from;ex.to=sp.day.to;ex.inv=sp.day.inv;ex.sess=sp.day.sess;sp.venues.forEach(v=>{const w=_v.find(x=>x.id===v.id);if(w&&w!==v){w.name=v.name;w.zone=v.zone;w.sup=v.sup;w.sp=1}})}
+  const ex=_d.find(x=>x.id===sp.day.id)||sp.day;if(ex!==sp.day&&!ex.__sy3){ex.__sy3=1;ex.ovr=sp.day.ovr;ex.note=sp.day.note;ex.title=sp.day.title;ex.from=sp.day.from;ex.to=sp.day.to;ex.inv=sp.day.inv;ex.sess=sp.day.sess;sp.venues.forEach(v=>{const w=_v.find(x=>x.id===v.id);if(w&&w!==v){w.name=v.name;w.zone=v.zone;w.sup=v.sup;w.sp=1}});for(let i=_v.length-1;i>=0;i--)if(_v[i].sp&&!sp.venues.some(y=>y.id===_v[i].id))_v.splice(i,1)}
   if(window.__CLSN&&Date.now()-last>5000&&!sp.cn){last=Date.now();let any=0;ex.sess.forEach(s=>{const c=cnt(s.cls);if(c&&!+s.n){s.n=c;any=1}});if(any)sp.cn=1}}catch(e){}};
  Object.defineProperty(S,'days',{get(){ens();return _d},set(v){_d=v},enumerable:true,configurable:true});
  Object.defineProperty(S,'venues',{get(){ens();return _v},set(v){_v=v},enumerable:true,configurable:true});
