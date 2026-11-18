@@ -892,7 +892,7 @@ const FMT=(d)=>{try{return new Date(d+'T12:00:00+04:00').toLocaleDateString('en-
 const ms=(d,t)=>Date.parse(d+'T'+(t||'00:00')+':00+04:00');
 let S=clone(SEED);S.rest={};S.cat=[];let dirty=false,loaded=false,dayId=S.days[0].id,zf='',q='',onlyC=false,pick='',incl=false,rot=true,confirmClr=false,msg='';
 /* exceptional exam day: MoE trial electronic exam (Social Studies), Wed 18 Nov 2026 — built from the timetable; the invigilator is the teacher of that lesson */
-(function(){const DATE='2026-11-18',DI=2,GRP=[{g:[9,10],p:2,st:'a',sup:'Waseem Al Husani'},{g:[11,12],p:4,st:'b',sup:'Abdullah Abass'}];
+(function(){const DATE='2026-11-18',DI=2,GRP=[{g:[9,10],p:2,st:'a',sup:'Waseem Al Husani'},{g:[11,12],p:3,st:'b',sup:'Abdullah Abass'}];
  const gOf=c=>{const m=/(\d{2})/.exec(String(c));return m?+m[1]:0};
  const nmR=r=>String(r||'').split(/[,;]/)[0].trim().replace(/^([A-Za-z]+)-(\d)/,'$1$2')||'TBC';
  const zOf=n=>/^MW/i.test(n)?'MW':/^GYM/i.test(n)?'OT':/^M\d/i.test(n)?'M':/^B\d/i.test(n)?'B':/^A\d/i.test(n)?'A':/^E\d/i.test(n)?'E':'';
@@ -907,11 +907,11 @@ let S=clone(SEED);S.rest={};S.cat=[];let dirty=false,loaded=false,dayId=S.days[0
     if(!inv[v.id].includes(l.t))inv[v.id].push(l.t);sess.push({id:'sps'+(++n),v:v.id,cls:l.c,n:0,subj:'Social Studies',code:'',from:a,to:b,ty:'Electronic',rm:0,ek:''})})});
   if(!sess.length)return null;
   const day={id:'sp20261118',date:DATE,sp:1,title:'End of Term 1 · MoE Trial Electronic Examination — Social Studies (SwiftAssess)',type:'Electronic',from:sess.map(s=>s.from).sort()[0],to:sess.map(s=>s.to).sort().pop(),sess,inv,ovr:{},
-   note:'Platform: SwiftAssess · Exam duration: 50 minutes (the lesson period). Grades 9–10: Period 2 (Exam Supervisor: Mr. Waseem). Grades 11–12: Period 4 (Exam Supervisor: Mr. Abdullah Abass). Make sure the SwiftAssess application on the Android or iOS tablet is updated to the latest version before the examination. Make sure the device is fully charged. Be ready to start at the scheduled time and follow all examination instructions.'};
+   note:'Platform: SwiftAssess · Exam duration: 50 minutes (the lesson period). Grades 9–10: Period 2 (Exam Supervisor: Mr. Waseem). Grades 11–12: Period 3 (Exam Supervisor: Mr. Abdullah Abass). Make sure the SwiftAssess application on the Android or iOS tablet is updated to the latest version before the examination. Make sure the device is fully charged. Be ready to start at the scheduled time and follow all examination instructions.'};
   return{day,venues}};
  const ens=()=>{try{if(todayDubai()>DATE)return;if(!sp)sp=build();if(!sp)return;
   if(!_d.some(x=>x.id===sp.day.id))_d.push(sp.day);sp.venues.forEach(v=>{if(!_v.some(x=>x.id===v.id))_v.push(v)});
-  const ex=_d.find(x=>x.id===sp.day.id)||sp.day;if(ex!==sp.day&&!ex.__sy){ex.__sy=1;ex.note=sp.day.note;ex.title=sp.day.title}
+  const ex=_d.find(x=>x.id===sp.day.id)||sp.day;if(ex!==sp.day&&!ex.__sy){ex.__sy=1;ex.note=sp.day.note;ex.title=sp.day.title;ex.from=sp.day.from;ex.to=sp.day.to;ex.inv=sp.day.inv;ex.sess=sp.day.sess;sp.venues.forEach(v=>{const w=_v.find(x=>x.id===v.id);if(w&&w!==v){w.name=v.name;w.zone=v.zone;w.sup=v.sup;w.sp=1}})}
   if(window.__CLSN&&Date.now()-last>5000&&!sp.cn){last=Date.now();let any=0;ex.sess.forEach(s=>{const c=cnt(s.cls);if(c&&!+s.n){s.n=c;any=1}});if(any)sp.cn=1}}catch(e){}};
  Object.defineProperty(S,'days',{get(){ens();return _d},set(v){_d=v},enumerable:true,configurable:true});
  Object.defineProperty(S,'venues',{get(){ens();return _v},set(v){_v=v},enumerable:true,configurable:true});
