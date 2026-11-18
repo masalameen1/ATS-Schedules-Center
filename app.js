@@ -1908,8 +1908,20 @@ async function saImport(file){if(/\.csv$/i.test(file.name)){const rows=saCsv(awa
 const saKey=c=>{c=String(c||'').trim();const m=c.match(/^A?(\d\d)/),g=m?m[1]:'';let t=[...c.matchAll(/\[([A-Za-z]+)\]/g)].map(x=>x[1].toUpperCase());if(!t.length){const m2=c.match(/^\d\d([A-Za-z]+)\d*$/);if(m2)t=[m2[1].toUpperCase()]}t=t.map(x=>x==='AD'?'ADV':x).sort();const m3=c.match(/\/(\d+)(?:\s*-\s*[A-Za-z]+)?\s*$/)||c.match(/^\d\d[A-Za-z]+(\d+)$/);return g+'|'+t.join(',')+'|'+(m3?m3[1]:'')};
 const saHalls=d=>S.venues.filter(v=>d.sess.some(z=>z.v===v.id));
 function saStudents(d,vid){const sz=d.sess.filter(z=>z.v===vid),vn=S.venues.find(x=>x.id===vid),vk=vn?rmKey(vn.name):'',out=[];saRoster().forEach((r,i)=>{const k=saKey(r[1]);if(sz.some(z=>saKey(z.cls)===k&&(!z.rm||!r[10]||rmKey(r[10])===vk)&&(!z.ek||r[12]===z.ek)))out.push({id:i,g:r[0],cls:r[1],name:r[2],tch:r[3],act:r[4],room:r[5],str:r[6],note:r[7],sid:r[8]||'',em:r[9]||'',div:r[11]||'',xr:r[10]||'',hall:vid})});return out}
-/* seating: classes interleaved so neighbours are from different classes; row-major seat numbers */
-function saSeats(d,vid){const L=saStudents(d,vid),by={};L.forEach(s=>{(by[s.cls]=by[s.cls]||[]).push(s)});const gs=Object.keys(by).sort().map(k=>by[k].sort((a,b)=>a.name.localeCompare(b.name)));const out=[];let more=true;for(let i=0;more;i++){more=false;gs.forEach(g=>{if(g[i]){out.push(g[i]);more=true}})}out.forEach((s,i)=>{s.seat=i+1});return out}
+/* seating: grid-aware spreading — same-grade (and same-class) students are kept apart: not side by side, not directly behind each other, and diagonals/second neighbours are penalised; row-major seat numbers */
+function saSeats(d,vid){const L=saStudents(d,vid),n=L.length,C=saCols(n),byG={};
+ const gS=s=>gOfCls(s.cls)||String(s.g||'');
+ L.forEach(s=>{const g=gS(s);const o=byG[g]=byG[g]||{};(o[s.cls]=o[s.cls]||[]).push(s)});
+ Object.values(byG).forEach(cs=>Object.values(cs).forEach(a=>a.sort((x,y)=>x.name.localeCompare(y.name))));
+ const rem=g=>Object.values(byG[g]).reduce((a,b)=>a+b.length,0),grid=[];
+ for(let i=0;i<n;i++){const r=Math.floor(i/C),c=i%C;
+  const at=(rr,cc)=>(rr<0||cc<0||cc>=C)?null:(grid[rr*C+cc]||null);
+  const nb=[[0,-1,100],[-1,0,100],[-1,-1,20],[-1,1,20],[0,-2,12],[-2,0,10]].map(([dr,dc,w])=>[at(r+dr,c+dc),w]);
+  let best=null,bs=1e9;
+  Object.keys(byG).forEach(g=>{if(!rem(g))return;Object.keys(byG[g]).sort().forEach(cls=>{const q=byG[g][cls];if(!q.length)return;let cost=0;nb.forEach(([s,w])=>{if(!s)return;if(gS(s)===g)cost+=w;if(s.cls===cls)cost+=w*.6});cost-=rem(g)*.5+q.length*.05;if(cost<bs){bs=cost;best=[g,cls]}})});
+  grid[i]=byG[best[0]][best[1]].shift()}
+ grid.forEach((s,k)=>{s.seat=k+1});return grid}
+window.__saSeats=(d,v)=>saSeats(d,v);
 
 function saLogo(g,logo,x,y,s){try{g.fillStyle='#fff';g.beginPath();if(g.roundRect)g.roundRect(x,y,s,s,16);else g.rect(x,y,s,s);g.fill();if(logo&&logo.naturalWidth){const k=Math.min((s-12)/logo.naturalWidth,(s-12)/logo.naturalHeight);g.drawImage(logo,x+s/2-logo.naturalWidth*k/2,y+s/2-logo.naturalHeight*k/2,logo.naturalWidth*k,logo.naturalHeight*k)}}catch(e){}}
 function saBand(g,W,M,logo,o){const HH=176,rr=(x,y,w,h,r)=>{g.beginPath();if(g.roundRect)g.roundRect(x,y,w,h,r);else g.rect(x,y,w,h)};
@@ -2498,7 +2510,7 @@ function teacherCard(o){const ed=!!(o&&o.ed)||canEd();
  {const dn=window.__docsRender&&window.__docsRender('inv');if(dn)c.append(dn)}
  if(!ed&&BK.tOpen===undefined)BK.tOpen=true;
  if(!ed){const ob=el('button','tdOpen'+(BK.tOpen?' on':''),(BK.tOpen?'▲ إخفاء مراقباتي · Hide my invigilation':'👤 اضغط لترى مراقباتك · Show my invigilation'));ob.type='button';if(!BK.tOpen)grn(ob);ob.onclick=()=>{BK.tOpen=!BK.tOpen;draw()};c.append(ob)}
- const absB0=()=>{if(window.__absSee&&window.__absSee()&&window.__absOpen&&!c.querySelector('#absBtn')){const b0=el('button','btn','🚫 الغياب من كل الشعب · Absentees');b0.id='absBtn';b0.type='button';b0.onclick=()=>window.__absOpen();[['background','#fff1f0'],['color','#c4261d'],['border','1px solid #ffd6d2'],['border-radius','999px'],['padding','6px 14px'],['font-size','.82rem'],['font-weight','600'],['cursor','pointer'],['margin','6px 0'],['width','auto'],['display','inline-flex'],['box-shadow','none']].forEach(([k,v])=>b0.style.setProperty(k,v,'important'));c.append(b0)}};if(!ed&&!BK.tOpen){absB0();return c}
+ const finB0=()=>{if(window.__finOK&&window.__finOK()&&!c.querySelector('#finBtn')){const f0=el('button','btn','📑 التقرير النهائي للاختبار · Final Exam Report');f0.id='finBtn';f0.type='button';const L0=f0.textContent;f0.onclick=async()=>{f0.textContent='… ';try{await window.__finalReport()}catch(e){}f0.textContent=L0};[['background','#eef2ff'],['color','#1e3a8a'],['border','1px solid #c7d2fe'],['border-radius','999px'],['padding','6px 14px'],['font-size','.82rem'],['font-weight','600'],['cursor','pointer'],['margin','6px 6px 6px 0'],['width','auto'],['display','inline-flex'],['box-shadow','none']].forEach(([k,v])=>f0.style.setProperty(k,v,'important'));c.append(f0)}};const absB0=()=>{if(window.__absSee&&window.__absSee()&&window.__absOpen&&!c.querySelector('#absBtn')){const b0=el('button','btn','🚫 الغياب من كل الشعب · Absentees');b0.id='absBtn';b0.type='button';b0.onclick=()=>window.__absOpen();[['background','#fff1f0'],['color','#c4261d'],['border','1px solid #ffd6d2'],['border-radius','999px'],['padding','6px 14px'],['font-size','.82rem'],['font-weight','600'],['cursor','pointer'],['margin','6px 0'],['width','auto'],['display','inline-flex'],['box-shadow','none']].forEach(([k,v])=>b0.style.setProperty(k,v,'important'));c.append(b0)}finB0()};if(!ed&&!BK.tOpen){absB0();return c}
  let I={pub:false,list:[],pubAt:0};try{I=window.__exInfo(ed)}catch(e){}
  if(!BK.tScope)BK.tScope=(I.list||[]).length?'me':'all';
  const rc=remCfg(),now=Date.now(),td=todayDubai(),bi=(en,ar,cl)=>{const d=el('div',cl||'tmsg');d.append(el('div','',en),el('div','ar',ar));return d};
@@ -2568,7 +2580,7 @@ if(ed&&canEd()&&BK.tDay!=='*'){const cur=SRC.find(x=>x.date===BK.tDay);if(cur){c
    mk('📄 PDF',async R=>{const I=info(R);const blob=window.__tblPdf({title:'Exam Invigilation Schedule · جدول مراقبة الاختبارات',sub:I.l2.replace(/\s{2,}/g,' ')+' · '+R.length+' halls',head:['القاعة · Hall','المراقب · Invigilator','الطلاب · Students','الاختبار والمدة · Exam & duration','مشرف المبنى · Building supervisor'],apple:1,
      rows:(()=>{const o=[];let pd='';R.forEach(r=>{if(r.date!==pd){pd=r.date;o.push({span:FMT(r.date)})}o.push({c:[r.hall+(r.zone?' · '+r.zone:''),r.inv.replace(/\n/g,' · '),String(r.tot||'—'),(r.subj||'—')+' · '+r.time+(r.dur?' · '+r.dur:''),r.sup||'—']})});return o})(),widths:[1.5,3.6,.9,3.8,1.9],rh:58});
     await window.__dl('ATS_Invigilation_'+(BK.tDay==='*'?'all':BK.tDay)+'.pdf',blob)}),msgE);c.append(xb)}
- if(window.__absSee&&window.__absSee()&&window.__absOpen){const ab0=el('button','btn','🚫 الغياب من كل الشعب · Absentees');ab0.id='absBtn';ab0.type='button';ab0.title='كشف مجمّع بالغائبين والمتأخرين من كل الشعب والقاعات: عذر وتعليق وتنزيل Excel';ab0.onclick=()=>window.__absOpen();[['background','#fff1f0'],['color','#c4261d'],['border','1px solid #ffd6d2'],['border-radius','999px'],['padding','6px 14px'],['font-size','.82rem'],['font-weight','600'],['cursor','pointer'],['margin','6px 0'],['width','auto'],['display','inline-flex'],['align-items','center'],['gap','6px'],['box-shadow','none']].forEach(([k,v])=>ab0.style.setProperty(k,v,'important'));c.append(ab0);try{attNotify()}catch(e){}}
+ if(window.__absSee&&window.__absSee()&&window.__absOpen){const ab0=el('button','btn','🚫 الغياب من كل الشعب · Absentees');ab0.id='absBtn';ab0.type='button';ab0.title='كشف مجمّع بالغائبين والمتأخرين من كل الشعب والقاعات: عذر وتعليق وتنزيل Excel';ab0.onclick=()=>window.__absOpen();[['background','#fff1f0'],['color','#c4261d'],['border','1px solid #ffd6d2'],['border-radius','999px'],['padding','6px 14px'],['font-size','.82rem'],['font-weight','600'],['cursor','pointer'],['margin','6px 0'],['width','auto'],['display','inline-flex'],['align-items','center'],['gap','6px'],['box-shadow','none']].forEach(([k,v])=>ab0.style.setProperty(k,v,'important'));c.append(ab0);finB0();try{attNotify()}catch(e){}}
  const cnt=el('div','tdCnt');c.append(cnt);
  const lb=el('div','tdList');c.append(lb);
  const renderTable=()=>{const g=new Map();ALL.forEach(a=>{if(BK.tDay!=='*'&&a.date!==BK.tDay)return;if(!okQ(a))return;const k=keyOf(a);if(!g.has(k))g.set(k,{a,names:[]});g.get(k).names.push([a.name,a.me])});
@@ -5311,6 +5323,14 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  setInterval(()=>{try{const old=document.querySelector('#homec #absBtn');if(old)old.remove()}catch(e){}},1500);
  window.__absCan=canAbs;window.__absCmt=cmtOK;
  const SEE=['heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae','hatem.talal@actvet.gov.ae','mohammad.salamin@actvet.gov.ae'];window.__absSee=()=>ROLE!=='student'&&(SEE.includes(em())||isOwn()||canAbs()||isAuth8());
+ window.__finOK=()=>ROLE!=='student'&&(SEE.includes(em())||(typeof ADMINMAIL!=='undefined'&&ADMINMAIL.includes(em()))||isAuth8());
+ window.__finalReport=async()=>{const R=absDays().flatMap(rowsOf).filter(r=>!r.late);if(!R.length){alert('لا توجد غيابات مسجّلة بعد · No absences recorded yet');return}
+  const WD=dt=>{try{return new Date(dt+'T12:00:00+04:00').toLocaleDateString('en-GB',{timeZone:'Asia/Dubai',weekday:'long'})}catch(e){return ''}};
+  const X=R.slice().sort((p,q)=>(+p.g||0)-(+q.g||0)||String(p.cls).localeCompare(String(q.cls),'en',{numeric:true})||String(p.name).localeCompare(String(q.name))||String(p.date).localeCompare(q.date)).map(r=>({gb:'Grade '+String(+r.g||r.g).padStart(2,'0'),sid:r.sid||'',name:r.name,cls:r.cls,str:r.str||'',subj:r.subj||(r.title||''),date:r.date,exc:(r.n&&(r.n.k==='excuse'||r.n.k==='sick'))?'Excused':(r.n&&r.n.k==='none'?'UNExcused':'Pending'),day:WD(r.date),time:r.time||'',hall:r.hall||'',cmt:r.n?(r.n.t||''):''}));
+  const nE=X.filter(x=>x.exc==='Excused').length,nU=X.filter(x=>x.exc==='UNExcused').length,dts=[...new Set(X.map(x=>x.date))].sort(),by0=(window.__getMyName&&window.__getMyName())||em().split('@')[0];
+  const blob=window.__scXlsxAbs({title:'EOT1 — Final Exam Report · Excused / Unexcused Absence',l2:'Exam days: '+dts.length+'   |   Date: '+(dts.length>1?dts[0]+' → '+dts[dts.length-1]:dts[0]),by:by0,sum:['Absent: '+X.length,'Excused: '+nE+'   ·   Unexcused: '+nU+'   ·   Pending: '+(X.length-nE-nU)],
+   cols:[['sid','ID',14],['name','Name',34],['cls','Class',18],['str','Cluster',12],['subj','Subject',26],['date','DATE',13],['exc','Excused / UNExcused',20],['day','Day',12],['time','Time',13],['hall','Hall',12],['cmt','Comment',34]],rows:X,band:'gb',unit:'student',note:'Confidential — contains student information. For authorised staff only.'});
+  await window.__dl('ATS_EOT_Final_Exam_Report.xlsx',blob)};
 })();
 /* ===== school logo on every page ===== */
 (function(){const src=()=>((document.querySelector('header.top .logo img')||{}).src||'');
