@@ -1909,6 +1909,11 @@ const saKey=c=>{c=String(c||'').trim();const m=c.match(/^A?(\d\d)/),g=m?m[1]:'';
 const saHalls=d=>S.venues.filter(v=>d.sess.some(z=>z.v===v.id));
 function saStudents(d,vid){const sz=d.sess.filter(z=>z.v===vid),vn=S.venues.find(x=>x.id===vid),vk=vn?rmKey(vn.name):'',out=[];saRoster().forEach((r,i)=>{const k=saKey(r[1]);if(sz.some(z=>saKey(z.cls)===k&&(!z.rm||!r[10]||rmKey(r[10])===vk)&&(!z.ek||r[12]===z.ek)))out.push({id:i,g:r[0],cls:r[1],name:r[2],tch:r[3],act:r[4],room:r[5],str:r[6],note:r[7],sid:r[8]||'',em:r[9]||'',div:r[11]||'',xr:r[10]||'',hall:vid})});return out}
 /* seating: grid-aware spreading — same-grade (and same-class) students are kept apart: not side by side, not directly behind each other, and diagonals/second neighbours are penalised; row-major seat numbers */
+/* local search after the greedy fill: swap seats while it lowers the penalty (same grade side by side / behind = heaviest, diagonals and 2nd neighbours lighter, same class extra) */
+function saOpt(grid,C,gS){const n=grid.length,OFF=[[0,-1,100],[0,1,100],[-1,0,100],[1,0,100],[-1,-1,20],[-1,1,20],[1,-1,20],[1,1,20],[0,-2,12],[0,2,12],[-2,0,10],[2,0,10]],nbs=[];
+ for(let p=0;p<n;p++){const r=Math.floor(p/C),c=p%C,a=[];OFF.forEach(([dr,dc,w])=>{const rr=r+dr,cc=c+dc;if(rr<0||cc<0||cc>=C)return;const q=rr*C+cc;if(q<n)a.push([q,w])});nbs.push(a)}
+ const loc=(p,s)=>{let t=0;nbs[p].forEach(([q,w])=>{const o=grid[q];if(gS(o)===gS(s))t+=w;if(o.cls===s.cls)t+=w*.6});return t};
+ for(let pass=0;pass<30;pass++){let imp=false;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const a=grid[i],b=grid[j];if(gS(a)===gS(b)&&a.cls===b.cls)continue;const before=loc(i,a)+loc(j,b);grid[i]=b;grid[j]=a;const after=loc(i,b)+loc(j,a);if(after<before-1e-9)imp=true;else{grid[i]=a;grid[j]=b}}if(!imp)break}return grid}
 function saSeats(d,vid){const L=saStudents(d,vid),n=L.length,C=saCols(n),byG={};
  const gS=s=>gOfCls(s.cls)||String(s.g||'');
  L.forEach(s=>{const g=gS(s);const o=byG[g]=byG[g]||{};(o[s.cls]=o[s.cls]||[]).push(s)});
@@ -1920,7 +1925,7 @@ function saSeats(d,vid){const L=saStudents(d,vid),n=L.length,C=saCols(n),byG={};
   let best=null,bs=1e9;
   Object.keys(byG).forEach(g=>{if(!rem(g))return;Object.keys(byG[g]).sort().forEach(cls=>{const q=byG[g][cls];if(!q.length)return;let cost=0;nb.forEach(([s,w])=>{if(!s)return;if(gS(s)===g)cost+=w;if(s.cls===cls)cost+=w*.6});cost-=rem(g)*.5+q.length*.05;if(cost<bs){bs=cost;best=[g,cls]}})});
   grid[i]=byG[best[0]][best[1]].shift()}
- grid.forEach((s,k)=>{s.seat=k+1});return grid}
+ saOpt(grid,C,gS);grid.forEach((s,k)=>{s.seat=k+1});return grid}
 window.__saSeats=(d,v)=>saSeats(d,v);
 
 function saLogo(g,logo,x,y,s){try{g.fillStyle='#fff';g.beginPath();if(g.roundRect)g.roundRect(x,y,s,s,16);else g.rect(x,y,s,s);g.fill();if(logo&&logo.naturalWidth){const k=Math.min((s-12)/logo.naturalWidth,(s-12)/logo.naturalHeight);g.drawImage(logo,x+s/2-logo.naturalWidth*k/2,y+s/2-logo.naturalHeight*k/2,logo.naturalWidth*k,logo.naturalHeight*k)}}catch(e){}}
