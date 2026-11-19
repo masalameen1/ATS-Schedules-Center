@@ -3087,3 +3087,16 @@ html body .qwTb.qwTb .btn,html body .qwTb.qwTb>.btn:nth-child(n),html body .qwTb
 .saTake .saTkB.l.on{background:#d97706!important;border-color:#d97706!important;color:#fff!important}
 .saTake .saTkLt{grid-column:1/-1}
 @media(max-width:620px){.saTake .saTkR2{grid-template-columns:1fr!important}.saTake .saTkBs{justify-content:stretch}.saTake .saTkB{flex:1 1 0}}
+
+/* one accent colour per page: whatever colour is chosen in "Colours" is used by every accent (buttons, chips, cards) — no mixed hues */
+.view.ovp{--acc:var(--pBl,#2f6fe4);--accD:var(--pBd,#1d4fb8);--accT:color-mix(in srgb,var(--pBl,#2f6fe4) 12%,#fff)}
+html body .view.ovp:not(#_a):not(#_b) .stNx,html body .view.ovp:not(#_a):not(#_b) .gdBtnC.gdNew,html body .view.ovp:not(#_a):not(#_b) .chip.on,html body .view.ovp:not(#_a):not(#_b) .chip.subAdd{background:var(--acc)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 8px 18px -10px color-mix(in srgb,var(--acc) 70%,transparent)!important}
+html body .view.ovp:not(#_a):not(#_b) .tools #s_sub,html body .view.ovp:not(#_a):not(#_b) .acc{background:var(--accT)!important;color:var(--accD)!important}
+html body .view.ovp:not(#_a):not(#_b) .subAIc{border-color:var(--acc)!important;background:var(--accT)!important;color:var(--accD)!important}
+html body .view.ovp:not(#_a):not(#_b) .subAIc summary,html body .view.ovp:not(#_a):not(#_b) .subAIc div{color:var(--accD)!important}
+html body .view.ovp:not(#_a):not(#_b) .shTx>b,html body .view.ovp:not(#_a):not(#_b) .exNm{color:var(--accD)!important}
+html body .view.ovp:not(#_a):not(#_b) .subTools{background:color-mix(in srgb,var(--acc) 8%,transparent)!important;border-color:color-mix(in srgb,var(--acc) 22%,transparent)!important}
+html body #v_sub:not(#_a):not(#_b) :is(.pgBar,#ovbar,.vbar){background:linear-gradient(100deg,var(--pB1) 0%,color-mix(in srgb,var(--pB1) 55%,var(--pB2)) 55%,var(--pB2) 100%)!important}
+html body .view.ovp:not(#_a):not(#_b) :is(.btn.go,.btn.gosave,.btn.go.qwTbMain,.so-tg){background:var(--acc)!important;background-image:none!important;color:#fff!important;border-color:var(--accD)!important;text-shadow:none!important;box-shadow:0 6px 14px -8px color-mix(in srgb,var(--acc) 70%,transparent)!important}
+html body .view.ovp:not(#_a):not(#_b) .stBy2{background:linear-gradient(135deg,var(--pB1),var(--pBl))!important}
+html body .view.ovp:not(#_a):not(#_b) .nx{color:var(--accD)!important}
