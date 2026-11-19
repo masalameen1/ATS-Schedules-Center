@@ -5327,7 +5327,28 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
   const ab=[...document.querySelectorAll('button')].find(x=>x.offsetParent!==null&&/إضافة إشغال|Add substitution/.test(x.textContent)&&!x.classList.contains('stNx'));
   if(ab){const row=ab.parentElement;let by=document.getElementById('stBy2');if(!by){by=el('div','stBy2');by.id='stBy2';row.before(by)}if(by.textContent!==txt)by.textContent=txt;if(!row.querySelector('.stNx')){const m=el('button','stNx','🧩 '+T('دمج شعب','Merge classes'));m.type='button';m.onclick=mergeUI;const s=el('button','stNx','🔄 '+T('تبديل حصص','Swap lessons'));s.type='button';s.onclick=swapUI;ab.after(m,s)}return}
   const v=document.getElementById('v_sub');if(!v)return;const h=v.querySelector('.subHdr');if(!h)return;let by=document.getElementById('stBy2');if(!by){by=el('div','stBy2');by.id='stBy2';h.after(by)}if(by.textContent!==txt)by.textContent=txt}catch(e){}},1200);
- window.__occTools={merge:mergeUI,swap:swapUI};
+
+ {const c3=document.createElement('style');c3.textContent='#swPanel{margin:10px 0;border:1px solid color-mix(in srgb,var(--acc,#2f6fe4) 22%,#fff);border-radius:18px;background:#fff;padding:4px 14px 12px}#swPanel>summary{cursor:pointer;font-weight:800;font-size:16px;padding:10px 0;color:var(--accD,#1d3f86)}#swPanel .swPc{border:1px solid #e5eaf5;border-radius:14px;background:#fafbff;padding:10px 12px;margin:8px 0;display:grid;gap:6px}#swPanel .swPc.me{border-color:var(--acc,#2f6fe4);background:var(--accT,#eef5fd)}#swPanel .swPh{font-weight:800;color:var(--accD,#1d3f86);font-size:14px}#swPanel .swPl{font-size:14px;line-height:1.8;padding:5px 9px;background:#fff;border:1px solid #e8ebf4;border-radius:10px}#swPanel .swPb{display:flex;gap:6px;flex-wrap:wrap}#swPanel .swPb button{border:1px solid #c7d7f5;background:#fff;color:var(--accD,#1d3f86);border-radius:999px;padding:5px 12px;font-family:inherit;font-weight:700;font-size:12px;cursor:pointer}';document.head.append(c3)}
+ let swCh=null,swChT=0,swOpen=true;
+ async function swPanel(){try{const v=document.getElementById('v_sub');if(!v||!v.getClientRects().length)return;const anchor=v.querySelector('details.subCnt')||document.getElementById('stBy2');if(!anchor)return;
+  if(!swCh||Date.now()-swChT>60000){swChT=Date.now();try{swCh={l:await swList()}}catch(e){swCh={l:[],err:swWhy(e)}}}
+  const base=swCh.l||[];const L=base.concat(swPend().filter(x=>!base.some(z=>z.id===x.id)).map(x=>Object.assign({},x,{__local:1}))).sort((a,c)=>(c.ts||0)-(a.ts||0));
+  const sig=JSON.stringify(L.map(x=>[x.id,x.status,x.__local?1:0]))+(swCh.err||'')+AR();let p=document.getElementById('swPanel');
+  if(p&&p._sig===sig&&p.previousElementSibling===anchor)return;
+  if(!p){p=document.createElement('details');p.id='swPanel';p.ontoggle=()=>{swOpen=p.open}}p._sig=sig;p.open=swOpen;p.dir=AR()?'rtl':'ltr';p.textContent='';
+  p.append(el('summary','','🔄 '+T('تبديل الحصص بين المعلمين','Lesson swaps between teachers')+' ('+L.length+')'));
+  if(swCh.err&&!L.length)p.append(el('div','ocT','ℹ '+T('لعرض التبديلات المحفوظة سجّل الدخول بحسابك — ','Sign in to see the saved swaps — ')+swCh.err));
+  else if(!L.length)p.append(el('div','ocT',T('لا توجد تبديلات محفوظة بعد.','No saved swaps yet.')));
+  const me=String(who()||'').toLowerCase();
+  L.slice(0,8).forEach(E=>{const mine=!!me&&(E.names||[]).some(n=>{n=String(n).toLowerCase();return n===me||n.includes(me)||me.includes(n)});const card=el('div','swPc'+(mine?' me':''));
+   card.append(el('div','swPh',swWhen(E.ts)+' · '+swKind(E)+(E.by?' · '+E.by:'')+(mine?'  ⭐ '+T('يخصّك','Involves you'):'')));
+   const bd=el('div','');const nt=!E.__local&&(E.status==='notified'||!E.status);bd.append(el('span','ocTg '+(nt?'g':'o'),E.__local?'⏳ '+T('على جهاز المعدّ فقط','On the preparer device only'):nt?'✔ '+T('أُشعر المعنيون','Notified'):T('محفوظ','Saved')));card.append(bd);
+   swXof(E).forEach(r=>{const d=el('div','swPl');d.append(el('b','',r.no+'. '+r.name),document.createTextNode(' → '),el('b','',r.to),document.createTextNode(' · '+r.cls+' · '+r.subj+' · '+r.when+(r.time?' ('+r.time+')':'')+(r.note?' — '+r.note:'')));card.append(d)});
+   const pb=el('div','swPb');const x=el('button','','⬇ Excel');runBtn(x,'',()=>exportXlE(E));const pf=el('button','','⬇ PDF');runBtn(pf,'',async()=>{const bl=await exportPdfE(E);await window.__dl('Lesson_Swap_'+new Date(E.ts||Date.now()).toISOString().slice(0,10)+'.pdf',bl)});pb.append(x,pf);card.append(pb);p.append(card)});
+  if(L.length>8){const all=el('button','swMan','📚 '+T('عرض كل التبديلات','Show all swaps'));all.onclick=()=>savedUI();p.append(all)}
+  if(p.previousElementSibling!==anchor)anchor.after(p)}catch(e){}}
+ setInterval(swPanel,2500);setTimeout(swPanel,1500);
+  window.__occTools={merge:mergeUI,swap:swapUI};
 }catch(e){}})();
 /* ===== كشف الغائبين + تعليقات الأعذار ===== */
 (function(){
