@@ -1336,7 +1336,8 @@ function draw(){
 }
 
 /* ===== simple invigilation setup (studio) ===== */
-const needFor=n=>n<=0?1:Math.min(8,Math.ceil(n/25));
+const perInv=()=>{let v=16;try{const s=+localStorage.getItem('ex_per');if(s>=5&&s<=60)v=s}catch(e){}return window.__perInv||v};
+const needFor=n=>n<=0?1:Math.min(8,Math.ceil(n/perInv()));
 const IXS={q:'',zf:'',miss:false,empty:false};
 
 /* ===== saved halls (taken from the invigilation-plan Excel file) + manually added teachers ===== */
@@ -1753,7 +1754,7 @@ const dn0=dt=>new Date(dt+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'lon
 
 /* ===== quick setup wizard for the invigilation schedule (4 steps: day · halls · invigilators · export) ===== */
  /* read-only final schedule, as the invigilators will see it */
- function finalBoard(d){const partTxt=p=>p[0]+'–'+p[1]+(p[2]==='E'?' 💻':' 📄');const w=el('div','fb'),hs=S.venues.filter(v=>d.sess.some(z=>z.v===v.id)||(d.inv[v.id]||[]).length),it=window.__finInfo&&d.date?window.__finInfo.day(d.date):[];
+ function finalBoard(d,edit){const partTxt=p=>p[0]+'–'+p[1]+(p[2]==='E'?' 💻':' 📄');const w=el('div','fb'),hs=S.venues.filter(v=>d.sess.some(z=>z.v===v.id)||(d.inv[v.id]||[]).length),it=window.__finInfo&&d.date?window.__finInfo.day(d.date):[];
   const ban=el('div','fbH');const t1=el('div','fbT');t1.append(el('b','',d.title||'Exam day'),el('span','',(d.date?FMT(d.date)+' · '+dnAr(d.date):'')));ban.append(t1);
   const t2=el('div','fbM');t2.append(el('span','fbCh','⏰ '+(d.from||'')+'–'+(d.to||'')),el('span','fbCh',d.type==='Electronic'?'💻 إلكتروني · Electronic':'📄 ورقي · Paper'),el('span','fbCh '+(S.pubAt&&!S.draft&&!dirty?'ok':'dr'),S.pubAt&&!S.draft&&!dirty?'● منشور · Published':'● مسودة · Draft'));ban.append(t2);w.append(ban);
   if(it.length){const ex=el('div','fbEx');ex.append(el('b','','📚 الاختبارات · Exams'));const seen=new Set();it.forEach(x=>{const k=x.g+x.ar;if(seen.has(k))return;seen.add(k);const r=el('div','fbExR');r.append(el('span','fbG','الصف '+x.g),el('span','',x.ar+' · '+x.en+(x.code?' · '+x.code:'')+(x.el?' ('+'اختياري · Elective)':'')),el('small','',x.parts.map(partTxt).join('  ')));ex.append(r)});w.append(ex)}
@@ -1765,7 +1766,9 @@ const dn0=dt=>new Date(dt+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'lon
     const a=el('div','fbA');a.append(el('small','fbHl','🏫 رقم القاعة · Hall'),el('b','fbHn',v.name),el('small','fbTm','⏰ '+hm(vInt(d,v.id)[0])+'–'+hm(vInt(d,v.id)[1])),el('small','fbSt','👥 '+studs(d,v.id)+' طالب · students'));
     if(supOf(v)&&supOf(v)!==z.sup)a.append(el('small','','👤 '+supOf(v)));
     const c=el('div','fbC');d.sess.filter(s=>s.v===v.id).forEach(s=>{const ty=tyOf(s,d),cf=catFind(s.code)||{},row=el('div','fbCl');row.append(el('b','fbCc',s.cls||'—'));const sj=cf.subject||s.code;if(sj)row.append(el('span','fbSj',sj));row.append(el('span','fbTy '+(ty==='Electronic'?'te':'tp'),ty==='Electronic'?'💻 إلكتروني · Electronic':'📄 ورقي · Paper'));if(s.n)row.append(el('span','fbCn','👥 '+s.n));c.append(row)});
-    const n=el('div','fbN');if(L.length)L.forEach(x=>n.append(el('span','fbNm'+(window.__nameHit&&window.__nameHit(x)?' me':''),x)));else n.append(el('span','fbNo','⚠ لا يوجد مراقب · none assigned'));
+    const n=el('div','fbN');const rd=()=>{const y=window.scrollY,rs=()=>{try{window.scrollTo(0,y)}catch(e){}};mark();window.__exDraw();rs();requestAnimationFrame(rs);setTimeout(rs,60);setTimeout(rs,250)};
+    if(L.length)L.forEach(x=>{const sp=el('span','fbNm'+(window.__nameHit&&window.__nameHit(x)?' me':''),x);if(edit){const rm=el('b','','✕');rm.title='حذف · Remove';rm.style.cssText='cursor:pointer;margin-inline-start:6px;opacity:.7';rm.onclick=()=>{d.inv[v.id]=L.filter(y=>y!==x);delete d.ovr[v.id+'|'+x];rd()};sp.append(rm)}n.append(sp)});else n.append(el('span','fbNo','⚠ لا يوجد مراقب · none assigned'));
+    if(edit){const ad=btn('＋ إضافة اسم · Add name',()=>pickNames(invOpts(d,v,'Invigilators — '+v.name,true,L)).then(q=>{if(q&&q.length){const cur=d.inv[v.id]||(d.inv[v.id]=[]);q.forEach(y=>{if(!cur.includes(y))cur.push(y)});rd()}}),'sm');ad.style.marginTop='6px';n.append(ad)}
     r.append(a,c,n);zc.append(r)});w.append(zc)});
   if(!hs.length)w.append(el('p','qwWarn','لا توجد قاعات بعد · No halls yet'));
   return w}
@@ -1823,7 +1826,8 @@ function quickWizard(st0,host){
  let step=inline?Q.step:(st0||0),sig='',mode=Q.mode,WH=Q.WH,note=Q.note;
  const sv=()=>{Q.step=step;Q.mode=mode;Q.WH=WH;Q.note=note};
  const draw=()=>{sv();window.__exDraw()};
- const ov=inline?null:el('div','pkOv'),bx=inline?host:el('div','pkBx qwBx');if(inline)bx.classList.add('qwBx','qwInline');else ov.append(bx);
+ const keep=fn=>{const y=window.scrollY,ls=document.querySelector('.qwList'),lt=ls?ls.scrollTop:0,rs=()=>{try{window.scrollTo(0,y);const l2=document.querySelector('.qwList');if(l2)l2.scrollTop=lt}catch(e){}};fn();rs();requestAnimationFrame(rs);setTimeout(rs,50);setTimeout(rs,200)};
+  const ov=inline?null:el('div','pkOv'),bx=inline?host:el('div','pkBx qwBx');if(inline)bx.classList.add('qwBx','qwInline');else ov.append(bx);
  const STP=[['اليوم','Day'],['القاعات','Halls'],['المراقبون','Teachers'],['التصدير','Export']];
  const AUTO=Q.AUTO;
  const FI=()=>window.__finInfo||null;
@@ -1887,14 +1891,17 @@ function quickWizard(st0,host){
    canNext=hs.length>0}
   if(step===2){H('اختر المراقبين','Choose the invigilators','اضغط «اختيار الكل تلقائيًا» ليوزّع البرنامج المراقبين بحسب عدد الطلاب، أو اختر أسماء بنفسك.');
    const act=el('div','qwAct');
-   act.append(btn('✨ اقتراح المراقبين لكل القاعات (مراقب لكل ٢٥ طالبًا) · Suggest invigilators for all halls',()=>{hs.forEach(v=>{v.need=needFor(studs(d,v.id))});const n=fillMissing(d,hs);if(!n)try{window.__smallNote(['لا يوجد معلم متاح لملء الباقي · No free teacher left'])}catch(e){}mark();step=3;draw();paint()},'primary'),
+   {const w=el('label','');w.style.cssText='display:inline-flex;align-items:center;gap:6px;font-weight:700;margin-inline-end:8px';w.append(el('span','','مراقب لكل · 1 per'));const inp=document.createElement('input');inp.type='number';inp.min=5;inp.max=60;inp.value=perInv();inp.style.cssText='width:64px;padding:6px 8px;border-radius:10px;border:1px solid #c7d3e8;font:inherit;text-align:center';inp.onchange=()=>{const x=Math.max(5,Math.min(60,+inp.value||16));window.__perInv=x;try{localStorage.setItem('ex_per',String(x))}catch(e){}paint()};w.append(inp,el('span','','طالبًا · students'));act.append(w)}
+   act.append(btn('✨ اقتراح المراقبين لكل القاعات (مراقب لكل '+perInv()+' طالبًا) · Suggest invigilators for all halls',()=>{hs.forEach(v=>{v.need=needFor(studs(d,v.id))});const n=fillMissing(d,hs);if(!n)try{window.__smallNote(['لا يوجد معلم متاح لملء الباقي · No free teacher left'])}catch(e){}mark();step=3;draw();paint()},'primary'),
     btn('👥 اختيار أسماء · Pick names',()=>{const taken={};S.venues.forEach(v=>(d.inv[v.id]||[]).forEach(n=>{if(!taken[n])taken[n]=v.name}));
      pickNames({title:'اختر المعلمين · Teachers for '+(d.date?FMT(d.date):'this day'),multi:true,exclude:[],block:n=>taken[n]?'§مشغول — مختار في '+taken[n]+' · busy':'',warn:n=>{const w=[];if(S.controllers.includes(n))w.push('مراقب عام · general controller');if(isRest(n,d))w.push('يوم راحته · rest day');return w},tag:()=>[]}).then(r=>{if(!r||!r.length)return;const x=distribute(d,hs,r);mark();draw();paint();try{window.__smallNote(['✔ '+x.placed+' معلم وُزّعوا · placed'+(x.left?' — '+x.left+' لم يُوضعوا (تعارض) · not placed':'')])}catch(e){}})},'go'));body.append(act);
+const cand=(v)=>{const used=assignedSet(d),rm=Q.rp&&Q.rp.n;return pool(d).filter(n=>n!==rm&&!used.has(n)&&!conflictsOf(d,v.id,n).length).sort((a,b)=>(dpClash(d,v,a)-dpClash(d,v,b))||(gmis(d,v,a)-gmis(d,v,b))||((homeZone(a)===v.zone?0:1)-(homeZone(b)===v.zone?0:1))||load(d,a)-load(d,b)).slice(0,6)};
+   const sugRow=(v,L,w2)=>{if(!(Q.rp&&Q.rp.v===v.id))return;const sg=el('div','fbSug');sg.style.cssText='display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;padding:8px 10px;border-radius:12px;background:#eef5fd;border:1px dashed #9db8e6';sg.append(el('small','',(Q.rp.n?'بدائل عن '+Q.rp.n:'أسماء مقترحة للقاعة')+' · Suggested names:'));const c=cand(v);if(!c.length)sg.append(el('small','','— لا يوجد معلم متاح · none free'));c.forEach(n=>{const b=btn(n+(FEMX(n)?' ♀':'')+(depOf(n)?' · '+depOf(n):''),()=>{L.push(n);Q.rp=null;keep(()=>{mark();draw();paint()})},'sm');sg.append(b)});sg.append(btn('✕',()=>{Q.rp=null;keep(paint)},'rd sm'));w2.append(sg)};
    const l=el('div','qwList');hs.forEach(v=>{const L=d.inv[v.id]||[],ok=L.length>=(v.need||1);const r=el('div','qwRow'+(ok?'':' bad'));const w2=el('div');w2.append(el('b','',v.name),el('small','',studs(d,v.id)+' طالب'));
-    const nm=el('div','fbN');L.forEach((x,i)=>{const c=el('span','fbNm',x);const rm=el('b','','✕');rm.onclick=()=>{L.splice(i,1);mark();draw();paint()};c.append(rm);nm.append(c)});if(!L.length)nm.append(el('span','fbNo','— لا أحد · nobody'));w2.append(nm);
-    const st=el('div','qwStep');st.append(btn('−',()=>{v.need=Math.max(1,(v.need||1)-1);mark();draw();paint()},'sm'),el('span','qwN',L.length+'/'+(v.need||1)),btn('+',()=>{v.need=Math.min(5,(v.need||1)+1);mark();draw();paint()},'sm'));r.append(w2,st);l.append(r)});body.append(l);
+    const nm=el('div','fbN');L.forEach((x,i)=>{const c=el('span','fbNm',x);const rm=el('b','','✕');rm.onclick=()=>{L.splice(i,1);Q.rp={v:v.id,n:x};keep(()=>{mark();draw();paint()})};c.append(rm);nm.append(c)});if(!L.length)nm.append(el('span','fbNo','— لا أحد · nobody'));w2.append(nm);sugRow(v,L,w2);
+    const st=el('div','qwStep');st.append(btn('−',()=>{v.need=Math.max(1,(v.need||1)-1);keep(()=>{mark();draw();paint()})},'sm'),el('span','qwN',L.length+'/'+(v.need||1)),btn('+',()=>{v.need=Math.min(5,(v.need||1)+1);Q.rp={v:v.id,n:''};keep(()=>{mark();draw();paint()})},'sm'));r.append(w2,st);l.append(r)});body.append(l);
    const sh=hs.filter(v=>(d.inv[v.id]||[]).length<(v.need||1)).length;if(sh)body.append(el('p','qwWarn',sh+' قاعة ناقصة · halls still short'));
-   body.append(btn('🧹 ابدأ من جديد · Clear invigilators',()=>{d.inv={};d.ovr={};mark();draw();paint()},'rd sm'))}
+   body.append(btn('🧹 ابدأ من جديد · Clear invigilators',()=>{d.inv={};d.ovr={};Q.rp=null;keep(()=>{mark();draw();paint()})},'rd sm'))}
   if(step===3){H('تصدير الجدول','Export','هذا هو الجدول النهائي بما فيه أماكن المراقبين والسوبرفايزر والمؤقت الإلكتروني. ثم نزّله PDF أو Excel أو انشره.');
    const tot=hs.reduce((a,v)=>a+(d.inv[v.id]||[]).length,0),need=hs.reduce((a,v)=>a+(v.need||1),0);
    body.append(el('p','qwSum',(d.date?FMT(d.date):'')+' — '+hs.length+' قاعة · '+tot+'/'+need+' مراقب'+(tot<need?' ⚠ ناقص':' ✔')));
@@ -1903,7 +1910,7 @@ function quickWizard(st0,host){
    const card=(ic,t,s2,fn)=>{const b=el('button','qwDlC');b.type='button';b.append(el('span','qwDlI',ic),el('b','',t),el('small','',s2));b.onclick=async()=>{const sm=b.querySelector('small'),o=sm.textContent;b.disabled=true;sm.textContent='⏳ جارٍ التحضير…';try{await fn();sm.textContent='✔ تم التنزيل'}catch(e){sm.textContent='⚠ تعذّر'}setTimeout(()=>{sm.textContent=o;b.disabled=false},3000)};return b};
    g.append(card('📄','PDF','جاهز للطباعة والمشاركة',dlPdf),card('📊','Excel','منظم وقابل للتعديل',dlXlsx));if(canEd()){const g2=el('div','qwAct');g2.append(btn('🪑 مخطط الجلوس · Seating plan',()=>openSA(d,'seat'),''),btn('✅ الحضور والغياب · Attendance',()=>openSA(d,'att'),''));body.append(g2)}
    const pub=S.pubAt&&!S.draft&&!dirty;{const sr=el('div','qwAct');sr.append(btn('💾 حفظ كمسودة · Save draft',async()=>{await saveQuiet();try{window.__smallNote(['✔ تم الحفظ كمسودة · Saved as draft'])}catch(e){}paint()},''),btn(pub?'✔ منشور · Published':'📢 حفظ ونشر للمراقبين · Save & publish',async()=>{await save();paint()},pub?'':'go'));body.append(sr)}body.append(el('p','qwP','⬇ بعد الحفظ، نزّل الجدول · After saving, download the schedule'),g);{const lk=el('div','qwAct');lk.append(btn('📋 جدول وتعليمات الاختبارات النهائية · Final exams timetable & instructions',()=>{try{close()}catch(e){}showView('finals')},'sm'));body.append(lk)}
-   const dt=el('details','qwPrev');dt.open=inline;dt.append(el('summary','','👁 الجدول النهائي · Final schedule'));dt.append(finalBoard(d));{const sm=body.querySelector('.qwSum'),tb=btn('⏱ المؤقت الإلكتروني · Electronic timer — '+(d.from||'')+'–'+(d.to||''),()=>{window.__ETHALL&&window.__ETHALL(d.id,'');showView('etimer')},'go');tb.style.width='100%';tb.style.margin='6px 0';const after=sm?sm.nextSibling:null;body.insertBefore(dt,after);body.insertBefore(tb,dt)}}
+   const dt=el('details','qwPrev');dt.open=inline;dt.append(el('summary','','👁 الجدول النهائي · Final schedule'));dt.append(finalBoard(d,true));{const sm=body.querySelector('.qwSum'),tb=btn('⏱ المؤقت الإلكتروني · Electronic timer — '+(d.from||'')+'–'+(d.to||''),()=>{window.__ETHALL&&window.__ETHALL(d.id,'');showView('etimer')},'go');tb.style.width='100%';tb.style.margin='6px 0';const after=sm?sm.nextSibling:null;body.insertBefore(dt,after);body.insertBefore(tb,dt)}}
   const ft=el('div','qwFt');const bk=btn('‹ السابق · Back',()=>{step--;paint()},'');bk.disabled=step===0;const nx=btn(step===3?(inline?'✔ إنهاء والعودة · Done':'إنهاء · Finish'):'التالي · Next ›',()=>{if(step===3)close();else{step++;paint()}},'go');nx.disabled=!canNext;{const ub=btn('↶ تراجع · Undo',()=>hMove(-1),'');ub.disabled=!HI.u.length;ub.title=HI.u.length?'Undo: '+HI.u[HI.u.length-1].l:'';const rb=btn('↷ إعادة · Redo',()=>hMove(1),'');rb.disabled=!HI.r.length;ft.append(ub,rb)}ft.append(bk,nx);bx.append(ft)}
  if(inline){paint();return}
  const t=setInterval(()=>{if(!ov.isConnected){clearInterval(t);return}try{if(sg()!==sig)paint()}catch(e){}},800);
