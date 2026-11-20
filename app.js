@@ -989,6 +989,10 @@ function pool(d){const ctr=new Set(S.controllers),sup=supSet();return names.filt
 function prevInv(d){const i=S.days.indexOf(d);const p=[...S.days].filter(x=>x.date<d.date).sort((a,b)=>b.date.localeCompare(a.date))[0];const m={};if(p)S.venues.forEach(v=>(p.inv[v.id]||[]).forEach(n=>m[n]=v.id));return m}
 function studs(d,vid){return d.sess.filter(s=>s.v===vid).reduce((a,s)=>a+(+s.n||0),0)}
 const FEMX=n=>{try{return !!(window.__FEMS&&window.__FEMS.has(String(n).split(' ')[0]))}catch(e){return false}};
+const depOf=n=>{try{const k=(typeof TDEPT!=='undefined'&&TDEPT[n])||'';return k==='na'?'':k}catch(e){return ''}};
+/* two invigilators of the same department are not put in the same hall; women with women, men with men whenever possible */
+const dpClash=(d,v,n)=>{const k=depOf(n);return !!k&&invs(d,v.id).some(m=>m!==n&&depOf(m)===k)};
+const gmis=(d,v,n)=>{const a=invs(d,v.id);if(!a.length)return false;const f=a.filter(FEMX).length;const g=f*2>=a.length?'f':'m';return (FEMX(n)?'f':'m')!==g};
 const HZ={};
 function homeZone(n){if(n in HZ)return HZ[n];let z='';try{const c={};(typeof LD!=='undefined'&&LD[n]||[]).forEach(l=>{const m=/^\s*([A-Za-z]+)/.exec(l.r||'');if(m){const k=m[1].toUpperCase();c[k]=(c[k]||0)+1}});const ids=new Set(S.zones.map(x=>x.id));const best=Object.keys(c).filter(k=>ids.has(k)).sort((x,y)=>c[y]-c[x])[0];z=best||''}catch(e){}return HZ[n]=z}
 const NEED=(d,v)=>{const st=studs(d,v.id);return st>0?Math.max(1,Math.ceil(st/17)):Math.max(1,v.need||1)};
@@ -999,7 +1003,7 @@ function autoAssign(d){
  const vs=S.venues.filter(v=>d.sess.some(s=>s.v===v.id)||v.need>1||(d.inv[v.id]||[]).length).slice();
  vs.forEach(v=>{v.need=NEED(d,v)});
  const gOf=v=>{const a=invs(d,v.id);if(!a.length)return null;const f=a.filter(FEMX).length;return f*2>=a.length?'f':'m'};
- const take=(v,strict)=>{const g=gOf(v);let best=-1,bs=1e9;free.forEach((n,i)=>{if(conflictsOf(d,v.id,n).length)return;const hz=homeZone(n);if(strict&&hz!==v.zone)return;const sc=(hz===v.zone?0:6)+(pv[n]===v.id?2:0)+(g&&((FEMX(n)?'f':'m')!==g)?3:0);if(sc<bs){bs=sc;best=i}});if(best<0)return null;const n=free.splice(best,1)[0];invs(d,v.id).push(n);return n};
+ const take=(v,strict)=>{const g=gOf(v);let best=-1,bs=1e9;free.forEach((n,i)=>{if(conflictsOf(d,v.id,n).length)return;const hz=homeZone(n);if(strict&&hz!==v.zone)return;const sc=(hz===v.zone?0:6)+(pv[n]===v.id?2:0)+(g&&((FEMX(n)?'f':'m')!==g)?8:0)+(dpClash(d,v,n)?12:0);if(sc<bs){bs=sc;best=i}});if(best<0)return null;const n=free.splice(best,1)[0];invs(d,v.id).push(n);return n};
  /* 0) no hall with an exam is ever left without an invigilator (small halls keep just one) */
  vs.filter(v=>d.sess.some(s=>s.v===v.id)&&!invs(d,v.id).length).sort((a,b)=>studs(d,b.id)-studs(d,a.id)).forEach(v=>{if(free.length&&!take(v,true))take(v,false)});
  /* 1) each hall gets one invigilator per 17 students, from teachers whose own room is in the same block, women with women and men with men */
@@ -1010,11 +1014,21 @@ function autoAssign(d){
   vs.slice().sort((a,b)=>((b.need-invs(d,b.id).length)-(a.need-invs(d,a.id).length))||studs(d,b.id)-studs(d,a.id)).forEach(v=>{if(free.length&&invs(d,v.id).length<v.need){if(take(v,false))any=true}});
   if(!any)break}
  /* 3) everybody invigilates: the rest join the halls of their own block (then the busiest halls) */
- let g3=0;while(free.length&&vs.length&&g3++<500){const n=free[0];const own=vs.filter(v=>v.zone===homeZone(n)&&!conflictsOf(d,v.id,n).length).sort((a,b)=>{const gm=x=>{const g=gOf(x);return g&&((FEMX(n)?'f':'m')!==g)?1.5:0};return invs(d,a.id).length/Math.max(1,a.need)+gm(a)-invs(d,b.id).length/Math.max(1,b.need)-gm(b)})[0];const v=own||vs.slice().sort((a,b)=>studs(d,b.id)/Math.max(1,invs(d,b.id).length)-studs(d,a.id)/Math.max(1,invs(d,a.id).length))[0];free.shift();if(!conflictsOf(d,v.id,n).length)invs(d,v.id).push(n)}
+ let g3=0;while(free.length&&vs.length&&g3++<500){const n=free[0];const own=vs.filter(v=>v.zone===homeZone(n)&&!conflictsOf(d,v.id,n).length).sort((a,b)=>{const gm=x=>{const g=gOf(x);return (g&&((FEMX(n)?'f':'m')!==g)?1.5:0)+(dpClash(d,x,n)?2:0)};return invs(d,a.id).length/Math.max(1,a.need)+gm(a)-invs(d,b.id).length/Math.max(1,b.need)-gm(b)})[0];const v=own||vs.slice().sort((a,b)=>studs(d,b.id)/Math.max(1,invs(d,b.id).length)-studs(d,a.id)/Math.max(1,invs(d,a.id).length))[0];free.shift();if(!conflictsOf(d,v.id,n).length)invs(d,v.id).push(n)}
+ /* 4) balance: swap invigilators between halls while it removes same-department pairs or mixed-gender pairs (without leaving their own block much, and never creating a timetable clash) */
+ try{const zc=(n,v)=>homeZone(n)===v.zone?0:2;
+  const cost=v=>{const a=invs(d,v.id);let c=0;const ds={};a.forEach(n=>{const k=depOf(n);if(k)ds[k]=(ds[k]||0)+1;c+=zc(n,v)});Object.keys(ds).forEach(k=>{if(ds[k]>1)c+=10*(ds[k]-1)});const f=a.filter(FEMX).length;if(a.length>1&&f&&f<a.length)c+=4*Math.min(f,a.length-f);return c};
+  for(let pass=0;pass<4;pass++){let ch=false;
+   for(let x=0;x<vs.length;x++)for(let y=x+1;y<vs.length;y++){const v1=vs[x],v2=vs[y],a1=invs(d,v1.id),a2=invs(d,v2.id);
+    for(let i=0;i<a1.length;i++)for(let j=0;j<a2.length;j++){const a=a1[i],b=a2[j];if(a===b)continue;const before=cost(v1)+cost(v2);
+     a1.splice(i,1);a2.splice(j,1);const ok=!conflictsOf(d,v1.id,b).length&&!conflictsOf(d,v2.id,a).length;
+     a1.splice(i,0,b);a2.splice(j,0,a);
+     if(ok&&cost(v1)+cost(v2)<before){ch=true}else{a1.splice(i,1,a);a2.splice(j,1,b)}}}
+   if(!ch)break}}catch(e){}
 }
 function suggest(d,v){
  const used=assignedSet(d),pv=rot?prevInv(d):{};
- const c=pool(d).filter(n=>!used.has(n)&&!conflictsOf(d,v.id,n).length).sort((a,b)=>(pv[a]===v.id)-(pv[b]===v.id)||load(d,a)-load(d,b));
+ const c=pool(d).filter(n=>!used.has(n)&&!conflictsOf(d,v.id,n).length).sort((a,b)=>(dpClash(d,v,a)-dpClash(d,v,b))||(gmis(d,v,a)-gmis(d,v,b))||(pv[a]===v.id)-(pv[b]===v.id)||load(d,a)-load(d,b));
  if(!c.length)return false;invs(d,v.id).push(c[0]);return true}
 function mark(){dirty=true;try{guardNew()}catch(e){}try{histPush()}catch(e){}const b=document.getElementById('exSave');if(b){b.disabled=false;b.classList.add('dirty')}stUpd()}
 /* ---- undo / redo / change history (editors only) ---- */
