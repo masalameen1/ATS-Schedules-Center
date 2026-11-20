@@ -788,7 +788,7 @@ function subCtl(E){
  if(SUBS.t||SUBS.v!=='today'){const rs=h('button','btn sm','✕ Reset view');rs.onclick=()=>{SUBS.t='';SUBS.v='today';SUBS.date='';E.draw()};tl.append(rs)}
  ct.append(tl);
  const [f,t]=subRange();const M={};
- E.rows.forEach(r=>{if(!r.date||(f&&r.date<f)||(t&&r.date>t))return;
+ (window.__subArcRows?E.rows.concat(window.__subArcRows()):E.rows).forEach(r=>{if(!r.date||(f&&r.date<f)||(t&&r.date>t))return;
   if(r.subst&&r.per&&!r.act){const m=M[r.subst]||(M[r.subst]={d:new Set(),p:0,a:new Set()});m.d.add(r.date);m.p+=Math.max(1,+r.span||1)}
   if(r.absent){const m=M[r.absent]||(M[r.absent]={d:new Set(),p:0,a:new Set()});m.a.add(r.date)}});
  const list=Object.entries(M).filter(([n])=>!SUBS.t||n===SUBS.t).sort((a,b)=>b[1].p-a[1].p||b[1].d.size-a[1].d.size||a[0].localeCompare(b[0]));
@@ -796,7 +796,7 @@ function subCtl(E){
  let i=0;list.forEach(([n,m])=>{i++;const r=h('tr',SUBS.t===n?'on':'');[i,n+LBADGE(n),m.d.size,m.p,m.a.size].forEach((x,k)=>{const c=h('td',k>1?'num':'',String(x));r.append(c)});r.onclick=()=>{SUBS.t=SUBS.t===n?'':n;E.draw()};r.title='Click to filter the table for this teacher';tb.append(r)});
  if(!list.length){const r=h('tr');const c=h('td','emp','No substitutions recorded in this range yet.');c.colSpan=5;r.append(c);tb.append(r)}
  ct.append(tb);
- {let rr=0,mg=0;E.rows.forEach(r=>{if(!r.date||(f&&r.date<f)||(t&&r.date>t))return;if(r.act==='res')rr+=Math.max(1,+r.span||1);if(r.act==='merge')mg+=Math.max(1,+r.span||1)});ct.append(h('div','subDays','📚 Periods sent to the Resource Room: '+rr+'   ·   🔀 Periods merged with another section: '+mg))}
+ {let rr=0,mg=0;(window.__subArcRows?E.rows.concat(window.__subArcRows()):E.rows).forEach(r=>{if(!r.date||(f&&r.date<f)||(t&&r.date>t))return;if(r.act==='res')rr+=Math.max(1,+r.span||1);if(r.act==='merge')mg+=Math.max(1,+r.span||1)});ct.append(h('div','subDays','📚 Periods sent to the Resource Room: '+rr+'   ·   🔀 Periods merged with another section: '+mg))}
  if(SUBS.t){const m=M[SUBS.t];const dts=m?[...m.d].sort():[];ct.append(h('div','subDays',SUBS.t+' covered on: '+(dts.length?dts.join(' · '):'—')))}
  if(SUBOK)box.append(ct)}
 const SUBJN={ISL:'Islamic Studies',ARB:'Arabic',USM:'Social Studies',ENG:'English',MAT:'Mathematics',PHY:'Physics',CHM:'Chemistry',BIO:'Biology',CSC:'Computer Science',PHE:'Physical Education'};
@@ -849,8 +849,13 @@ function drawSub(E){const tb=$('t_sub'),q=$('q_sub').value.trim().toLowerCase();
  tb.append(body);if(window.__nfill){window.__nfill=0;setTimeout(()=>{try{E.mark()}catch(e){}},60)}
  if(!shown){const tr=h('tr'),t2=h('td','emp',E.rows.length?(SUBS.v==='today'&&!q&&!SUBS.t?'No substitutions are scheduled for today ('+todayDubai()+'). Use Upcoming or Archive to see other days.':'No matching results.'):(SUBOK?'No records yet — press “Add row”, choose the date and the absent teacher, then press “Choose period”.':'The coordinator hasn’t entered any data yet.'));t2.colSpan=9;tr.append(t2);body.append(tr)}
  $('a_sub').style.display=$('s_sub').style.display=SUBOK?'':'none'}
+const subKey=r=>r&&r.absent&&r.date&&(+r.per||0)>0?[r.date,r.absent,+r.per||0,r.cls||''].join('|'):'';
+/* merge-safe save: rows other departments saved since this page loaded are kept; rows this user did not touch follow the server copy; only this user's own edits/deletions win */
+async function subMerge(E,rows){const sn=await EDB.doc('coord/sub').get();const srv=sn&&sn.exists&&Array.isArray(sn.data().rows)?sn.data().rows:[];const sm=new Map();srv.forEach(r=>{const k=subKey(r);if(k)sm.set(k,r)});const base=E.baseMap||new Map(),out=[],used=new Set();let added=0;
+ rows.forEach(r=>{const k=subKey(r);if(!k){out.push(r);return}used.add(k);const b=base.get(k);if(b!==undefined&&b===JSON.stringify(r)){const s=sm.get(k);if(s)out.push(s);return}out.push(r)});
+ sm.forEach((r,k)=>{if(!used.has(k)&&!base.has(k)){out.push(r);added++}});return{rows:out,added}}
 const eds=EDCFG.map(cfg=>{
- const E={cfg,rows:[],dirty:false};
+  const E={cfg,rows:[],dirty:false};E.setBase=()=>{const m=new Map();E.rows.forEach(r=>{const k=subKey(r);if(k)m.set(k,JSON.stringify(r))});E.baseMap=m};
  E.msg=m=>{$('m_'+cfg.n).textContent=m};
  E.mark=()=>{E.dirty=true;E.msg('Unsaved changes — press Save')};
  const _drw=()=>cfg.n==='sub'?drawSub(E):cfg.n==='comp'?drawComp(E):cfg.n==='radio'?drawRadio(E):cfg.n==='zero'?drawZero(E):drawGen(E);
@@ -858,9 +863,9 @@ const eds=EDCFG.map(cfg=>{
  $('q_'+cfg.n).oninput=E.draw;
  $('a_'+cfg.n).onclick=()=>{E.rows.push(cfg.n==='sub'?{date:todayDubai(),note:''}:cfg.n==='comp'&&COMPDEP?{dep:COMPDEP}:{});E.mark();E.draw()};
  $('s_'+cfg.n).onclick=async()=>{
-  const rows=E.rows.filter(r=>Object.values(r).some(v=>v));
-  try{if(EDB){await EDB.doc('coord/'+cfg.n).set({rows,upd:Date.now()})}else{localStorage.setItem('tt_'+cfg.n,JSON.stringify(rows))}
-   E.rows=rows;E.dirty=false;E.msg(EDB?'✔ Saved and shared with everyone who opens the page':'✔ Saved on this device only');E.draw()
+  let rows=E.rows.filter(r=>Object.values(r).some(v=>v)),mg=0;
+   try{if(EDB){if(cfg.n==='sub'){const m=await subMerge(E,rows);rows=m.rows;mg=m.added}await EDB.doc('coord/'+cfg.n).set({rows,upd:Date.now()})}else{localStorage.setItem('tt_'+cfg.n,JSON.stringify(rows))}
+    E.rows=rows;E.dirty=false;if(cfg.n==='sub')E.setBase();E.msg(EDB?'✔ Saved and shared with everyone who opens the page'+(mg?' · '+mg+' row(s) saved by other departments were kept':''):'✔ Saved on this device only');E.draw()
   }catch(e){E.msg('Could not save'+(e&&e.code?' ('+e.code+')':'')+' — only the coordinator (editor/owner) can edit')}};
  return E});
 let _subDay=todayDubai();setInterval(()=>{const t=todayDubai();if(t!==_subDay){_subDay=t;eds.forEach(e=>{if(e.cfg.n==='sub')e.draw()})}},30000);
@@ -874,7 +879,7 @@ const _render=render;render=function(){_render();eds.forEach(e=>e.draw())};
   try{if(user){const m=await user.me();const em=((m&&m.email)||'').toLowerCase();if(ROLE!=='student'&&(!TMAIL||ADMINMAIL.includes(String(TMAIL).toLowerCase()))&&(ADMINMAIL.includes(em)||(await user.isOwner())))MGR=true;window.__myEm=TMAIL?String(TMAIL).toLowerCase():em}}catch(e){}
   if(ROLE==='student')MGR=false;EDW=MGR;SUBOK=(MGR||window.__gr===true||a8())&&isAuth8();window.__platEdit=plat;
   eds.forEach(E=>{E.msg(EDW?(plat?'Administration team: editing and saving are available, and the data is shared with everyone':'Administration team member — shared saving also needs edit access on this page (ask the owner to add you from Share)'):'View only — the administration team edits this data');
-   db.doc('coord/'+E.cfg.n).onSnapshot(s=>{if(E.cfg.n==='sub')window.__subLoaded=true;if(!E.dirty){const d=s.exists?s.data():null;E.rows=d&&Array.isArray(d.rows)?d.rows.map(r=>({...r})):[];E.draw()}},()=>{E.msg('Could not load the shared data')})});
+   db.doc('coord/'+E.cfg.n).onSnapshot(s=>{if(E.cfg.n==='sub')window.__subLoaded=true;if(!E.dirty){const d=s.exists?s.data():null;E.rows=d&&Array.isArray(d.rows)?d.rows.map(r=>({...r})):[];E.setBase();E.draw()}},()=>{E.msg('Could not load the shared data')})});
  }else{EDW=MGR;SUBOK=(MGR||window.__gr===true||a8())&&isAuth8();eds.forEach(E=>{try{E.rows=JSON.parse(localStorage.getItem('tt_'+E.cfg.n)||'[]')}catch(e){E.rows=[]}E.msg('Shared saving is not available here — data is saved on this device only');E.draw()})}
  eds.forEach(E=>E.draw());window.__edReady=true;
 })();
@@ -7902,14 +7907,14 @@ mark.plH{background:#fde047;color:#14213d;border-radius:4px;padding:0 2px}
      if(!x){R[id]={...n,t0:now,t1:now,by};dirty=true;return}
      const diff=SAME.some(k=>String(x[k]||'')!==String(n[k]||''))||x.del;
      if(diff){if(x.sb&&x.sb!==n.sb)(x.h=x.h||[]).push({sb:x.sb,t:x.t1||x.t0});SAME.forEach(k=>x[k]=n[k]);delete x.del;x.t1=now;x.by=by;dirty=true}});
-    Object.keys(R).forEach(id=>{if(!seen.has(id)){delete R[id];dirty=true}});
+    Object.keys(R).forEach(id=>{const x=R[id];if(!seen.has(id)&&!x.del&&String(x.d||'')>=todayDubai()){x.del=1;x.t1=now;x.by=by;dirty=true}});
     if(dirty){doc.upd=now;await wr(MP(m),doc);ch++}
    }
    const all=[...ms].sort();if(all.join()!==(ix.months||[]).join()){await wr(IDX,{months:all,upd:now})}
-  }catch(e){}finally{busy=false}
-  return ch};
+  window.__arcErr=''}catch(e){window.__arcErr=(e&&(e.code||e.message))||'error'}finally{busy=false}
+   return ch};
  /* save hook */
- const pc=sv.onclick;sv.onclick=async function(){const r=await pc.apply(this,arguments);try{if(!E.dirty)setTimeout(()=>sync(),400)}catch(e){}return r};
+ const pc=sv.onclick;sv.onclick=async function(){const r=await pc.apply(this,arguments);try{if(!E.dirty)setTimeout(async()=>{await sync();if(window.__arcErr)E.msg('⚠ الأرشيف لم يُحدَّث · Archive not updated ('+window.__arcErr+')')},400)}catch(e){}return r};
  /* ---- viewer ---- */
  const css=el('style');css.textContent=`#saOv{position:fixed;inset:0;z-index:9500;background:rgba(15,23,42,.55);display:flex;align-items:flex-start;justify-content:center;padding:18px 10px;overflow:auto;font-family:-apple-system,"Segoe UI Variable","Segoe UI",Inter,Cairo,sans-serif}
 #saOv .saM{background:#fff;color:#14213d;border-radius:22px;width:min(1180px,100%);box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden}
@@ -7985,6 +7990,8 @@ mark.plH{background:#fde047;color:#14213d;border-radius:4px;padding:0 2px}
   close();ov=el('div');ov.id='saOv';const M=el('div','saM');M.append(el('div','saE','…'));ov.append(M);ov.onclick=e=>{if(e.target===ov)close()};document.body.append(ov);
   if(!TM){try{await sync()}catch(e){}}await load();draw()}
  window.__subArchive={open,sync,load:()=>ARC};
+  window.__subArcRows=()=>{const live=new Set(E.rows.map(r=>idOf(r)));return ARC.filter(r=>!r.del&&r.ab&&r.d&&!live.has(r.id||[r.d,r.ab,r.p,r.c].join('|'))).map(r=>({date:r.d,absent:r.ab,per:r.p,span:r.sp,subst:r.sb,act:r.ac,cls:r.c,__arc:1}))};
+  const arcBg=async()=>{try{if(TM||ROLE==='student'||(EDB&&!window.__subLoaded))return;const n0=ARC.length;await load();if(ARC.length!==n0)E.draw()}catch(e){}};setTimeout(arcBg,6000);setInterval(arcBg,180000);
  /* button */
  function addBtn(){try{const bar=document.querySelector('#subCtl .subModes');if(!bar||bar.querySelector('.saBtn'))return;if(!SUBOK&&!eligible())return;const b=el('button','chip subMini saBtn',SUBOK?'🗄 أرشيف الإشغال · Archive':'🗄 إشغالاتي وقسمي · My & dept');b.type='button';b.title='Permanent substitution archive — authorised staff only';b.onclick=open;bar.append(b)}catch(e){}}
  const od=E.draw;E.draw=function(){const r=od.apply(this,arguments);addBtn();return r};
