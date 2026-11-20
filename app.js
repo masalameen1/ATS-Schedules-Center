@@ -941,6 +941,13 @@ let S=clone(SEED);S.rest={};S.cat=[];let dirty=false,loaded=false,dayId=S.days[0
    const sess=[];let n=0;by.forEach(o=>{const v=V.find(x=>rmKey(x.name)===o.k);if(!v)return;Object.keys(o.cls).sort().forEach(c=>sess.push({id:id+'s'+(++n),v:v.id,cls:c,n:o.cls[c],subj,code,from,to,ty:'Electronic',rm:1,ek:''}))});
    if(!sess.length)return;a.push({id,date,sp:1,alt:1,title:'End of Term 1 · Grade 12 Electronic Exam (MoE) — '+subj,type:'Electronic',from,to,sess,inv:{},ovr:{},note:'Grade 12 electronic examination — halls and seat numbers follow the approved Grade 12 online-exam attendance sheets. Assign the invigilators for each hall.'})})}catch(e){}};
  Object.defineProperty(S,'days',{get(){const a=pd.get.call(S);ens2(a);return a},set(v){pd.set.call(S,v)},enumerable:true,configurable:true})})();
+/* whole-school seating plan: every student in the hall and seat of the approved seating plan (not tied to a subject) */
+(function(){const pd=Object.getOwnPropertyDescriptor(S,'days'),vd=Object.getOwnPropertyDescriptor(S,'venues');if(!pd||!vd)return;
+ const ens3=a=>{try{if(!window.__EXR||!window.__EXR.some(r=>r[10]))return;const id='spall20261206';if(a.some(x=>x.id===id))return;const V=vd.get.call(S);
+  const by=new Map();window.__EXR.forEach(r=>{if(!r[10])return;const k=rmKey(r[10]);let o=by.get(k);if(!o){o={k,cls:{}};by.set(k,o)}o.cls[r[1]]=(o.cls[r[1]]||0)+1});
+  const sess=[];let n=0;by.forEach((o,k0)=>{let v=V.find(x=>rmKey(x.name)===o.k);if(!v){const nm=(window.__EXR.find(r=>r[10]&&rmKey(r[10])===o.k)||[])[10]||k0;v={id:'vsa_'+o.k,zone:/^E/i.test(nm)?'E':/^MW6/i.test(nm)||/^M\d/i.test(nm)?'M':/^B/i.test(nm)?'B':/^A/i.test(nm)?'A':'OT',name:nm,need:1,sp:1};V.push(v)}Object.keys(o.cls).sort().forEach(c=>sess.push({id:id+'s'+(++n),v:v.id,cls:c,n:o.cls[c],subj:'Seating plan',code:'',from:'09:00',to:'11:00',ty:'Paper',rm:1,ek:''}))});
+  if(!sess.length)return;a.push({id,date:'2026-12-06',sp:1,title:'Seating plan — all students (Grades 9–12) · مخطط الجلوس لكل الطلاب',type:'Paper',from:'09:00',to:'11:00',sess,inv:{},ovr:{},note:'Whole-school seating plan: every student in the hall and seat of the approved seating plan. Use it to view seats, print and take attendance for any hall.'})}catch(e){}};
+ Object.defineProperty(S,'days',{get(){const a=pd.get.call(S);ens3(a);return a},set(v){pd.set.call(S,v)},enumerable:true,configurable:true})})();
 const ST={set(m){msg=m;const e=document.getElementById('exMsg');if(e)e.textContent=m}};
 window.__exDraw=()=>draw();window.__exAuto=d=>autoAssign(d||day());window.__exDl={pdf:()=>dlPdf(),xlsx:()=>dlXlsx()};
 window.__exStudio=()=>{try{vm='studio';window.__vmAuto=false;window.__exAdv=true;draw()}catch(e){}};
