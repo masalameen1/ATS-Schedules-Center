@@ -3071,8 +3071,9 @@ function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
  bar('Halls '+I.halls+'   ·   Sections '+I.secs+'   ·   Students '+I.studs+'   ·   Invigilators '+I.invN+'   ·   Halls without invigilator '+I.none,{sz:14,b:1,c:I.none?'B91C1C':'047857',bg:'F1F5F9',al:'center'},26);
  const HDx=['Zone\nالمنطقة','Exam hall\nقاعة الاختبار','Invigilators\nالمراقبون','Class\nالصف / الشعبة','Students per class\nالعدد من كل صف','Exam\nالاختبار','Subject\nالمادة','Exam type\nنوع الاختبار','Time\nالتوقيت','Supervisor\nالمشرف','Notes\nالملاحظات'];
  rows.push(HDx.map(h=>T(h,{sz:13,b:1,c:'FFFFFF',bg:'0F172A',al:'center',wrap:1})));heights[rows.length-1]=40;const hdrRow=rows.length;
- let zs=-1,zname=null,zStart=0;const closeZ=()=>{if(zname!==null&&rows.length>zStart)merges.push('A'+(zStart+1)+':A'+rows.length)};
+ const supRuns=[];let zs=-1,zname=null,zStart=0;const closeZ=()=>{if(zname!==null&&rows.length>zStart)merges.push('A'+(zStart+1)+':A'+rows.length)};
  I.rows.forEach((r,hi)=>{const z=zCol(r.z),zc=hex(z[0]),zt=hex(z[1]),k=Math.max(1,r.ss.length),base=rows.length;
+  const sv0=r.sup||'—',pv=supRuns[supRuns.length-1],sameSup=!!pv&&pv.sup===sv0&&pv.zone===r.zone;if(sameSup)pv.end=base+k;else supRuns.push({sup:sv0,zone:r.zone,start:base,end:base+k});
   if(r.zone!==zname){closeZ();zname=r.zone;zStart=base}
   const nm=r.inv.length?r.inv.join('\n'):'⚠ none assigned · بلا مراقب';const need=Math.max(26,Math.ceil((r.inv.length||1)*21/k)+4);
   for(let j=0;j<k;j++){const s=r.ss[j],row=[];const tint={sz:12,bg:hi%2?'FFFFFF':zt,wrap:1,va:'center'};
@@ -3081,10 +3082,10 @@ function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
    row.push(T(j===0?nm:'',r.inv.length?{sz:13,b:1,c:'0F172A',bg:'FFFFFF',wrap:1}:{sz:13,b:1,c:'B91C1C',bg:'FEE2E2',wrap:1}));
    if(s){const ty=tyOf(s,d),ele=/electr/i.test(ty);row.push(T(s.cls||'',{sz:13,b:1,...tint}));row.push(T(s.n||0,{...tint,al:'center',b:1}));row.push(T(s.code||'',tint));row.push(T(invSubj(s),tint));row.push(T(ele?'Electronic':'Paper',{sz:12,b:1,c:ele?'1D4ED8':'B45309',bg:ele?'DBEAFE':'FEF3C7',al:'center'}))}
    else{for(let q=0;q<5;q++)row.push(T('',tint))}
-   row.push(T(j===0?r.time:'',{sz:13,b:1,c:'1E3A8A',bg:zt,al:'center'}));row.push(T(j===0?(r.sup||'—'):'',{sz:13,b:1,bg:zt,wrap:1}));
+   row.push(T(j===0?r.time:'',{sz:13,b:1,c:'1E3A8A',bg:zt,al:'center'}));row.push(T(j===0&&!sameSup?sv0:'',{sz:13,b:1,bg:zt,wrap:1,va:'center'}));
    row.push(T(s?invReqs(s):'',{sz:11,i:1,c:'92400E',bg:hi%2?'FFFFFF':zt,wrap:1}));rows.push(row);heights[rows.length-1]=need}
-  if(k>1){[1,2,8,9].forEach(c=>merges.push(String.fromCharCode(65+c)+(base+1)+':'+String.fromCharCode(65+c)+(base+k)))}});
- closeZ();
+  if(k>1){[1,2,8].forEach(c=>merges.push(String.fromCharCode(65+c)+(base+1)+':'+String.fromCharCode(65+c)+(base+k)))}});
+ supRuns.forEach(q=>{if(q.end-q.start>1)merges.push('J'+(q.start+1)+':J'+q.end)});closeZ();
  return{name:(d.date||'Day '+(i+1)),rows,cols,merges,heights,freeze:hdrRow}}
 function teacherSheet(){const rows=[],N=7,T=(v,s)=>({v,s});const data=teacherRows();
  const t=[T('Invigilation by teacher · المراقبون حسب المعلم',{sz:20,b:1,c:'FFFFFF',bg:'1E3A8A',al:'center'})];for(let k=1;k<N;k++)t.push(T('',{bg:'1E3A8A'}));rows.push(t);
