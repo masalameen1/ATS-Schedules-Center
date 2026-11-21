@@ -2630,9 +2630,9 @@ function teacherCard(o){const ed=!!(o&&o.ed)||canEd();
  if(sc==='me'&&!I.list.length)c.append(bi('You have no invigilation assignments currently published.','لا توجد لديك مراقبات منشورة حاليًا.'));
  const nx=I.list.findIndex(a=>a.date>=td);
  const dts=[...new Set(SRC.map(a=>a.date))].sort();if(!dts.length)return c;
- if(!BK.__dInit){BK.__dInit=1;if(!BK.tDay||BK.tDay==='*')BK.tDay=dts.includes(td)?td:(dts.find(x=>x>=td)||dts[dts.length-1])}if(BK.tDay!=='*'&&!dts.includes(BK.tDay))BK.tDay=dts.includes(td)?td:(dts.find(x=>x>=td)||dts[dts.length-1]);
+ if(!BK.__dInit){BK.__dInit=1;if(!BK.tDay||BK.tDay==='*')BK.tDay=(ed&&canEd())?'*':dts.includes(td)?td:(dts.find(x=>x>=td)||dts[dts.length-1])}if(BK.tDay!=='*'&&!dts.includes(BK.tDay))BK.tDay=dts.includes(td)?td:(dts.find(x=>x>=td)||dts[dts.length-1]);
  {const tb=el('div','tdTabs');const ix=dts.indexOf(BK.tDay);
-  const nv=(t,k)=>{const b=el('button','tdTab nav',t);b.type='button';b.disabled=BK.tDay==='*'||k<0&&ix<=0||k>0&&ix>=dts.length-1;b.onclick=()=>{BK.tDay=dts[ix+k];draw()};return b};
+  const nv=(t,k)=>{const b=el('button','tdTab nav',t);b.type='button';b.disabled=BK.tDay==='*'?!dts.length:(k<0&&ix<=0||k>0&&ix>=dts.length-1);b.onclick=()=>{BK.tDay=BK.tDay==='*'?(k>0?(dts.find(x=>x>=td)||dts[0]):dts[dts.length-1]):dts[ix+k];draw()};return b};
   tb.append(nv('‹ السابق · Prev',-1),nv('التالي · Next ›',1));
   {const b=el('button','tdTab'+(BK.tDay==='*'?' on':''),'📋 كل الأيام · All days');b.type='button';b.onclick=()=>{BK.tDay='*';draw()};tb.append(b)}
   dts.forEach(dd=>{const b=el('button','tdTab'+(dd===BK.tDay?' on':'')+(dd===td?' today':''),FMT(dd).replace(/^(\w+), /,'')+(dd===td?' · اليوم':''));b.type='button';b.onclick=()=>{BK.tDay=dd;if(ed){const x=SRC.find(a=>a.date===dd);if(x)dayId=x.did}draw()};tb.append(b)});c.append(tb)}
