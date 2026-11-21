@@ -3103,3 +3103,6 @@ html body .view.ovp:not(#_a):not(#_b) .nx{color:var(--accD)!important}
 
 /* timer board: larger headings */
 #etBig .etTb th{font-size:calc(var(--u)*2.1)!important;font-weight:800!important}#etBig .etPp small{font-size:calc(var(--u)*1.95)!important;font-weight:700!important;color:#475569!important}
+
+/* larger field labels on hall / invigilation cards */
+.tdTile small,.tdNmH{font-size:1.02rem!important;font-weight:800!important;color:#334155!important}.tdSup{margin-top:10px}.tdSup b{display:block;font-size:1.1rem;margin-top:2px}
