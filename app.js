@@ -1545,6 +1545,11 @@ function drawStudio(d,A){
  const zs=el('select');const z0=el('option','','كل المناطق · All zones');z0.value='';zs.append(z0);S.zones.forEach(z=>{const o=el('option','',z.name);o.value=z.id;zs.append(o)});zs.value=IXS.zf;zs.onchange=()=>{IXS.zf=zs.value;draw()};ct.append(zs);
  const mi=el('label','exchk');const mc=el('input');mc.type='checkbox';mc.checked=IXS.miss;mc.onchange=()=>{IXS.miss=mc.checked;draw()};mi.append(mc,document.createTextNode(' الناقصة فقط · Short halls only'));ct.append(mi);
  cc.append(ct);
+ {const fr=el('div','ixRow'),mk=(ph,arr,key)=>{const s=el('select');const o0=el('option','',ph);o0.value='';s.append(o0);arr.forEach(x=>{const o=el('option','',x[1]);o.value=x[0];s.append(o)});s.value=IXS[key]||'';s.onchange=()=>{IXS[key]=s.value;draw()};if(IXS[key])s.classList.add('on');return s};
+  const ivs=[...new Set(halls.flatMap(v=>d.inv[v.id]||[]))].sort(),cls=[...new Set(d.sess.map(s=>s.cls).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'en',{numeric:true})),exs=[...new Set(halls.flatMap(v=>{try{return saExams(d,v.id)}catch(e){return[]}}).filter(Boolean))].sort();
+  fr.append(mk('👤 كل المراقبين · All invigilators',ivs.map(x=>[x,NM(x)]),'fiv'),mk('🏛 كل القاعات · All halls',halls.map(v=>[v.id,v.name]),'fhl'),mk('🎓 كل الصفوف · All classes',cls.map(x=>[x,x]),'fcl'),mk('📝 كل الاختبارات · All exams',exs.map(x=>[x,x]),'fex'));
+  const ss=el('input');ss.type='search';ss.placeholder='🧑‍🎓 اسم الطالب أو رقمه · Student name or ID';ss.value=IXS.fst||'';ss.oninput=()=>{IXS.fst=ss.value;clearTimeout(ss._t);ss._t=setTimeout(()=>{draw();const n=ROOT.querySelector('.ixFst');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}},300)};ss.classList.add('ixFst');fr.append(ss);
+  if(IXS.fiv||IXS.fhl||IXS.fcl||IXS.fex||IXS.fst)fr.append(btn('✕ مسح الفلاتر · Clear filters',()=>{IXS.fiv=IXS.fhl=IXS.fcl=IXS.fex=IXS.fst='';draw()},'rd sm'));cc.append(fr)}
  const ac=el('div','ixRow');
  ac.append(btn('✨ اقترح العدد لكل القاعات · Suggest numbers for all halls',()=>{halls.forEach(v=>{v.need=needFor(studs(d,v.id))});mark();draw()},'go sm'));
  ac.append(btn('✨ أكمل الناقص تلقائيًا · Auto-fill missing',()=>{let n=0;halls.forEach(v=>{const L=invs(d,v.id);while(L.length<(v.need||1)){if(!suggest(d,v))break;n++}});if(!n)alert('لا يوجد معلم متاح · No free teacher left on this day.');mark();draw()},'go sm'));
@@ -1553,7 +1558,7 @@ function drawStudio(d,A){
  /* halls */
  const qq=IXS.q.trim().toLowerCase();
  S.zones.filter(z=>!IXS.zf||z.id===IXS.zf).forEach(z=>{
-  const vs=S.venues.filter(v=>v.zone===z.id&&(IXS.empty||halls.includes(v))).filter(v=>{if(IXS.miss&&(d.inv[v.id]||[]).length>=(v.need||1))return false;if(!qq)return true;return (v.name+' '+z.name+' '+(d.inv[v.id]||[]).join(' ')+' '+d.sess.filter(s=>s.v===v.id).map(s=>s.cls+' '+s.code).join(' ')).toLowerCase().includes(qq)});
+  const vs=S.venues.filter(v=>v.zone===z.id&&(IXS.empty||halls.includes(v))).filter(v=>{if(IXS.miss&&(d.inv[v.id]||[]).length>=(v.need||1))return false;if(IXS.fhl&&v.id!==IXS.fhl)return false;if(IXS.fiv&&!(d.inv[v.id]||[]).includes(IXS.fiv))return false;if(IXS.fcl&&!d.sess.some(s=>s.v===v.id&&s.cls===IXS.fcl))return false;if(IXS.fex&&!(()=>{try{return saExams(d,v.id).includes(IXS.fex)}catch(e){return false}})())return false;if(IXS.fst){const k=IXS.fst.trim().toLowerCase();if(k&&!(()=>{try{return saStudents(d,v.id).some(s=>(s.name+' '+(s.sid||'')).toLowerCase().includes(k))}catch(e){return false}})())return false}if(!qq)return true;return (v.name+' '+z.name+' '+(d.inv[v.id]||[]).join(' ')+' '+d.sess.filter(s=>s.v===v.id).map(s=>s.cls+' '+s.code).join(' ')).toLowerCase().includes(qq)});
   if(!vs.length)return;
   const zc=el('section','ixZone');const zh=el('div','ixZh');zh.append(el('h3','',z.name),el('span','ixZc',vs.length+' قاعة · '+vs.reduce((a,v)=>a+studs(d,v.id),0)+' طالب'));zc.append(zh);
   const gr=el('div','ixGrid');
