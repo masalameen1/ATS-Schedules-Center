@@ -3124,3 +3124,9 @@ html body .view.ovp:not(#_a):not(#_b) .nx{color:var(--accD)!important}
 .etSpBtn{background:#0f766e!important;color:#fff!important;border-color:#0f766e!important;font-weight:800!important;font-size:1.05rem!important;padding:12px 22px!important;min-height:48px}
 
 #etBig .etTop{margin-top:calc(var(--u)*1.2)}.etRoot .etTop{margin-top:12px}
+
+/* attendance window: compact data strip with logo above the names list */
+.saStrip{background:linear-gradient(180deg,#f8fafc,#eef2ff);border:1px solid #dbe5fb;border-radius:16px;padding:10px 12px;margin:8px 0;display:flex;flex-direction:column;gap:8px}
+.saStTop{display:flex;align-items:center;gap:12px}.saStTop img{height:58px;width:auto;flex:none}.saStTx b{display:block;font-size:1.08rem;color:#0f172a}.saStTx small{display:block;color:#475569;margin-top:2px}
+.saStrip .saBar{margin:0}.saStrip .saSum{margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.saStrip .saTile{padding:6px 10px;min-height:0}.saStrip .saTile b{font-size:1.15rem}.saStrip .saTile small+small{display:none}
+.saSrc{margin-top:10px;font-size:.85rem}
