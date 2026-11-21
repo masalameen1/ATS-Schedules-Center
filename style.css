@@ -3132,3 +3132,18 @@ html body .view.ovp:not(#_a):not(#_b) .nx{color:var(--accD)!important}
 .saSrc{margin-top:10px;font-size:.85rem}
 
 .tdRes{border-inline-start:6px solid #7c3aed}.tdRes .tdTm{color:#5b21b6}.tdResA{margin:6px 12px 12px;color:#475569}
+
+/* timer style panel: one vertical list under the tab, closes after a choice */
+.etSide{flex-direction:column!important;align-items:flex-start!important;gap:6px}
+.etSideT{margin-left:0!important;border-radius:12px!important;height:40px}
+.etSideB{width:min(320px,86vw)!important;max-height:calc(100vh - 160px);overflow-y:auto;border-radius:16px!important;padding:12px 14px!important;gap:6px}
+.etSideB>.etSh{display:block;margin:10px 0 2px;font-size:13px;opacity:.75}
+.etSideB>.etSv{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;overflow:visible!important;gap:6px!important;padding:0!important}
+.etSideB>.etSg{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;overflow:visible!important;gap:8px!important;padding:2px 0!important;align-items:center}
+.etSvB{display:flex;align-items:center;gap:10px;width:100%;text-align:start;padding:9px 12px;border-radius:12px;border:1.5px solid #dbe5fb;background:#fff;color:#14213d;font:inherit;font-weight:700;cursor:pointer}
+.etSvB.on{background:#2563eb;border-color:#2563eb;color:#fff}.etSvB i{width:26px;height:26px;border-radius:8px;flex:none;border:1px solid rgba(15,23,42,.25)}
+/* dark / black timer screens: readable headings and logo */
+#etBig.etDark .etTop,#etBig.etDark .etExamTop,#etBig.etDark .etHn,#etBig.etDark .etHz,#etBig.etDark .etExamTop *{color:#f1f5f9!important}
+#etBig.etDark .etTop img{background:#fff;border-radius:14px;padding:6px}
+#etBig.etDark .etL{background:#0b1220!important;border:1px solid #1f2937!important}
+#etBig.etDark .etL .etHz,#etBig.etDark .etL .etTimes,#etBig.etDark .etL .etStat{color:#e2e8f0!important}
