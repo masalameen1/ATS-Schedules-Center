@@ -1320,8 +1320,8 @@ function draw(){
  const zs=el('select');const z0=el('option','','All zones');z0.value='';zs.append(z0);S.zones.forEach(z=>{const o=el('option','',z.name);o.value=z.id;zs.append(o)});zs.value=zf;zs.onchange=()=>{zf=zs.value;draw()};tl.append(zs);
  tl.append(lab('Conflicts only','',()=>onlyC,v=>onlyC=v));
  tl.append(btn('🗄 Archive',()=>window.__arch.open('exam','Invigilation archive',o=>{if(!canEd())return;if(Array.isArray(o.days)){o=clone(o);S.days=o.days;S.controllers=o.controllers||S.controllers;S.rest=o.rest||S.rest;dayId=S.days[0]&&S.days[0].id||dayId;mark();draw()}},o=>{const M={};(o.days||[]).forEach(d=>Object.values(d.inv||{}).forEach(a=>a.forEach(n=>{M[n]=(M[n]||0)+1})));return M},canEd()),''));
- {const cb=btn((window.__exCntOn?'🙈 Hide':'📊')+' Invigilation counter',()=>{window.__exCntOn=!window.__exCntOn;draw()},window.__exCntOn?'primary':'go');cb.title='Show how many invigilations each teacher has done';tl.append(cb)}
- ROOT.append(tl);if(window.__exCntOn)ROOT.append(countCard());
+ if(canEd()){const cb=btn((window.__exCntOn?'🙈 Hide':'📊')+' Invigilation counter',()=>{window.__exCntOn=!window.__exCntOn;draw()},window.__exCntOn?'primary':'go');cb.title='Show how many invigilations each teacher has done';tl.append(cb)}
+ ROOT.append(tl);if(window.__exCntOn&&canEd())ROOT.append(countCard());
  if(vm==='table'){ROOT.append(tview(d,A,q.trim().toLowerCase()));ROOT.scrollTop=sy;return}
  /* free teachers */
  const fc=el('details','card exc');fc.open=!!BK.fcOpen||!!pick;fc.ontoggle=()=>{BK.fcOpen=fc.open};fc.append(el('summary','exh','🧑‍🏫 Teachers without a duty on this day ('+notOn.length+') — tap to show'));{const rl=names.filter(n=>isRest(n,d));if(rl.length)fc.append(el('p','exs','😴 On their rest day today ('+rl.length+'): '+rl.join(' · ')))}
@@ -1616,7 +1616,7 @@ function vCard(d,v,A){
  list.forEach(n=>{const k=v.id+'|'+n,a=A[k]||{c:[]};const r=el('div','exI'+(a.c.length?(a.ok?' ov':' cf'):''));const rw=el('div','exIr');r.append(rw);
   rw.append(el('b','',NM(n)));
   const tm=btn('⏱',()=>{window.__ETSET&&window.__ETSET(n,d.id);showView('etimer')},'sm');tm.title='Open exam timer for '+n;rw.append(tm);
-  rw.append(el('span','exMy','×'+(exCounts()[n]||{n:0}).n));{const ed=btn('✎',()=>pickNames(invOpts(d,v,'Replace '+n,false,list)).then(r=>{if(r&&r[0]){const i=list.indexOf(n);if(i>-1)list[i]=r[0];delete d.ovr[k];mark();draw()}}),'sm');ed.title='Change this invigilator';rw.append(edOnly(ed))}
+  if(canEd())rw.append(el('span','exMy','×'+(exCounts()[n]||{n:0}).n));{const ed=btn('✎',()=>pickNames(invOpts(d,v,'Replace '+n,false,list)).then(r=>{if(r&&r[0]){const i=list.indexOf(n);if(i>-1)list[i]=r[0];delete d.ovr[k];mark();draw()}}),'sm');ed.title='Change this invigilator';rw.append(edOnly(ed))}
   const rm=btn('✕',async()=>{if(!await window.__cfm('إزالة '+n+' من '+v.name+'؟ · Remove this invigilator?'))return;d.inv[v.id]=list.filter(x=>x!==n);delete d.ovr[k];mark();draw()},'rd sm');rw.append(edOnly(rm));
   if(a.c.length){const w=el('div','exCf');a.c.forEach(m=>w.append(el('div','',(a.ok?'✔ ':'⚠ ')+m)));
    const ol=el('label','exchk');const oi=el('input');oi.type='checkbox';oi.checked=!!a.ok;oi.disabled=!canEd();
@@ -2525,7 +2525,7 @@ function invOpts(d,v,title,multi,exclude,extra){const usedMap={};S.venues.forEac
   tag:n=>{const u=usedMap[n];return u&&u.id!==v.id&&!conflictsOf(d,v.id,n).length?['also in '+u.name]:[]}},extra||{})}
 /* counters */
 function exCounts(){const M={};S.days.forEach(d=>{const seen=new Set();S.venues.forEach(v=>(d.inv[v.id]||[]).forEach(n=>{const m=M[n]||(M[n]={n:0,d:0,min:0,done:0});m.n++;if(d.date&&d.date<todayDubai())m.done++;if(!seen.has(n+'|'+d.id)){m.d++}seen.add(n+'|'+d.id);const[a,b]=vInt(d,v.id);if(!isNaN(a)&&!isNaN(b)&&b>a)m.min+=b-a}))});return M}
-function countCard(){const c=el('details','card exc exCnt');c.open=true;c.append(el('summary','exh','📊 Invigilation counter — duties performed by each teacher'));
+function countCard(){const c=el('details','card exc exCnt');if(!canEd())return c;c.open=true;c.append(el('summary','exh','📊 Invigilation counter — duties performed by each teacher'));
  const M=exCounts(),L=Object.entries(M).sort((a,b)=>b[1].n-a[1].n||a[0].localeCompare(b[0]));
  const t=el('table','subCt'),h1=el('tr');['#','Teacher','Invigilations','Done','Upcoming','Exam days','Hours'].forEach(x=>h1.append(el('th','',x)));t.append(h1);
  L.forEach(([n,m],i)=>{const r=el('tr');[i+1,NM(n),m.n,m.done,m.n-m.done,m.d,(m.min/60).toFixed(1)].forEach((x,k)=>r.append(el('td',k>1?'num':'',String(x))));t.append(r)});
@@ -2926,7 +2926,7 @@ function tview(d,A,qq){
  if(BK.me){fr.append(btn('✕ Show all halls',()=>{BK.me='';draw()}))}
  {const emp=all.filter(r=>!r.inv.length).length;if(canEd()&&emp)fr.append(btn(BK.asg!==false?'👁 Also show halls without invigilators ('+emp+')':'👁 Show only halls with invigilators',()=>{BK.asg=BK.asg===false;draw()},'sm'))}
  w.append(fr);
- if(BK.me){const L=[];sdays().forEach(x=>{S.venues.forEach(v=>{if((x.inv[v.id]||[]).includes(BK.me)){const [a,b]=vInt(x,v.id);L.push('📌 '+FMT(x.date)+' — '+v.name+' ('+(zone(v.zone)||{}).name+') · '+hm(a)+'–'+hm(b)+' · supervisor: '+(supOf(v)||'—'))}});if(S.controllers.includes(BK.me))L.push('🛡️ '+FMT(x.date)+' — General controller (all day)');S.zones.forEach(z=>{if(z.sup===BK.me)L.push('⭐ '+FMT(x.date)+' — Supervisor of '+z.name)});if(isRest(BK.me,x))L.push('😴 '+FMT(x.date)+' — Your rest day (no invigilation)')});
+ if(BK.me){const L=[],rv=invReserve();sdays().forEach(x=>{S.venues.forEach(v=>{if((x.inv[v.id]||[]).includes(BK.me)){const [a,b]=vInt(x,v.id);L.push('📌 '+FMT(x.date)+' — '+v.name+' ('+(zone(v.zone)||{}).name+') · '+hm(a)+'–'+hm(b)+' · supervisor: '+(supOf(v)||'—'))}});if(S.controllers.includes(BK.me))L.push('🛡️ '+FMT(x.date)+' — General controller (all day)');S.zones.forEach(z=>{if(z.sup===BK.me)L.push('⭐ '+FMT(x.date)+' — Supervisor of '+z.name)});if(isRest(BK.me,x))L.push('😴 '+FMT(x.date)+' — Your rest day (no invigilation)');if((rv[x.id]||[]).includes(BK.me))L.push('🪑 '+FMT(x.date)+' — You are on reserve (standby) today')});
   w.append(el('div','exMine','Duties of '+BK.me+':\n'+(L.join('\n')||'No invigilation duty found.')))}
  const sc=el('div','exScroll');const tb=el('table','exSt');const th=el('tr');['Zone','Hall · time','Classes, subjects & exam type','Supervisor','Invigilators'].forEach(x=>th.append(el('th','',x)));tb.append(th);
  let shown=0,lastZ='';
@@ -2942,7 +2942,9 @@ function tview(d,A,qq){
   const sp=el('td','sp',r.sup||'—');tr.append(sp);
   const iv=el('td','iv');if(!r.inv.length)iv.append(el('span','low','⚠ none assigned'));r.inv.forEach(n=>{const a=A[r.v.id+'|'+n]||{c:[]};const pl=el('span','pill'+(a.c.length?(a.ok?' ov':' cf'):'')+(n===BK.me?' me':'')+(canEd()?' pEd':''),NM(n)+(a.c.length&&!a.ok?' ⚠':'')+(canEd()?' ✎':''));if(canEd()){pl.title='Change this invigilator by hand · تغيير يدوي';pl.onclick=()=>{const L=invs(d,r.v.id);pickNames(invOpts(d,r.v,'Replace '+n,false,L,{remove:()=>{d.inv[r.v.id]=L.filter(x=>x!==n);delete d.ovr[r.v.id+'|'+n];mark();draw()},removeLabel:'Remove '+n+' · حذفه من القاعة'})).then(x=>{if(x&&x[0]){const i=L.indexOf(n);if(i>-1)L[i]=x[0];delete d.ovr[r.v.id+'|'+n];mark();draw()}})}}iv.append(pl)});if(canEd()){const ap=el('span','pill pAdd','＋ Add · إضافة');ap.title='Add an invigilator by hand';ap.onclick=()=>{const L=invs(d,r.v.id);pickNames(invOpts(d,r.v,'Add invigilators — '+r.v.name,true,L)).then(x=>{if(x&&x.length){x.forEach(n=>{if(!L.includes(n))L.push(n)});mark();draw()}})};iv.append(ap)}if(r.inv.length<r.need)iv.append(el('span','low','needs '+r.need));tr.append(iv);tb.append(tr)});
  if(!shown){const tr=el('tr'),t=el('td','emp',BK.asg!==false&&!all.some(r=>r.inv.length)?'No invigilators have been assigned for this day yet.':'Nothing to show — change the filter or choose another exam day.');t.colSpan=5;tr.append(t);tb.append(tr)}
- sc.append(tb);w.append(sc);return w}
+ sc.append(tb);w.append(sc);
+ {const rs=invReserve()[d.id];if(rs){const bx=el('div','rsvBx'),h=el('div','rsvH');h.append(el('b','','🪑 Reserve list · قائمة الاحتياط ('+rs.length+')'),el('small','','Teachers without invigilation on this day — each teacher is on reserve on one day only · معلمون بلا مراقبة في هذا اليوم، ولكل معلم يوم احتياط واحد فقط'));bx.append(h);const ch=el('div','rsvC');rs.forEach(n=>ch.append(el('span','rsvP'+(n===BK.me?' me':''),NM(n))));if(!rs.length)ch.append(el('span','rsvE','—'));bx.append(ch);w.append(bx)}}
+ return w}
 /* ---- downloads ---- */
 const XURL='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',JURL='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',AURL='https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
 const loadLib=(src,ok)=>ok()?Promise.resolve():new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('load'));document.head.append(s)});
@@ -2953,7 +2955,11 @@ async function saveBlob(name,blob){if(/\.xlsx$/i.test(name)&&window.__brandX)try
 const dlDays=()=>BK.scope==='all'?[...S.days].sort((a,b)=>a.date.localeCompare(b.date)):[day()];
 const HDR=['Zone','Supervisor','Hall','Time','Class / section','Subject','Exam type','Students','Invigilators','Exam requirements'];
 const flat=(d)=>{const A=analyse(d),o=[];planRows(d,A).forEach(r=>{const ss=r.ss.length?r.ss:[{cls:'',code:'',n:''}];ss.forEach((x,i)=>o.push([i?'':r.zone,i?'':r.sup,r.hall,r.time,x.cls||'',x.code||'',tyOf(x,d),x.n||'',i?'':(r.inv.join(' / ')||'— none —'),catItems(catFind(x.code)).join(' · ')]))});return o};
-const teacherRows=()=>{const o=[];dlDays().forEach(d=>{S.venues.forEach(v=>(d.inv[v.id]||[]).forEach(n=>{const [a,b]=vInt(d,v.id);o.push([n,d.date,v.name,(zone(v.zone)||{}).name||'',hm(a),hm(b),'Invigilator'])}));S.controllers.filter(Boolean).forEach(n=>o.push([n,d.date,'Control room','',hm(T2M(d.from)),hm(T2M(d.to)),'General controller']));S.zones.forEach(z=>{if(z.sup)o.push([z.sup,d.date,z.name,z.name,hm(T2M(d.from)),hm(T2M(d.to)),'Zone supervisor'])});names.forEach(n=>{if(isRest(n,d))o.push([n,d.date,'Rest day (no invigilation)','','','','Rest day'])})});return o.sort((a,b)=>a[0].localeCompare(b[0])||a[1].localeCompare(b[1]))};
+const invReserve=()=>{const days=[...S.days].filter(d=>d.date&&!/^spall/.test(d.id)&&S.venues.some(v=>(d.inv[v.id]||[]).length)).sort((a,b)=>a.date.localeCompare(b.date));const busy={};days.forEach(d=>{const s=new Set();S.venues.forEach(v=>(d.inv[v.id]||[]).forEach(n=>s.add(n)));S.controllers.filter(Boolean).forEach(n=>s.add(n));S.zones.forEach(z=>{if(z.sup)s.add(z.sup)});busy[d.id]=s});
+ const out={};days.forEach(d=>out[d.id]=[]);
+ [...new Set(names.filter(Boolean))].map(n=>({n,f:days.filter(d=>!busy[d.id].has(n)&&!isRest(n,d))})).filter(x=>x.f.length).sort((a,b)=>a.f.length-b.f.length||a.n.localeCompare(b.n)).forEach(c=>{let best=null;c.f.forEach(d=>{if(!best||out[d.id].length<out[best.id].length)best=d});out[best.id].push(c.n)});
+ Object.keys(out).forEach(k=>out[k].sort((a,b)=>a.localeCompare(b)));return out};
+const teacherRows=()=>{const o=[],RV=invReserve();dlDays().forEach(d=>{S.venues.forEach(v=>(d.inv[v.id]||[]).forEach(n=>{const [a,b]=vInt(d,v.id);o.push([n,d.date,v.name,(zone(v.zone)||{}).name||'',hm(a),hm(b),'Invigilator'])}));S.controllers.filter(Boolean).forEach(n=>o.push([n,d.date,'Control room','',hm(T2M(d.from)),hm(T2M(d.to)),'General controller']));S.zones.forEach(z=>{if(z.sup)o.push([z.sup,d.date,z.name,z.name,hm(T2M(d.from)),hm(T2M(d.to)),'Zone supervisor'])});names.forEach(n=>{if(isRest(n,d))o.push([n,d.date,'Rest day (no invigilation)','','','','Rest day'])});(RV[d.id]||[]).forEach(n=>o.push([n,d.date,'Reserve (standby)','','','','Reserve']))});return o.sort((a,b)=>a[0].localeCompare(b[0])||a[1].localeCompare(b[1]))};
 async function dlXlsx(){return dlXlsxV2()}
 async function dlXlsxOld(){ST.set('Preparing Excel…');
  try{await loadLib(XURL,()=>window.XLSX)}catch(e){ST.set('Excel library could not be loaded — downloading CSV instead');csv(day());return}
@@ -3041,7 +3047,11 @@ function invPages(days){
   y+=h};
  days.forEach(d=>{dayInfo=invData(d);let g=mkPage();banner(g,d,0);tableHead(g);const FT=44;
   dayInfo.rows.forEach((r,i)=>{const L=layout(g,r,dayInfo.A);if(y+L.h>H-FT){g=mkPage();running(g,d);tableHead(g)}drawRow(g,r,L,i)});
-  if(!dayInfo.rows.length){g.fillStyle='#64748b';g.font='500 26px '+FNT;g.textAlign='center';g.fillText('No halls or invigilators for this day yet.',W/2,y+60)}});
+  if(!dayInfo.rows.length){g.fillStyle='#64748b';g.font='500 26px '+FNT;g.textAlign='center';g.fillText('No halls or invigilators for this day yet.',W/2,y+60)}
+  {const rs=invReserve()[d.id];if(rs&&rs.length){const cols=6,cw=(TW-36)/cols,nr=Math.ceil(rs.length/cols),bh=70+nr*34;if(y+16+bh>H-FT){g=mkPage();running(g,d)}
+   y+=16;g.fillStyle='#ede9fe';rr(g,M,y,TW,bh,14);g.fill();g.strokeStyle='#c4b5fd';g.lineWidth=1.5;rr(g,M,y,TW,bh,14);g.stroke();g.textAlign='left';g.fillStyle='#5b21b6';g.font='500 24px '+FNT;g.fillText('Reserve list ('+rs.length+')  ·  teachers without invigilation on this day — each teacher is on reserve on one day only',M+18,y+32);
+   g.fillStyle='#2e1065';g.font='400 20px '+FNT;rs.forEach((n,i)=>{g.fillText((i+1)+'. '+wrap(g,n,cw-34,'400 20px '+FNT,1)[0],M+18+(i%cols)*cw,y+72+Math.floor(i/cols)*34)});y+=bh}}
+  });
  pages.forEach((p,i)=>{const g=p.g;g.fillStyle='#e8eefb';g.fillRect(0,H-40,W,40);g.textAlign='left';g.fillStyle='#445064';g.font='500 17px '+FNT;g.fillText('Applied Technology High School — Ras Al Khaimah · ATS Schedule Center',M,H-20);g.textAlign='right';g.fillText('Page '+(i+1)+' / '+pages.length+'  ·  '+new Date().toISOString().slice(0,10),W-M,H-20)});
  return pages.map(p=>p.cv)}
 window.__pdfCv=function(c){return pdfFromCanvases(c)};
@@ -3108,11 +3118,15 @@ function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
    row.push(T(s?invReqs(s):'',{sz:11,i:1,c:'92400E',bg:hi%2?'FFFFFF':zt,wrap:1}));rows.push(row);heights[rows.length-1]=need}
   if(k>1){[1,2,8].forEach(c=>merges.push(String.fromCharCode(65+c)+(base+1)+':'+String.fromCharCode(65+c)+(base+k)))}});
  supRuns.forEach(q=>{if(q.end-q.start>1)merges.push('J'+(q.start+1)+':J'+q.end)});closeZ();
+ {const rs=invReserve()[d.id];if(rs&&rs.length){rows.push(Array.from({length:N},()=>T('',{bd:false})));heights[rows.length-1]=14;
+  bar('Reserve list ('+rs.length+') — teachers without invigilation on this day. Each teacher is on reserve on one day only.',{sz:15,b:1,c:'FFFFFF',bg:'6D28D9',al:'center'},30);
+  const st={sz:13,b:1,c:'4C1D95',bg:'F5F3FF',al:'left'},sp=[[0,1],[2,3],[4,5],[6,7],[8,10]],CL=j=>String.fromCharCode(65+j);
+  for(let i=0;i<rs.length;i+=5){const row=Array.from({length:N},()=>T('',st));sp.forEach(([a],k)=>{const n=rs[i+k];if(n)row[a]=T((i+k+1)+'. '+n,st)});rows.push(row);const rn=rows.length;sp.forEach(([a,b])=>merges.push(CL(a)+rn+':'+CL(b)+rn));heights[rn-1]=24}}}
  return{name:(d.date||'Day '+(i+1)),rows,cols,merges,heights,code:'ATSINV'}}
 function teacherSheet(){const rows=[],N=7,T=(v,s)=>({v,s});const data=teacherRows();
  const t=[T('Invigilation by teacher · المراقبون حسب المعلم',{sz:20,b:1,c:'FFFFFF',bg:'1E3A8A',al:'center'})];for(let k=1;k<N;k++)t.push(T('',{bg:'1E3A8A'}));rows.push(t);
  rows.push(['Teacher\nالمعلم','Date\nالتاريخ','Hall / place\nالقاعة','Zone\nالمنطقة','From\nمن','To\nإلى','Role\nالدور'].map(h=>T(h,{sz:13,b:1,c:'FFFFFF',bg:'0F172A',al:'center',wrap:1})));
- const RC={'Invigilator':['DBEAFE','1D4ED8'],'General controller':['FEF3C7','B45309'],'Zone supervisor':['D1FAE5','047857'],'Rest day':['E5E7EB','475569']};
+ const RC={'Invigilator':['DBEAFE','1D4ED8'],'General controller':['FEF3C7','B45309'],'Zone supervisor':['D1FAE5','047857'],'Rest day':['E5E7EB','475569'],'Reserve':['EDE9FE','5B21B6']};
  data.forEach(r=>{const c=RC[r[6]]||['FFFFFF','111827'];rows.push([T(r[0],{sz:13,b:1}),T(r[1],{sz:13}),T(r[2],{sz:13,b:1}),T(r[3],{sz:13}),T(r[4],{sz:13,al:'center'}),T(r[5],{sz:13,al:'center'}),T(r[6],{sz:13,b:1,c:c[1],bg:c[0],al:'center'})])});
  const heights={0:38,1:40};return{name:'By teacher',rows,cols:[28,13,22,24,9,9,20],merges:['A1:G1'],heights,freeze:2}}
 async function dlXlsxV2(){ST.set('Preparing Excel…');try{const sh=dlDays().map((d,i)=>invSheet(d,i));sh.push(teacherSheet());await saveBlob('Invigilation_'+(BK.scope==='all'?'all-days':(day().date||'plan'))+'.xlsx',xlsxBuild(sh))}catch(e){ST.set('Styled Excel failed — using the simple version');try{await dlXlsxOld()}catch(x){}}}

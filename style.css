@@ -3114,3 +3114,6 @@ html body .view.ovp:not(#_a):not(#_b) .nx{color:var(--accD)!important}
 .etQb.go{background:#16a34a!important;border-color:#16a34a!important;color:#fff!important}
 .etQb.etFsQ{background:#0f766e!important;color:#fff!important;border-color:#0f766e!important}
 .etSideB{backdrop-filter:none!important;background:#fff!important}.etSideT{background:#fff!important}
+
+/* reserve (standby) list */
+.rsvBx{margin:14px 0;padding:14px 16px;border-radius:16px;background:#f5f3ff;border:1px solid #ddd6fe}.rsvH b{display:block;font-size:1.05rem;color:#5b21b6}.rsvH small{display:block;color:#6b7280;margin:2px 0 8px}.rsvC{display:flex;flex-wrap:wrap;gap:6px}.rsvP{background:#fff;border:1px solid #c4b5fd;color:#4c1d95;border-radius:999px;padding:5px 12px;font-weight:700;font-size:.92rem}.rsvP.me{background:#7c3aed;color:#fff;border-color:#7c3aed}
