@@ -1008,7 +1008,12 @@ const depOf=n=>{try{const k=(typeof TDEPT!=='undefined'&&TDEPT[n])||'';return k=
 const dpClash=(d,v,n)=>{const k=depOf(n);return !!k&&invs(d,v.id).some(m=>m!==n&&depOf(m)===k)};
 const gmis=(d,v,n)=>{const a=invs(d,v.id);if(!a.length)return false;const f=a.filter(FEMX).length;const g=f*2>=a.length?'f':'m';return (FEMX(n)?'f':'m')!==g};
 const HZ={};
-function homeZone(n){if(n in HZ)return HZ[n];let z='';try{const c={};(typeof LD!=='undefined'&&LD[n]||[]).forEach(l=>{const m=/^\s*([A-Za-z]+)/.exec(l.r||'');if(m){const k=m[1].toUpperCase();c[k]=(c[k]||0)+1}});const ids=new Set(S.zones.map(x=>x.id));const best=Object.keys(c).filter(k=>ids.has(k)).sort((x,y)=>c[y]-c[x])[0];z=best||''}catch(e){}return HZ[n]=z}
+/* fixed places: these teachers are always placed where the coordinator said */
+const PIN=[{re:/^Jamal Al Qubaisi$/i,z:'OT',v:['Gym']},{re:/^Mohamed Jrad$/i,z:'A',v:['A-BLOCK','Canteen']},{re:/^Mohammad Al Salamin$/i,z:'A',v:['Canteen','A-BLOCK']}];
+const pinOf=n=>PIN.find(p=>p.re.test(String(n||'').trim()));
+const nzr=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+function homeZone(n){const pn=pinOf(n);if(pn)return pn.z;if(n in HZ)return HZ[n];let z='';try{const c={};(typeof LD!=='undefined'&&LD[n]||[]).forEach(l=>{const rn=nzr(l.r),vv=S.venues.find(v=>nzr(v.name)===rn);let k=vv?vv.zone:null;if(!k){const m=/^\s*([A-Za-z]+)/.exec(l.r||'');if(m)k=m[1].toUpperCase()}if(k)c[k]=(c[k]||0)+1});const ids=new Set(S.zones.map(x=>x.id));const best=Object.keys(c).filter(k=>ids.has(k)).sort((x,y)=>c[y]-c[x])[0];z=best||''}catch(e){}if(S.venues.length)HZ[n]=z;return z}
+const zNear=(n,v)=>{const p=pinOf(n);return p?(p.v.includes(v.name)?0:(p.z===v.zone?1:6)):(homeZone(n)===v.zone?1:3)}
 const NEED=(d,v)=>{const st=studs(d,v.id);return st>0?Math.max(1,Math.ceil(st/17)):Math.max(1,v.need||1)};
 function autoAssign(d){
  const used=assignedSet(d),pv=rot?prevInv(d):{};
@@ -1016,8 +1021,10 @@ function autoAssign(d){
  const off=S.days.indexOf(d)*7%Math.max(1,free.length);free=free.slice(off).concat(free.slice(0,off));
  const vs=S.venues.filter(v=>d.sess.some(s=>s.v===v.id)||v.need>1||(d.inv[v.id]||[]).length).slice();
  vs.forEach(v=>{v.need=NEED(d,v)});
+ /* 00) pinned teachers go first to their fixed place (Gym / canteen) */
+ free.slice().forEach(n=>{const pn=pinOf(n);if(!pn)return;const hv=vs.find(v=>pn.v.includes(v.name)&&d.sess.some(s=>s.v===v.id)&&!conflictsOf(d,v.id,n).length)||vs.find(v=>pn.v.includes(v.name)&&!conflictsOf(d,v.id,n).length);if(hv){invs(d,hv.id).push(n);free.splice(free.indexOf(n),1)}});
  const gOf=v=>{const a=invs(d,v.id);if(!a.length)return null;const f=a.filter(FEMX).length;return f*2>=a.length?'f':'m'};
- const take=(v,strict)=>{const g=gOf(v);let best=-1,bs=1e9;free.forEach((n,i)=>{if(conflictsOf(d,v.id,n).length)return;const hz=homeZone(n);if(strict&&hz!==v.zone)return;const sc=(hz===v.zone?0:6)+(pv[n]===v.id?2:0)+(g&&((FEMX(n)?'f':'m')!==g)?8:0)+(dpClash(d,v,n)?12:0);if(sc<bs){bs=sc;best=i}});if(best<0)return null;const n=free.splice(best,1)[0];invs(d,v.id).push(n);return n};
+ const take=(v,strict)=>{const g=gOf(v);let best=-1,bs=1e9;free.forEach((n,i)=>{if(conflictsOf(d,v.id,n).length)return;const hz=homeZone(n);if(strict&&hz!==v.zone)return;const pp=pinOf(n),sc=(pp?(pp.v.includes(v.name)?-10:(pp.z===v.zone?0:40)):0)+(hz===v.zone?0:6)+(pv[n]===v.id?2:0)+(g&&((FEMX(n)?'f':'m')!==g)?8:0)+(dpClash(d,v,n)?12:0);if(sc<bs){bs=sc;best=i}});if(best<0)return null;const n=free.splice(best,1)[0];invs(d,v.id).push(n);return n};
  /* 0) no hall with an exam is ever left without an invigilator (small halls keep just one) */
  vs.filter(v=>d.sess.some(s=>s.v===v.id)&&!invs(d,v.id).length).sort((a,b)=>studs(d,b.id)-studs(d,a.id)).forEach(v=>{if(free.length&&!take(v,true))take(v,false)});
  /* 1) each hall gets one invigilator per 17 students, from teachers whose own room is in the same block, women with women and men with men */
@@ -1034,7 +1041,7 @@ function autoAssign(d){
   const cost=v=>{const a=invs(d,v.id);let c=0;const ds={};a.forEach(n=>{const k=depOf(n);if(k)ds[k]=(ds[k]||0)+1;c+=zc(n,v)});Object.keys(ds).forEach(k=>{if(ds[k]>1)c+=10*(ds[k]-1)});const f=a.filter(FEMX).length;if(a.length>1&&f&&f<a.length)c+=4*Math.min(f,a.length-f);return c};
   for(let pass=0;pass<4;pass++){let ch=false;
    for(let x=0;x<vs.length;x++)for(let y=x+1;y<vs.length;y++){const v1=vs[x],v2=vs[y],a1=invs(d,v1.id),a2=invs(d,v2.id);
-    for(let i=0;i<a1.length;i++)for(let j=0;j<a2.length;j++){const a=a1[i],b=a2[j];if(a===b)continue;const before=cost(v1)+cost(v2);
+    for(let i=0;i<a1.length;i++)for(let j=0;j<a2.length;j++){const a=a1[i],b=a2[j];if(a===b||pinOf(a)||pinOf(b))continue;const before=cost(v1)+cost(v2);
      a1.splice(i,1);a2.splice(j,1);const ok=!conflictsOf(d,v1.id,b).length&&!conflictsOf(d,v2.id,a).length;
      a1.splice(i,0,b);a2.splice(j,0,a);
      if(ok&&cost(v1)+cost(v2)<before){ch=true}else{a1.splice(i,1,a);a2.splice(j,1,b)}}}
@@ -1042,7 +1049,7 @@ function autoAssign(d){
 }
 function suggest(d,v){
  const used=assignedSet(d),pv=rot?prevInv(d):{};
- const c=pool(d).filter(n=>!used.has(n)&&!conflictsOf(d,v.id,n).length).sort((a,b)=>(dpClash(d,v,a)-dpClash(d,v,b))||(gmis(d,v,a)-gmis(d,v,b))||(pv[a]===v.id)-(pv[b]===v.id)||load(d,a)-load(d,b));
+ const c=pool(d).filter(n=>!used.has(n)&&!conflictsOf(d,v.id,n).length).sort((a,b)=>(zNear(a,v)-zNear(b,v))||(dpClash(d,v,a)-dpClash(d,v,b))||(gmis(d,v,a)-gmis(d,v,b))||(pv[a]===v.id)-(pv[b]===v.id)||load(d,a)-load(d,b));
  if(!c.length)return false;invs(d,v.id).push(c[0]);return true}
 function mark(){dirty=true;try{guardNew()}catch(e){}try{histPush()}catch(e){}const b=document.getElementById('exSave');if(b){b.disabled=false;b.classList.add('dirty')}stUpd()}
 /* ---- undo / redo / change history (editors only) ---- */
@@ -2468,25 +2475,26 @@ function newDayWizard(base){catList();const ov=el('div','pkOv'),bx=el('div','pkB
   if(F.mode==='replace'){n.id=base.id;S.days=S.days.some(z=>z.id===base.id)?S.days.map(z=>z.id===base.id?n:z):[...S.days,n]}else S.days=[...S.days,n];dayId=n.id;vm='table';ov.remove();mark();draw();saveQuiet();try{window.__smallNote(['✔ New day added as a DRAFT: '+dn0(n.date)+' · '+n.sess.length+' sections · '+Object.values(n.inv).reduce((a,l)=>a+l.length,0)+' invigilators — press Save & publish when it is complete'])}catch(e){}window.scrollTo({top:0,behavior:'smooth'})}catch(e){er.textContent='⚠ Could not create the day: '+(e&&e.message||e)}},'primary');crb.style.cssText='position:sticky;bottom:0;font-size:18px;padding:14px;margin-top:8px';bx.append(crb);
  ov.onclick=e=>{if(e.target===ov)ov.remove()};document.body.append(ov);ti.focus()}
 /* name picker */
-function pickNames(o){return new Promise(res=>{const ov=el('div','pkOv'),bx=el('div','pkBx pkNew');ov.append(bx);const sel=new Set();let sortM='few',onlyAv=true;
+function pickNames(o){return new Promise(res=>{const ov=el('div','pkOv'),bx=el('div','pkBx pkNew');ov.append(bx);const sel=new Set();let sortM=o.zone?'near':'few',onlyAv=true;
  const hd=el('div','pkH');const ttl=el('div','pkTt');ttl.append(el('b','',o.title||'Choose'),el('small','',o.multi?'اختر معلمًا أو أكثر · select one or more':'اختر معلمًا · select one teacher'));hd.append(btn('← رجوع · Back',()=>{ov.remove();res(null)},'sm'),ttl,btn('✕',()=>{ov.remove();res(null)},'rd sm'));
  const q=el('input');q.type='search';q.placeholder='🔎  ابحث عن اسم · Search a name…';q.className='pkQ';
  const bar=el('div','pkBar');const cnt=el('span','pkCnt','0 selected');
- const seg=el('div','pkSeg');[['few','↑ الأقل مراقبة · Fewest duties'],['az','A–Z']].forEach(([k,t])=>{const x=el('button','',t);x.type='button';x.dataset.k=k;x.onclick=()=>{sortM=k;draw()};seg.append(x)});
+ const seg=el('div','pkSeg');[...(o.zone?[['near','📍 Nearest block']]:[]),['few','↑ الأقل مراقبة · Fewest duties'],['az','A–Z']].forEach(([k,t])=>{const x=el('button','',t);x.type='button';x.dataset.k=k;x.onclick=()=>{sortM=k;draw()};seg.append(x)});
  const sa=btn('Select shown',()=>{lst.querySelectorAll('.pkR:not([hidden]):not(.blocked)').forEach(r=>{sel.add(r.dataset.n)});sync()},'sm'),cl=btn('Clear',()=>{sel.clear();sync()},'sm');
  const avb=el('button','pkAvB on','✅ المتاحون فقط · Available only');avb.type='button';avb.onclick=()=>{onlyAv=!onlyAv;avb.classList.toggle('on',onlyAv);avb.textContent=onlyAv?'✅ المتاحون فقط · Available only':'👥 عرض الكل · Show all';draw()};
  bar.append(seg,avb);if(o.multi)bar.append(sa,cl);bar.append(cnt);
  const lst=el('div','pkL');const M=exCounts();const WN={};
  const nOf=n=>M[n]?M[n].n:0;
+ const zs=n=>zNear(n,{name:o.vname,zone:o.zone});
  function draw(){seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.k===sortM));lst.innerHTML='';
   const ex=o.exclude||[];const L=names.filter(n=>!authName(n)&&(incl||!supSet().has(n))).map(n=>{let bl=o.block?o.block(n):'';if(!bl&&ex.includes(n))bl='§مختار ومشغول هنا · already chosen here';return{n,bl,wr:o.warn?o.warn(n):[],tg:o.tag?o.tag(n):[]}});
   const Lall=L.slice();if(onlyAv){for(let i=L.length-1;i>=0;i--)if(L[i].bl)L.splice(i,1)}
-  L.sort((x,y)=>(sortM==='few'?(nOf(x.n)-nOf(y.n)):0)||x.n.localeCompare(y.n));
+  L.sort((x,y)=>(sortM==='near'?(zs(x.n)-zs(y.n))||(nOf(x.n)-nOf(y.n)):0)||(sortM==='few'?(nOf(x.n)-nOf(y.n)):0)||x.n.localeCompare(y.n));
   L.forEach(({n,bl,wr,tg})=>{WN[n]=wr;const r=el('label','pkR'+(bl?' blocked':'')+(wr.length?' warn':''));r.dataset.n=n;
    const c=el('input');c.type=o.multi?'checkbox':'radio';c.name='pk';c.onchange=()=>{if(!o.multi)sel.clear();c.checked?sel.add(n):sel.delete(n);sync()};
    const av=el('span','pkAv',(NM(n).trim()[0]||'?').toUpperCase());
    const mid=el('span','pkMid');mid.append(el('span','pkN',NM(n)));
-   const sm=el('small','pkT','🧾 راقب '+nOf(n)+' مرة · '+nOf(n)+' invigilation'+(nOf(n)===1?'':'s')+(tg.length?' · '+tg.join(' · '):''));mid.append(sm);
+   const sm=el('small','pkT','🧾 راقب '+nOf(n)+' مرة · '+nOf(n)+' invigilation'+(nOf(n)===1?'':'s')+(tg.length?' · '+tg.join(' · '):'')+(o.zone&&zs(n)<=1?' · 📍 near this hall':''));mid.append(sm);
    wr.forEach(w=>mid.append(el('small','pkW','⚠ '+w)));
    if(bl){c.disabled=true;mid.append(el('small','pkB',bl.charAt(0)==='§'?'⛔ '+bl.slice(1):'⛔ مشغول · busy — '+AR_T+' — '+bl))}
    r.append(c,av,mid);if((S.extraT||[]).includes(n)){const ac=el('span','pkAc');const stop=f=>e=>{e.preventDefault();e.stopPropagation();f()};const eb=el('button','pkEb','✎'),db=el('button','pkEb pkDb','🗑');eb.type=db.type='button';eb.title='تعديل الاسم · Rename';db.title='حذف · Delete';
@@ -2519,7 +2527,7 @@ function sameSubj(d,v,n){const codes=[...new Set(d.sess.filter(z=>z.v===v.id&&z.
  for(const c of codes)if(mine.some(l=>l.k===c))return 'يدرّس مادة هذا الامتحان نفسها ('+c+') · teaches this exact exam subject';
  for(const c of codes){const p=subPre(c);if(p&&mine.some(l=>subPre(l.k)===p))return 'يدرّس مادة من المجال نفسه ('+p+') كامتحان '+c+' · teaches the same subject area as this exam'}return''}
 function invOpts(d,v,title,multi,exclude,extra){const usedMap={};S.venues.forEach(x=>(d.inv[x.id]||[]).forEach(n=>usedMap[n]=x));
- return Object.assign({title,multi,exclude,
+ return Object.assign({title,multi,exclude,zone:v.zone,vname:v.name,
   block:n=>{const cs=conflictsOf(d,v.id,n);return cs.length?cfTxt(cs[0]):''},
   warn:n=>{const w=[],ss=sameSubj(d,v,n);if(ss)w.push(ss);if(S.controllers.includes(n))w.push('مراقب عام (Controller) · general controller');if(isRest(n,d))w.push('يوم راحته · rest day');return w},
   tag:n=>{const u=usedMap[n];return u&&u.id!==v.id&&!conflictsOf(d,v.id,n).length?['also in '+u.name]:[]}},extra||{})}
