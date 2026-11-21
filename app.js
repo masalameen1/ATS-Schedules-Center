@@ -943,10 +943,14 @@ let S=clone(SEED);S.rest={};S.cat=[];let dirty=false,loaded=false,dayId=S.days[0
  window.__exEns2=ens2;Object.defineProperty(S,'days',{get(){const a=pd.get.call(S);ens2(a);return a},set(v){pd.set.call(S,v)},enumerable:true,configurable:true})})();
 /* whole-school seating plan: every student in the hall and seat of the approved seating plan (not tied to a subject) */
 (function(){const pd=Object.getOwnPropertyDescriptor(S,'days'),vd=Object.getOwnPropertyDescriptor(S,'venues');if(!pd||!vd)return;
- const ens3=a=>{try{if(!window.__EXR||!window.__EXR.some(r=>r[10]))return;const id='spall20261206';if(a.some(x=>x.id===id))return;const V=S.venues;
+const enr=x=>{try{if(x.date==='2026-12-06')x.date='2026-12-07';const FI=window.__finInfo;if(!FI||!FI.day||x.enr===x.date)return;const now=Date.now();if(window.__spT&&now-window.__spT<3000)return;window.__spT=now;const it=FI.day(x.date)||[];if(!it.length||!window.__EXR)return;
+  const st={};window.__EXR.forEach(r=>{if(!st[r[1]])st[r[1]]={g:+r[0],s:/^ASP$/i.test(String(r[6]))?'asp':/general/i.test(String(r[6]))?'gen':'adv'}});
+  let hit=0;x.sess.forEach(s=>{const m=st[s.cls];if(!m)return;const z=it.find(i=>i.g===m.g&&i.st===m.s)||it.find(i=>i.g===m.g);if(!z)return;const p=(z.parts||[])[0]||[];s.subj=z.en||z.ar||s.subj;s.code=z.code||'';if(p[0]){s.from=p[0];s.to=p[1]}s.ty=p[2]==='E'?'Electronic':'Paper';hit++});
+  if(hit){x.enr=x.date;const sj=[...new Set(x.sess.map(s=>s.subj).filter(Boolean))];x.title='Final exams · '+sj.join(' / ')+' — Seating plan, all students · مخطط الجلوس لكل الطلاب';x.type='Paper';const f=x.sess[0];if(f){x.from=f.from;x.to=f.to}}}catch(e){}};
+ const ens3=a=>{try{if(!window.__EXR||!window.__EXR.some(r=>r[10]))return;const id='spall20261206';{const ex=a.find(x=>x.id===id);if(ex){enr(ex);return}}const V=S.venues;
   const by=new Map();window.__EXR.forEach(r=>{if(!r[10])return;const k=rmKey(r[10]);let o=by.get(k);if(!o){o={k,cls:{}};by.set(k,o)}o.cls[r[1]]=(o.cls[r[1]]||0)+1});
   const sess=[];let n=0;by.forEach((o,k0)=>{let v=V.find(x=>rmKey(x.name)===o.k);if(!v){const nm=(window.__EXR.find(r=>r[10]&&rmKey(r[10])===o.k)||[])[10]||k0;v={id:'vsa_'+o.k,zone:/^E/i.test(nm)?'E':/^MW6/i.test(nm)||/^M\d/i.test(nm)?'M':/^B/i.test(nm)?'B':/^A/i.test(nm)?'A':'OT',name:nm,need:1,sp:1};V.push(v)}Object.keys(o.cls).sort().forEach(c=>sess.push({id:id+'s'+(++n),v:v.id,cls:c,n:o.cls[c],subj:'Seating plan',code:'',from:'09:00',to:'11:00',ty:'Paper',rm:1,ek:''}))});
-  if(!sess.length)return;a.push({id,date:'2026-12-06',sp:1,title:'Seating plan — all students (Grades 9–12) · مخطط الجلوس لكل الطلاب',type:'Paper',from:'09:00',to:'11:00',sess,inv:{},ovr:{},note:'Whole-school seating plan: every student in the hall and seat of the approved seating plan. Use it to view seats, print and take attendance for any hall.'})}catch(e){}};
+  if(!sess.length)return;a.push({id,date:'2026-12-07',sp:1,title:'Seating plan — all students (Grades 9–12) · مخطط الجلوس لكل الطلاب',type:'Paper',from:'09:00',to:'11:00',sess,inv:{},ovr:{},note:'Whole-school seating plan: every student in the hall and seat of the approved seating plan. Use it to view seats, print and take attendance for any hall.'});enr(a[a.length-1])}catch(e){}};
  window.__exEns3=ens3;Object.defineProperty(S,'days',{get(){const a=pd.get.call(S);ens3(a);return a},set(v){pd.set.call(S,v)},enumerable:true,configurable:true})})();
 /* after a saved plan replaces S, re-attach the built-in days (grade 12 electronic, whole-school seating plan) */
 window.__exCtl=()=>{try{const B=/waseem\s*al\s*husani|mahmoud\s*yousef/i;let _c=S.controllers;Object.defineProperty(S,'controllers',{get(){if(Array.isArray(_c))for(let i=0;i<_c.length;i++)if(B.test(String(_c[i]||'')))_c[i]='';return _c},set(v){_c=v},enumerable:true,configurable:true})}catch(e){}};window.__exCtl();
@@ -3269,8 +3273,8 @@ function tdraw(){
    if(rows.length>1){const tr=el('tr','etTot');const c=el('td','','Total · المجموع');c.colSpan=4;tr.append(c,el('td','etN',String(tot||nTot)));tb.append(tr)}
    R.append(tb)}}
  {const ppl=el('div','etPpl');const pp=(l,t)=>{const x=el('div','etPp');x.append(el('small','',l),el('b','',t||'—'));return x};
-  if(man)ppl.append(pp('Supervisor · المشرف',M.sup),pp('Invigilators · المراقبون',M.inv));
-  else{const ct=(S.controllers||[]).filter(Boolean);ppl.append(pp('Supervisor · المشرف',v.id==='_'?'':supOf(v)),pp('Invigilators · المراقبون',(d.inv[v.id]||[]).join(' · ')));if(ct.length)ppl.append(pp('General controllers · المراقبون العامون',ct.join(' · ')))}
+  if(man)ppl.append(pp('Invigilators · المراقبون',M.inv),pp('Supervisor · المشرف',M.sup));
+  else{const ct=(S.controllers||[]).filter(Boolean);ppl.append(pp('Invigilators · المراقبون',(d.inv[v.id]||[]).join(' · ')));if(ct.length)ppl.append(pp('General controllers · المراقبون العامون',ct.join(' · ')));ppl.append(pp('Supervisor · المشرف',v.id==='_'?'':supOf(v)))}
   R.append(ppl)}
  {const nt=man?M.note:d.note;if(nt)R.append(el('div','etNote','📝 '+nt))}
  r.append(cols);

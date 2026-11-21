@@ -3100,3 +3100,6 @@ html body #v_sub:not(#_a):not(#_b) :is(.pgBar,#ovbar,.vbar){background:linear-gr
 html body .view.ovp:not(#_a):not(#_b) :is(.btn.go,.btn.gosave,.btn.go.qwTbMain,.so-tg){background:var(--acc)!important;background-image:none!important;color:#fff!important;border-color:var(--accD)!important;text-shadow:none!important;box-shadow:0 6px 14px -8px color-mix(in srgb,var(--acc) 70%,transparent)!important}
 html body .view.ovp:not(#_a):not(#_b) .stBy2{background:linear-gradient(135deg,var(--pB1),var(--pBl))!important}
 html body .view.ovp:not(#_a):not(#_b) .nx{color:var(--accD)!important}
+
+/* timer board: larger headings */
+#etBig .etTb th{font-size:calc(var(--u)*2.1)!important;font-weight:800!important}#etBig .etPp small{font-size:calc(var(--u)*1.95)!important;font-weight:700!important;color:#475569!important}

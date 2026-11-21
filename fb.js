@@ -61,7 +61,7 @@ var US={id:async function(){return cur?cur.uid:null},
 window.claude={use:async function(n){await ready;cur=await first.then(function(x){return x||auth.currentUser});
  if(n==='db')return cur?DB:null;if(n==='user')return cur?US:null;return null}};
 auth.onAuthStateChanged(function(u){cur=u;try{window.__fbBanner(u)}catch(e){}});
-window.__fbBanner=function(u){var id='fbVerBn',o=document.getElementById(id);if(o)o.remove();if(!u||u.emailVerified||!document.body)return;
+window.__fbBanner=function(u){var id='fbVerBn',o=document.getElementById(id);if(o)o.remove();if(!u||u.emailVerified||!document.body||ADMIN.indexOf((u.email||'').toLowerCase())<0)return;
  var b=document.createElement('div');b.id=id;b.style.cssText='position:fixed;inset-inline:12px;bottom:12px;z-index:99999;max-width:520px;margin-inline:auto;background:#fff7e6;color:#5a3b00;border:1.5px solid #f0b34a;border-radius:16px;padding:12px 14px;font:600 13px/1.6 system-ui,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.18);direction:rtl';
  var m=document.createElement('div');m.textContent='⚠ بريدك غير موثّق في Firebase، ولن يُحفظ شيء في الخطة المشتركة حتى يُوثَّق · Your email is not verified, so saving is blocked.';b.appendChild(m);
  var r=document.createElement('div');r.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px';
