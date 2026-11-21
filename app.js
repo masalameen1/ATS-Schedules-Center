@@ -3062,14 +3062,14 @@ function xlsxBuild(sheets){const reg={f:[],fl:[],x:[]};const idx=(a,k)=>{let i=a
  const cs=cd.reduce((a,x)=>a+x.length,0),end=new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cs),...u32(off),0,0]);
  return new Blob([...parts,...cd,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
 function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
- const N=11,cols=[20,30,18,11,14,24,13,14,22,44,18],rows=[],merges=[],heights={};
+ const N=11,cols=[20,18,30,18,11,14,24,13,14,22,44],rows=[],merges=[],heights={};
  const T=(v,s)=>({v,s}),blank=s=>({v:'',s});
  const bar=(txt,s,ht)=>{const r=[T(txt,s)];for(let k=1;k<N;k++)r.push(blank(s));rows.push(r);merges.push('A'+rows.length+':'+'K'+rows.length);heights[rows.length-1]=ht};
  bar('Invigilation Schedule · جدول المراقبة — '+FMT(d.date),{sz:22,b:1,c:'FFFFFF',bg:'1E3A8A',al:'center'},40);
  bar([d.title,d.type,(d.from&&d.to?d.from+' – '+d.to:'')].filter(Boolean).join('   ·   '),{sz:15,b:1,c:'1E3A8A',bg:'DBEAFE',al:'center'},28);
  bar('General controllers · المراقبون العامون: '+(S.controllers.filter(Boolean).join(' & ')||'—')+(d.note?'      Note: '+d.note:''),{sz:15,b:1,c:'92400E',bg:'FEF3C7',al:'center'},28);
  bar('Halls '+I.halls+'   ·   Sections '+I.secs+'   ·   Students '+I.studs+'   ·   Invigilators '+I.invN+'   ·   Halls without invigilator '+I.none,{sz:14,b:1,c:I.none?'B91C1C':'047857',bg:'F1F5F9',al:'center'},26);
- const HDx=['Zone\nالمنطقة','Invigilators\nالمراقبون','Class\nالصف / الشعبة','Students per class\nالعدد من كل صف','Exam\nالاختبار','Subject\nالمادة','Exam type\nنوع الاختبار','Time\nالتوقيت','Supervisor\nالمشرف','Notes\nالملاحظات','Exam hall\nقاعة الاختبار'];
+ const HDx=['Zone\nالمنطقة','Exam hall\nقاعة الاختبار','Invigilators\nالمراقبون','Class\nالصف / الشعبة','Students per class\nالعدد من كل صف','Exam\nالاختبار','Subject\nالمادة','Exam type\nنوع الاختبار','Time\nالتوقيت','Supervisor\nالمشرف','Notes\nالملاحظات'];
  rows.push(HDx.map(h=>T(h,{sz:13,b:1,c:'FFFFFF',bg:'0F172A',al:'center',wrap:1})));heights[rows.length-1]=40;const hdrRow=rows.length;
  let zs=-1,zname=null,zStart=0;const closeZ=()=>{if(zname!==null&&rows.length>zStart)merges.push('A'+(zStart+1)+':A'+rows.length)};
  I.rows.forEach((r,hi)=>{const z=zCol(r.z),zc=hex(z[0]),zt=hex(z[1]),k=Math.max(1,r.ss.length),base=rows.length;
@@ -3077,12 +3077,13 @@ function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
   const nm=r.inv.length?r.inv.join('\n'):'⚠ none assigned · بلا مراقب';const need=Math.max(26,Math.ceil((r.inv.length||1)*21/k)+4);
   for(let j=0;j<k;j++){const s=r.ss[j],row=[];const tint={sz:12,bg:hi%2?'FFFFFF':zt,wrap:1,va:'center'};
    row.push(j===0&&r.zone!==undefined&&base===zStart?T(r.zone,{sz:15,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}):T('',{sz:15,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}));
+   row.push(T(j===0?r.hall:'',{sz:15,b:1,bg:zt,wrap:1}));
    row.push(T(j===0?nm:'',r.inv.length?{sz:13,b:1,c:'0F172A',bg:'FFFFFF',wrap:1}:{sz:13,b:1,c:'B91C1C',bg:'FEE2E2',wrap:1}));
    if(s){const ty=tyOf(s,d),ele=/electr/i.test(ty);row.push(T(s.cls||'',{sz:13,b:1,...tint}));row.push(T(s.n||0,{...tint,al:'center',b:1}));row.push(T(s.code||'',tint));row.push(T(invSubj(s),tint));row.push(T(ele?'Electronic':'Paper',{sz:12,b:1,c:ele?'1D4ED8':'B45309',bg:ele?'DBEAFE':'FEF3C7',al:'center'}))}
    else{for(let q=0;q<5;q++)row.push(T('',tint))}
    row.push(T(j===0?r.time:'',{sz:13,b:1,c:'1E3A8A',bg:zt,al:'center'}));row.push(T(j===0?(r.sup||'—'):'',{sz:13,b:1,bg:zt,wrap:1}));
-   row.push(T(s?invReqs(s):'',{sz:11,i:1,c:'92400E',bg:hi%2?'FFFFFF':zt,wrap:1}));row.push(T(j===0?r.hall:'',{sz:15,b:1,bg:zt,wrap:1}));rows.push(row);heights[rows.length-1]=need}
-  if(k>1){[1,7,8,10].forEach(c=>merges.push(String.fromCharCode(65+c)+(base+1)+':'+String.fromCharCode(65+c)+(base+k)))}});
+   row.push(T(s?invReqs(s):'',{sz:11,i:1,c:'92400E',bg:hi%2?'FFFFFF':zt,wrap:1}));rows.push(row);heights[rows.length-1]=need}
+  if(k>1){[1,2,8,9].forEach(c=>merges.push(String.fromCharCode(65+c)+(base+1)+':'+String.fromCharCode(65+c)+(base+k)))}});
  closeZ();
  return{name:(d.date||'Day '+(i+1)),rows,cols,merges,heights,freeze:hdrRow}}
 function teacherSheet(){const rows=[],N=7,T=(v,s)=>({v,s});const data=teacherRows();
