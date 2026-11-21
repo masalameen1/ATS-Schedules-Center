@@ -3073,6 +3073,9 @@ function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
  const bar=(txt,s,ht)=>{const r=[T(txt,s)];for(let k=1;k<N;k++)r.push(blank(s));rows.push(r);merges.push('A'+rows.length+':'+'K'+rows.length);heights[rows.length-1]=ht};
  bar('Invigilation Schedule · جدول المراقبة — '+FMT(d.date),{sz:22,b:1,c:'FFFFFF',bg:'1E3A8A',al:'center'},40);
  bar([d.title,d.type,(d.from&&d.to?d.from+' – '+d.to:'')].filter(Boolean).join('   ·   '),{sz:15,b:1,c:'1E3A8A',bg:'DBEAFE',al:'center'},28);
+ {const tm=s=>{const m=/^(\d+):(\d+)/.exec(s||'');return m?+m[1]*60+(+m[2]):null},f0=tm(d.from),t0=tm(d.to),h2=x=>String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0');
+  if(f0!=null){const du=t0!=null&&t0>f0?t0-f0:0;bar('⏰ يبدأ الاختبار · Exam starts: '+h2(f0)+(t0!=null?'      ينتهي · Ends: '+h2(t0):'')+(du?'      المدة · Duration: '+du+' دقيقة · min':''),{sz:16,b:1,c:'0F172A',bg:'E0F2FE',al:'center'},30);
+   bar('⚠ يجب التواجد في قاعة الاختبار قبل الموعد بـ 15 دقيقة ('+h2(Math.max(0,f0-15))+') والتأكد من جاهزية القاعة للاختبار  ·  Be in the exam hall 15 minutes before the start ('+h2(Math.max(0,f0-15))+') and make sure the hall is ready for the exam.',{sz:15,b:1,c:'991B1B',bg:'FEE2E2',al:'center'},30)}}
  bar('General controllers · المراقبون العامون: '+(S.controllers.filter(Boolean).join(' & ')||'—')+(d.note?'      Note: '+d.note:''),{sz:15,b:1,c:'92400E',bg:'FEF3C7',al:'center'},28);
  bar('Halls '+I.halls+'   ·   Sections '+I.secs+'   ·   Students '+I.studs+'   ·   Invigilators '+I.invN+'   ·   Halls without invigilator '+I.none,{sz:14,b:1,c:I.none?'B91C1C':'047857',bg:'F1F5F9',al:'center'},26);
  const HDx=['Zone\nالمنطقة','Exam hall\nقاعة الاختبار','Invigilators\nالمراقبون','Class\nالصف / الشعبة','Students per class\nالعدد من كل صف','Exam\nالاختبار','Subject\nالمادة','Exam type\nنوع الاختبار','Time\nالتوقيت','Supervisor\nالمشرف','Notes\nالملاحظات'];
