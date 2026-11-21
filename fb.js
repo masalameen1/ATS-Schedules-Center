@@ -61,5 +61,6 @@ var US={id:async function(){return cur?cur.uid:null},
 window.claude={use:async function(n){await ready;cur=await first.then(function(x){return x||auth.currentUser});
  if(n==='db')return cur?DB:null;if(n==='user')return cur?US:null;return null}};
 auth.onAuthStateChanged(function(u){cur=u});
+window.__fbVerify=function(){var u=cur||auth.currentUser;if(!u||u.emailVerified)return Promise.resolve(false);if(window.__fbVerSent)return Promise.resolve('again');window.__fbVerSent=1;return u.sendEmailVerification().then(function(){return true})};
 window.__fbWho=function(){var u=cur||auth.currentUser;return u?{e:u.email||'',v:!!u.emailVerified}:null};
 })();
