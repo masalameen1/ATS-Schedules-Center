@@ -3031,7 +3031,7 @@ function invPages(days){
   if(!r.inv.length){g.fillStyle='#fbe4e1';rr(g,X[2]+8,y+10,CW[2]-16,40,10);g.fill();g.fillStyle='#a8483c';g.font='500 18px '+FNT;g.fillText('⚠ none · بلا مراقب',X[2]+16,y+31)}
   r.inv.forEach((n,k)=>{const a=A[r.v.id+'|'+n],bad=a&&a.c&&a.c.length&&!a.ok;g.fillStyle=bad?'#fbe4e1':'#ffffff';rr(g,X[2]+8,y+8+k*36,CW[2]-16,32,9);g.fill();g.strokeStyle=bad?'#c0574a':z[0];g.lineWidth=1.3;rr(g,X[2]+8,y+8+k*36,CW[2]-16,32,9);g.stroke();g.fillStyle=bad?'#a8483c':'#2e3a4b';g.font='400 19px '+FNT;g.fillText((bad?'⚠ ':'')+wrap(g,n,CW[2]-40,'400 19px '+FNT,1)[0],X[2]+16,y+25+k*36)});
   let sy=y;L.sec.forEach((b,k)=>{const s=b.s,mid=sy+b.h/2;if(s){const ty=tyOf(s,{type:''})||'Paper',ele=/electr/i.test(ty);
-    g.fillStyle='#2e3a4b';g.font='500 20px '+FNT;g.fillText(wrap(g,s.cls||'—',CW[3]-16,'500 20px '+FNT,1)[0],X[3]+8,mid);
+    g.fillStyle='#2e3a4b';g.font='500 22px '+FNT;g.fillText(wrap(g,s.cls||'—',CW[3]-16,'500 22px '+FNT,1)[0],X[3]+8,mid);
     g.textAlign='center';g.font='500 22px '+FNT;g.fillText(String(s.n||0),X[4]+CW[4]/2,mid);g.textAlign='left';
     g.font='400 18px '+FNT;g.fillStyle='#445064';g.fillText(wrap(g,s.code||'',CW[5]-14,'400 18px '+FNT,1)[0],X[5]+8,mid);
     g.fillStyle='#2e3a4b';g.font='400 18px '+FNT;b.sl.forEach((ln,q)=>g.fillText(ln,X[6]+8,mid-(b.sl.length-1)*12+q*24));
@@ -3088,7 +3088,7 @@ function xlsxBuild(sheets){const reg={f:[],fl:[],x:[]};const idx=(a,k)=>{let i=a
  const cs=cd.reduce((a,x)=>a+x.length,0),end=new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cs),...u32(off),0,0]);
  return new Blob([...parts,...cd,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
 function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
- const N=11,cols=[20,18,30,18,11,14,24,13,14,22,44],rows=[],merges=[],heights={};
+ const N=11,cols=[20,20,32,20,12,15,27,14,15,24,40],rows=[],merges=[],heights={};
  const T=(v,s)=>({v,s}),blank=s=>({v:'',s});
  const bar=(txt,s,ht)=>{const r=[T(txt,s)];for(let k=1;k<N;k++)r.push(blank(s));rows.push(r);merges.push('A'+rows.length+':'+'K'+rows.length);heights[rows.length-1]=ht};
  {const hb=(sz,c)=>({sz,b:1,c,bg:'1E3A8A',al:'left',va:'center',bd:false}),wh={bg:'FFFFFF',bd:false};
@@ -3102,20 +3102,20 @@ function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
  bar(INV_THANKS,{sz:15,b:1,c:'065F46',bg:'D1FAE5',al:'center'},32);
  bar('Halls '+I.halls+'   ·   Sections '+I.secs+'   ·   Students '+I.studs+'   ·   Invigilators '+I.invN+'   ·   Halls without invigilator '+I.none,{sz:14,b:1,c:I.none?'B91C1C':'047857',bg:'F1F5F9',al:'center'},26);
  const HDx=['Zone\nالمنطقة','Exam hall\nقاعة الاختبار','Invigilators\nالمراقبون','Class\nالصف / الشعبة','Students per class\nالعدد من كل صف','Exam\nالاختبار','Subject\nالمادة','Exam type\nنوع الاختبار','Time\nالتوقيت','Supervisor\nالمشرف','Notes\nالملاحظات'];
- rows.push(HDx.map(h=>T(h,{sz:13,b:1,c:'FFFFFF',bg:'0F172A',al:'center',wrap:1})));heights[rows.length-1]=40;const hdrRow=rows.length;
+ rows.push(HDx.map(h=>T(h,{sz:14,b:1,c:'FFFFFF',bg:'0F172A',al:'center',wrap:1})));heights[rows.length-1]=54;const hdrRow=rows.length;
  const supRuns=[];let zs=-1,zname=null,zStart=0;const closeZ=()=>{if(zname!==null&&rows.length>zStart)merges.push('A'+(zStart+1)+':A'+rows.length)};
  I.rows.forEach((r,hi)=>{const z=zCol(r.z),zc=hex(z[0]),zt=hex(z[1]),k=Math.max(1,r.ss.length),base=rows.length;
   const sv0=r.sup||'—',pv=supRuns[supRuns.length-1],sameSup=!!pv&&pv.sup===sv0&&pv.zone===r.zone;if(sameSup)pv.end=base+k;else supRuns.push({sup:sv0,zone:r.zone,start:base,end:base+k});
   if(r.zone!==zname){closeZ();zname=r.zone;zStart=base}
-  const nm=r.inv.length?r.inv.join('\n'):'⚠ none assigned · بلا مراقب';const need=Math.max(26,Math.ceil((r.inv.length||1)*21/k)+4);
-  for(let j=0;j<k;j++){const s=r.ss[j],row=[];const tint={sz:12,bg:hi%2?'FFFFFF':zt,wrap:1,va:'center'};
-   row.push(j===0&&r.zone!==undefined&&base===zStart?T(r.zone,{sz:15,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}):T('',{sz:15,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}));
-   row.push(T(j===0?r.hall:'',{sz:15,b:1,bg:zt,wrap:1}));
-   row.push(T(j===0?nm:'',r.inv.length?{sz:13,b:1,c:'0F172A',bg:'FFFFFF',wrap:1}:{sz:13,b:1,c:'B91C1C',bg:'FEE2E2',wrap:1}));
-   if(s){const ty=tyOf(s,d),ele=/electr/i.test(ty);row.push(T(s.cls||'',{sz:13,b:1,...tint}));row.push(T(s.n||0,{...tint,al:'center',b:1}));row.push(T(s.code||'',tint));row.push(T(invSubj(s),tint));row.push(T(ele?'Electronic':'Paper',{sz:12,b:1,c:ele?'1D4ED8':'B45309',bg:ele?'DBEAFE':'FEF3C7',al:'center'}))}
+  const nm=r.inv.length?r.inv.join('\n'):'⚠ none assigned · بلا مراقب';const need0=Math.max(32,Math.ceil((r.inv.length||1)*24/k)+6);
+  for(let j=0;j<k;j++){const s=r.ss[j],row=[];const need=Math.max(need0,s?19*Math.ceil(String(invSubj(s)||'').length/22)+10:0);const tint={sz:14,bg:hi%2?'FFFFFF':zt,wrap:1,va:'center'};
+   row.push(j===0&&r.zone!==undefined&&base===zStart?T(r.zone,{sz:16,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}):T('',{sz:16,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}));
+   row.push(T(j===0?r.hall:'',{sz:17,b:1,bg:zt,wrap:1}));
+   row.push(T(j===0?nm:'',r.inv.length?{sz:15,b:1,c:'0F172A',bg:'FFFFFF',wrap:1}:{sz:15,b:1,c:'B91C1C',bg:'FEE2E2',wrap:1}));
+   if(s){const ty=tyOf(s,d),ele=/electr/i.test(ty);row.push(T(s.cls||'',{...tint,sz:15,b:1}));row.push(T(s.n||0,{...tint,al:'center',b:1}));row.push(T(s.code||'',tint));row.push(T(invSubj(s),tint));row.push(T(ele?'Electronic':'Paper',{sz:14,b:1,c:ele?'1D4ED8':'B45309',bg:ele?'DBEAFE':'FEF3C7',al:'center'}))}
    else{for(let q=0;q<5;q++)row.push(T('',tint))}
-   row.push(T(j===0?r.time:'',{sz:13,b:1,c:'1E3A8A',bg:zt,al:'center'}));row.push(T(j===0&&!sameSup?sv0:'',{sz:13,b:1,bg:zt,wrap:1,va:'center'}));
-   row.push(T(s?invReqs(s):'',{sz:11,i:1,c:'92400E',bg:hi%2?'FFFFFF':zt,wrap:1}));rows.push(row);heights[rows.length-1]=need}
+   row.push(T(j===0?r.time:'',{sz:15,b:1,c:'1E3A8A',bg:zt,al:'center'}));row.push(T(j===0&&!sameSup?sv0:'',{sz:15,b:1,bg:zt,wrap:1,va:'center'}));
+   row.push(T(s?invReqs(s):'',{sz:13,i:1,c:'92400E',bg:hi%2?'FFFFFF':zt,wrap:1}));rows.push(row);heights[rows.length-1]=need}
   if(k>1){[1,2,8].forEach(c=>merges.push(String.fromCharCode(65+c)+(base+1)+':'+String.fromCharCode(65+c)+(base+k)))}});
  supRuns.forEach(q=>{if(q.end-q.start>1)merges.push('J'+(q.start+1)+':J'+q.end)});closeZ();
  {const rs=invReserve()[d.id];if(rs&&rs.length){rows.push(Array.from({length:N},()=>T('',{bd:false})));heights[rows.length-1]=14;
@@ -5084,7 +5084,7 @@ drawSub=function(E){try{if(!SUBS.__di&&!SUBS.mine&&ROLE==='teacher'&&E.rows&&E.r
    const tag='<drawing r:id="rIdAtsLogo"/>',m2=x.match(/<(legacyDrawing|legacyDrawingHF|picture|oleObjects|controls|webPublishItems|tableParts|extLst)\b/);x=m2?x.replace(m2[0],tag+m2[0]):x.replace('</worksheet>',tag+'</worksheet>');z.file(f,x);
    const rp='xl/worksheets/_rels/sheet'+k+'.xml.rels',rel='<Relationship Id="rIdAtsLogo" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/atsDrawing'+k+'.xml"/>';
    if(z.file(rp)){let r=await z.file(rp).async('string');z.file(rp,r.replace('</Relationships>',rel+'</Relationships>'))}else z.file(rp,'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+rel+'</Relationships>');
-   const iph=Math.min(128,Math.round(256/asp)),ipw=Math.round(iph*asp),dpw=inv?ipw:pw,dph=inv?iph:ph,dco=inv?Math.max(0,Math.round((276-ipw)/2))*E:38100,dro=inv?Math.max(0,Math.round((144-iph)/2))*E:38100;
+   const iph=Math.min(128,Math.round(256/asp)),ipw=Math.round(iph*asp),dpw=inv?ipw:pw,dph=inv?iph:ph,dco=inv?Math.max(0,Math.round((290-ipw)/2))*E:38100,dro=inv?Math.max(0,Math.round((144-iph)/2))*E:38100;
    z.file('xl/drawings/atsDrawing'+k+'.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><xdr:oneCellAnchor><xdr:from><xdr:col>0</xdr:col><xdr:colOff>'+dco+'</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>'+dro+'</xdr:rowOff></xdr:from><xdr:ext cx="'+dpw*E+'" cy="'+dph*E+'"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="2" name="ATS logo"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+dpw*E+'" cy="'+dph*E+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor></xdr:wsDr>');
    z.file('xl/drawings/_rels/atsDrawing'+k+'.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/ats_logo.png"/></Relationships>');
    ct=ct.replace('</Types>','<Override PartName="/xl/drawings/atsDrawing'+k+'.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/></Types>')}
