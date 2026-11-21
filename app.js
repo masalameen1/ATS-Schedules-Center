@@ -1857,13 +1857,16 @@ function quickWizard(st0,host){
   d={id:uid(),date,title:it.length?'Final exams · '+[...sj].join(' / '):'Exam day '+date,type:allE?'Electronic':'Paper',from:a,to:b,sess:[],inv:{},ovr:{},note:it.length?'Created from the Term 1 final exams timetable':''};
   S.days=[...S.days,d];mark();return d}
 
- async function applyHalls(d,pool,silent){if(exrOn()&&mode==='smart'){ensureRoomVenues();WH.set=new Set(S.venues.map(v=>v.id))}const vs=S.venues.filter(v=>WH.set.has(v.id));if(!vs.length||!pool.length){note='⚠ حدّد قاعة واحدة على الأقل';paint();return}
+ async function applyHalls(d,pool,silent){if(exrOn()){ensureRoomVenues();if(mode!=='manual')WH.set=new Set(S.venues.map(v=>v.id))}const vs=S.venues.filter(v=>WH.set.has(v.id));if(!vs.length||!pool.length){note='⚠ حدّد قاعة واحدة على الأقل';paint();return}
   const load=new Map(vs.map(v=>[v.id,0])),sess=[];
   const PP=(exrOn()&&mode==='smart'&&d.date)?finPlan(d.date):null,ND=PP&&PP.days.find(x=>x.date===d.date);
   if(ND&&ND.sess.length){ND.sess.forEach(z=>sess.push(z));if(ND.from){d.from=ND.from;d.to=ND.to;d.type=ND.type}}else
   pool.slice().sort((a,b)=>b.n-a.n).forEach(c=>{let best=vs[0];vs.forEach(v=>{if(load.get(v.id)<load.get(best.id))best=v});load.set(best.id,load.get(best.id)+c.n);sess.push({id:uid(),v:best.id,cls:c.cls,n:c.n,code:'',from:d.from,to:d.to,ty:d.type})});
-  d.sess=sess;const used=new Set(sess.map(s=>s.v));Object.keys(d.inv).forEach(k=>{if(!used.has(k))delete d.inv[k]});vs.forEach(v=>{if(used.has(v.id))v.need=needFor(studs(d,v.id))});WH.set=used;
-  note='✔ '+used.size+' قاعة · '+sess.length+' شعبة · '+sess.reduce((a,x)=>a+x.n,0)+' طالب';if(!silent)step=2;mark();draw();paint()}
+  let sess2=sess;if(exrOn()){try{const cm=new Map();saRoster().forEach(r=>{if(!r[10])return;const v=S.venues.find(x=>rmKey(x.name)===rmKey(r[10]));if(!v||(mode==='manual'&&!WH.set.has(v.id)))return;const k=saKey(r[1])+'|'+(r[12]||'');let m=cm.get(k);if(!m){m=new Map();cm.set(k,m)}m.set(v.id,(m.get(v.id)||0)+1)});
+   const seen=new Set();sess2=[];sess.forEach(z=>{const ck=saKey(z.cls)+'|';let m=z.ek?cm.get(ck+z.ek):null;if(!m){m=new Map();cm.forEach((mm,k)=>{if(k.startsWith(ck))mm.forEach((n,vid)=>m.set(vid,(m.get(vid)||0)+n))})}
+    if(!m.size){sess2.push(z);return}const kk=ck+(z.code||'')+'|'+(z.ek||'')+'|'+z.from+'|'+z.to;if(seen.has(kk))return;seen.add(kk);m.forEach((n,vid)=>sess2.push({...z,id:uid(),v:vid,n}))})}catch(e){sess2=sess}}
+  d.sess=sess2;const used=new Set(sess2.map(s=>s.v));Object.keys(d.inv).forEach(k=>{if(!used.has(k))delete d.inv[k]});vs.forEach(v=>{if(used.has(v.id))v.need=needFor(studs(d,v.id))});WH.set=used;
+  note='✔ '+used.size+' قاعة · '+sess2.length+' شعبة · '+sess2.reduce((a,x)=>a+x.n,0)+' طالب';if(!silent)step=2;mark();draw();paint()}
  const smartSet=pool=>{const tot=pool.reduce((a,c)=>a+c.n,0),n=Math.max(1,Math.ceil(tot/30)),main=S.venues.filter(v=>v.zone!=='SC'&&v.zone!=='OT');return new Set(main.slice(0,n).map(v=>v.id))};
  function fillMissing(d,hs){let n=0;hs.forEach(v=>{const L=invs(d,v.id);while(L.length<(v.need||1)){if(!suggest(d,v))break;n++}});return n}
  function distribute(d,hs,names){const left=[...names];let placed=0;
@@ -1891,10 +1894,12 @@ function quickWizard(st0,host){
   if(step===1){const date=d.date,pool=classPool(date),tot=pool.reduce((a,c)=>a+c.n,0),gs=gradesOf(date);
    if(!WH||WH.day!==d.id)WH={day:d.id,set:new Set(hs.map(v=>v.id))};
    if(!hs.length&&!AUTO[d.id]&&pool.length){AUTO[d.id]=1;mode='smart';WH.set=smartSet(pool);applyHalls(d,pool,true);return}
+   if(hs.length&&exrOn()&&pool.length&&!AUTO['p'+d.id]&&hs.some(v=>studs(d,v.id)!==planN(v.id,gs))){AUTO['p'+d.id]=1;mode='smart';WH.set=smartSet(pool);applyHalls(d,pool,true);return}
    H('القاعات','Halls','وُزّعت الشعب تلقائيًا. غيّر الطريقة إن أردت.');
    body.append(el('p','qwSum','الصفوف: '+(gs.length?gs.join('، '):'الكل')+' — '+pool.length+' شعبة · '+tot+' طالب'));
    const seg=el('div','qwSeg');
    [['smart','🤖 تلقائي'],['all','✅ كل القاعات'],['manual','✋ اختيار يدوي']].forEach(([k,a])=>{const b=el('button','qwSg'+(mode===k?' on':''),a);b.type='button';b.onclick=()=>{mode=k;if(k==='smart'){WH.set=smartSet(pool);applyHalls(d,pool,false)}else if(k==='all'){WH.set=new Set(S.venues.map(v=>v.id));applyHalls(d,pool,false)}else paint()};seg.append(b)});body.append(seg);
+   if(exrOn())body.append(btn('🪑 اعتمد أعداد الطلاب من مخطط الجلوس · Use seating-plan counts',()=>{mode='smart';WH.set=smartSet(pool);applyHalls(d,pool,false)},'go sm'));
    if(mode==='manual'){const row=el('div','qwAct');const sel=el('select');const o0=el('option','','➕ أضف قاعة…');o0.value='';sel.append(o0);
     S.zones.forEach(z=>{const vs=S.venues.filter(v=>v.zone===z.id&&!WH.set.has(v.id));if(!vs.length)return;const g=el('optgroup');g.label=z.name;vs.forEach(v=>{const pn=planN(v.id,gs);const o=el('option','',v.name+(pn?' · 👥 '+pn:''));o.value=v.id;g.append(o)});sel.append(g)});
     sel.onchange=()=>{if(sel.value){WH.set.add(sel.value);paint()}};row.append(sel,btn('إضافة الكل',()=>{S.venues.forEach(v=>WH.set.add(v.id));paint()},'sm'),btn('مسح',()=>{WH.set=new Set();paint()},'rd sm'));body.append(row);
