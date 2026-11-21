@@ -3130,3 +3130,5 @@ html body .view.ovp:not(#_a):not(#_b) .nx{color:var(--accD)!important}
 .saStTop{display:flex;align-items:center;gap:12px}.saStTop img{height:58px;width:auto;flex:none}.saStTx b{display:block;font-size:1.08rem;color:#0f172a}.saStTx small{display:block;color:#475569;margin-top:2px}
 .saStrip .saBar{margin:0}.saStrip .saSum{margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.saStrip .saTile{padding:6px 10px;min-height:0}.saStrip .saTile b{font-size:1.15rem}.saStrip .saTile small+small{display:none}
 .saSrc{margin-top:10px;font-size:.85rem}
+
+.tdRes{border-inline-start:6px solid #7c3aed}.tdRes .tdTm{color:#5b21b6}.tdResA{margin:6px 12px 12px;color:#475569}
