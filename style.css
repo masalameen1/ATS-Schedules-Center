@@ -3147,3 +3147,34 @@ html body .view.ovp:not(#_a):not(#_b) .nx{color:var(--accD)!important}
 #etBig.etDark .etTop img{background:#fff;border-radius:14px;padding:6px}
 #etBig.etDark .etL{background:#0b1220!important;border:1px solid #1f2937!important}
 #etBig.etDark .etL .etHz,#etBig.etDark .etL .etTimes,#etBig.etDark .etL .etStat{color:#e2e8f0!important}
+
+/* invigilation page: tighter, tidier layout */
+#v_exam .vban{padding:8px 16px!important;gap:12px!important;min-height:0!important;margin-bottom:8px!important}
+#v_exam .vban .exLg{height:54px!important;width:auto!important;max-width:none!important}
+#v_exam .vban h2{white-space:nowrap}
+#v_exam .vban>div:not(.exSt){min-width:max-content}
+html[data-ul=en] #v_exam .tmsg .ar,html[data-ul=en] #v_exam .tmsg>.ar{display:none!important}
+#v_exam .vban .vi{display:none!important}
+#v_exam .vban h2{font-size:1.3rem!important;margin:0!important;line-height:1.15}
+#v_exam .vban .exNm{font-size:.78rem!important;line-height:1.1}
+#v_exam .vban>div>p{display:none!important}
+#v_exam .vban .exSt{gap:8px!important}
+#v_exam .vban .exSt>div{padding:4px 12px!important;min-height:0!important;height:auto!important}
+#v_exam .vban .exSt>div *{line-height:1.15}
+#v_exam .vban .exSt .nx b,#v_exam .vban .exSt>div b{font-size:1rem!important}
+#v_exam #finBn{padding:6px 12px!important;margin:0 0 8px!important;gap:8px!important}
+#v_exam #finBn .fnBnS{padding:2px 8px!important;font-size:.76rem!important}
+#v_exam #finBn .fnBtn{padding:5px 12px!important;font-size:.78rem!important}
+#v_exam .qwTb{padding:6px 8px!important;gap:6px!important;margin:0 0 8px!important}
+#v_exam .qwTb .btn,#v_exam .qwTb button{padding:5px 11px!important;font-size:.8rem!important;min-height:0!important;line-height:1.25}
+#v_exam #tcard{padding:10px 14px!important;margin:0 0 8px!important}
+#v_exam #tcard h2.tch{font-size:1.05rem!important;margin:0 0 4px!important}
+#v_exam #tcard .tcm{margin:0 0 4px!important;font-size:.76rem!important}
+#v_exam #tcard #fbar{margin:0 0 4px!important}
+#v_exam #tcard #fbar .btn{padding:4px 12px!important;margin:2px 6px 2px 0!important}
+#v_exam #tcard .tmsg{padding:8px 12px!important;margin:4px 0!important;font-size:.9rem!important}
+#v_exam #tcard .tdShow{padding:6px 12px!important;margin:4px 0!important;font-size:.82rem!important}
+#v_exam #tcard .tdSeg .tdSg{padding:6px 10px!important;font-size:.88rem!important}
+#v_exam .finPn>summary{padding:8px 14px!important;font-size:.92rem!important}
+#v_exam .ix>.btn.sm,#v_exam .qwP .btn{padding:5px 12px!important;font-size:.8rem!important}
+#v_exam:has(.qwTb) #tcard #fbar{display:none!important}
