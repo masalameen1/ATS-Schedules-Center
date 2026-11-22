@@ -1884,6 +1884,7 @@ function quickWizard(st0,host){
  function distribute(d,hs,names){const left=[...names];let placed=0;
   for(let pass=0;pass<2&&left.length;pass++)hs.forEach(v=>{const L=invs(d,v.id);while(left.length&&(pass?true:L.length<(v.need||1))){const i=left.findIndex(n=>!conflictsOf(d,v.id,n).length&&!L.includes(n));if(i<0)break;L.push(left.splice(i,1)[0]);placed++;if(pass)break}});
   return{placed,left:left.length}}
+function rsvBox(d){const R=(window.__invRes?window.__invRes():{})[d.id],bx=el('div','rsvBx'),h=el('div','rsvH');const rs=R||[];h.append(el('b','','🪑 Reserve list ('+rs.length+')'),el('small','','Teachers without invigilation on this day — each teacher is on reserve on one day only'));bx.append(h);const ch=el('div','rsvC');rs.forEach(n=>ch.append(el('span','rsvP',n)));if(!rs.length)ch.append(el('span','rsvE',R?'—':'Assign invigilators to see the reserve list'));bx.append(ch);return bx}
  function paint(){const d=day(),hs=hallsOf(d);sv();bx.innerHTML='';sig=sg();
   if(!inline){const hd=el('div','pkH');hd.append(el('b','','⚡ إعداد سريع · Quick setup'),btn('✕',close,'rd sm'));bx.append(hd)}
   {const tb=el('div','qwTopBk');const bk0=btn(step===0?'← رجوع للصفحة الرئيسية · Back to main page':'← رجوع للخطوة السابقة · Back to previous step',()=>{if(step===0)close();else{step--;paint()}},'');tb.append(bk0);bx.append(tb)}
@@ -1932,10 +1933,10 @@ const cand=(v)=>{const used=assignedSet(d),rm=Q.rp&&Q.rp.n;return pool(d).filter
     const nm=el('div','fbN');L.forEach((x,i)=>{const c=el('span','fbNm',x);const rm=el('b','','✕');rm.onclick=()=>{L.splice(i,1);Q.rp={v:v.id,n:x};keep(()=>{mark();draw();paint()})};c.append(rm);nm.append(c)});if(!L.length)nm.append(el('span','fbNo','— لا أحد · nobody'));w2.append(nm);sugRow(v,L,w2);
     const st=el('div','qwStep');st.append(btn('−',()=>{v.nm=1;v.need=Math.max(1,(v.need||1)-1);keep(()=>{mark();draw();paint()})},'sm'),el('span','qwN',L.length+'/'+(v.need||1)),btn('+',()=>{v.nm=1;v.need=Math.min(8,(v.need||1)+1);Q.rp={v:v.id,n:''};keep(()=>{mark();draw();paint()})},'sm'));r.append(w2,st);l.append(r)});body.append(l);
    const sh=hs.filter(v=>(d.inv[v.id]||[]).length<(v.need||1)).length;if(sh)body.append(el('p','qwWarn',sh+' قاعة ناقصة · halls still short'));
-   body.append(btn('🧹 ابدأ من جديد · Clear invigilators',()=>{d.inv={};d.ovr={};Q.rp=null;keep(()=>{mark();draw();paint()})},'rd sm'))}
+   body.append(rsvBox(d));body.append(btn('🧹 ابدأ من جديد · Clear invigilators',()=>{d.inv={};d.ovr={};Q.rp=null;keep(()=>{mark();draw();paint()})},'rd sm'))}
   if(step===3){H('تصدير الجدول','Export','هذا هو الجدول النهائي بما فيه أماكن المراقبين والسوبرفايزر والمؤقت الإلكتروني. ثم نزّله PDF أو Excel أو انشره.');
    const tot=hs.reduce((a,v)=>a+(d.inv[v.id]||[]).length,0),need=hs.reduce((a,v)=>a+(v.need||1),0);
-   body.append(el('p','qwSum',(d.date?FMT(d.date):'')+' — '+hs.length+' قاعة · '+tot+'/'+need+' مراقب'+(tot<need?' ⚠ ناقص':' ✔')));
+   body.append(el('p','qwSum',(d.date?FMT(d.date):'')+' — '+hs.length+' قاعة · '+tot+'/'+need+' مراقب'+(tot<need?' ⚠ ناقص':' ✔')));body.append(rsvBox(d));
    const sc=el('select');[['day','هذا اليوم · This day'],['all','كل أيام الاختبار · All exam days']].forEach(([v,n])=>{const o=el('option','',n);o.value=v;sc.append(o)});sc.value=BK.scope||'day';sc.onchange=()=>{BK.scope=sc.value};body.append(sc);
    const g=el('div','qwDl');
    const card=(ic,t,s2,fn)=>{const b=el('button','qwDlC');b.type='button';b.append(el('span','qwDlI',ic),el('b','',t),el('small','',s2));b.onclick=async()=>{const sm=b.querySelector('small'),o=sm.textContent;b.disabled=true;sm.textContent='⏳ جارٍ التحضير…';try{await fn();sm.textContent='✔ تم التنزيل'}catch(e){sm.textContent='⚠ تعذّر'}setTimeout(()=>{sm.textContent=o;b.disabled=false},3000)};return b};
@@ -2965,6 +2966,7 @@ const dlDays=()=>BK.scope==='all'?[...S.days].sort((a,b)=>a.date.localeCompare(b
 const HDR=['Zone','Supervisor','Hall','Time','Class / section','Subject','Exam type','Students','Invigilators','Exam requirements'];
 const flat=(d)=>{const A=analyse(d),o=[];planRows(d,A).forEach(r=>{const ss=r.ss.length?r.ss:[{cls:'',code:'',n:''}];ss.forEach((x,i)=>o.push([i?'':r.zone,i?'':r.sup,r.hall,r.time,x.cls||'',x.code||'',tyOf(x,d),x.n||'',i?'':(r.inv.join(' / ')||'— none —'),catItems(catFind(x.code)).join(' · ')]))});return o};
 const invReserve=()=>{const days=[...S.days].filter(d=>d.date&&!/^spall/.test(d.id)&&S.venues.some(v=>(d.inv[v.id]||[]).length)).sort((a,b)=>a.date.localeCompare(b.date));const busy={};days.forEach(d=>{const s=new Set();S.venues.forEach(v=>(d.inv[v.id]||[]).forEach(n=>s.add(n)));S.controllers.filter(Boolean).forEach(n=>s.add(n));S.zones.forEach(z=>{if(z.sup)s.add(z.sup)});busy[d.id]=s});
+window.__invRes=invReserve;
  const out={};days.forEach(d=>out[d.id]=[]);
  [...new Set(names.filter(Boolean))].map(n=>({n,f:days.filter(d=>!busy[d.id].has(n)&&!isRest(n,d))})).filter(x=>x.f.length).sort((a,b)=>a.f.length-b.f.length||a.n.localeCompare(b.n)).forEach(c=>{let best=null;c.f.forEach(d=>{if(!best||out[d.id].length<out[best.id].length)best=d});out[best.id].push(c.n)});
  Object.keys(out).forEach(k=>out[k].sort((a,b)=>a.localeCompare(b)));return out};
