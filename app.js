@@ -953,7 +953,7 @@ const enr=x=>{try{if(x.date==='2026-12-06')x.date='2026-12-07';x.sess.forEach(s=
   if(!sess.length)return;a.push({id,date:'2026-12-07',sp:1,title:'Final exams · الاختبارات النهائية',type:'Paper',from:'09:00',to:'11:00',sess,inv:{},ovr:{},note:''});enr(a[a.length-1])}catch(e){}};
  window.__exEns3=ens3;Object.defineProperty(S,'days',{get(){const a=pd.get.call(S);ens3(a);return a},set(v){pd.set.call(S,v)},enumerable:true,configurable:true})})();
 /* after a saved plan replaces S, re-attach the built-in days (grade 12 electronic, whole-school seating plan) */
-window.__exCtl=()=>{try{const B=/waseem\s*al\s*husani|mahmoud\s*yousef/i;let _c=S.controllers;Object.defineProperty(S,'controllers',{get(){if(Array.isArray(_c))for(let i=0;i<_c.length;i++)if(B.test(String(_c[i]||'')))_c[i]='';return _c},set(v){_c=v},enumerable:true,configurable:true})}catch(e){}};window.__exCtl();
+window.__exCtl=()=>{try{let _c=S.controllers;const NEED=[['Waseem Al Husani',/waseem/i],['Mahmoud Yousef',/mahmoud\s*yousef/i]];Object.defineProperty(S,'controllers',{get(){if(!Array.isArray(_c))_c=['',''];NEED.forEach(([n,re])=>{if(!_c.some(x=>re.test(String(x||'')))){const i=_c.findIndex(x=>!x);if(i>=0)_c[i]=n;else _c.push(n)}});return _c},set(v){_c=v},enumerable:true,configurable:true})}catch(e){}};window.__exCtl();
 window.__exInst=()=>{try{window.__exCtl()}catch(e){}try{let _d=S.days,_v=S.venues;Object.defineProperty(S,'venues',{get(){return _v},set(v){_v=v},enumerable:true,configurable:true});Object.defineProperty(S,'days',{get(){try{window.__exEns2&&window.__exEns2(_d);window.__exEns3&&window.__exEns3(_d)}catch(e){}return _d},set(v){_d=v},enumerable:true,configurable:true})}catch(e){}};
 const ST={set(m){msg=m;const e=document.getElementById('exMsg');if(e)e.textContent=m}};
 window.__exDay=()=>{const d=day();return d.id+'@'+d.date};window.__exDays=()=>S.days.map(d=>d.id+'@'+d.date).concat(['del:'+(S.delIds||[]).join(',')]);window.__exDraw=()=>draw();window.__exAuto=d=>autoAssign(d||day());window.__exDl={pdf:()=>dlPdf(),xlsx:()=>dlXlsx()};
@@ -3127,10 +3127,10 @@ function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
  I.rows.forEach((r,hi)=>{const z=zCol(r.z),zc=hex(z[0]),zt=hex(z[1]),rt=hi%2?mixW(zt,.55):zt,k=Math.max(1,r.ss.length),base=rows.length;
   const sv0=r.sup||'—',pv=supRuns[supRuns.length-1],sameSup=!!pv&&pv.sup===sv0&&pv.zone===r.zone;if(sameSup)pv.end=base+k;else supRuns.push({sup:sv0,zone:r.zone,start:base,end:base+k});
   if(r.zone!==zname){closeZ();zname=r.zone;zStart=base}
-  const nm=r.inv.length?r.inv.join('\n'):'⚠ none assigned · بلا مراقب';const need0=Math.max(32,Math.ceil((r.inv.length||1)*24/k)+6);
+  const nm=r.inv.length?r.inv.join('\n'):'⚠ none assigned · بلا مراقب';const need0=Math.max(46,Math.ceil((r.inv.length||1)*24/k)+6),hTot=r.ss.reduce((a,z)=>a+(+z.n||0),0);
   for(let j=0;j<k;j++){const s=r.ss[j],row=[];const need=Math.max(need0,s?19*Math.ceil(String(invSubj(s)||'').length/22)+10:0);const tint={sz:14,bg:rt,wrap:1,va:'center'};
    row.push(j===0&&r.zone!==undefined&&base===zStart?T(r.zone,{sz:16,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}):T('',{sz:16,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}));
-   row.push(T(j===0?r.hall:'',{sz:17,b:1,bg:zt,wrap:1}));
+   row.push(T(j===0?r.hall+(r.ss.length?'\n👥 '+hTot+' students':''):'',{sz:17,b:1,bg:zt,wrap:1}));
    row.push(T(j===0?nm:'',r.inv.length?{sz:15,b:1,c:'0F172A',bg:rt,wrap:1}:{sz:15,b:1,c:'B91C1C',bg:'FEE2E2',wrap:1}));
    if(s){const ty=tyOf(s,d),ele=/electr/i.test(ty);row.push(T(s.cls||'',{...tint,sz:15,b:1}));row.push(T(s.n||0,{...tint,al:'center',b:1}));row.push(T(s.code||'',tint));row.push(T(invSubj(s),tint));row.push(T(ele?'Electronic':'Paper',{sz:14,b:1,c:ele?'1D4ED8':'B45309',bg:ele?'DBEAFE':'FEF3C7',al:'center'}))}
    else{for(let q=0;q<5;q++)row.push(T('',tint))}
