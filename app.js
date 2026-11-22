@@ -935,7 +935,8 @@ let S=clone(SEED);S.rest={};S.cat=[];let dirty=false,loaded=false,dayId=S.days[0
 /* Grade 12 electronic (MoE) exams, EoT1 schedule: Arabic e-part Tue 8 Dec, Islamic Studies Wed 9 Dec, Social Studies Thu 10 Dec — hall/seat = the approved G12 online-exam distribution (roster fields 14-16) */
 (function(){const DS=[['2026-12-08','13:30','14:30','Arabic Language (electronic part)','ARB70A/70'],['2026-12-09','12:00','14:00','Islamic Studies','ISL70'],['2026-12-10','12:00','14:00','Social Studies','USM70']];
  const pd=Object.getOwnPropertyDescriptor(S,'days'),vd=Object.getOwnPropertyDescriptor(S,'venues');if(!pd||!vd)return;
- const ens2=a=>{try{if(!window.__EXR||!window.__EXR.some(r=>r[14]))return;const V=S.venues;
+ const GYMN=['Jamal Al Qubaisi','Michael Adams'];const gymFix=a=>{try{const g=S.venues.find(v=>/^gym$/i.test(String(v.name||'').trim()));if(!g)return;a.forEach(d=>{if(!d||!d.date||!d.sess||!d.sess.length||!d.inv)return;const cur=d.inv[g.id]||[];GYMN.forEach(n=>{Object.keys(d.inv).forEach(k=>{if(k!==g.id&&Array.isArray(d.inv[k])&&d.inv[k].includes(n))d.inv[k]=d.inv[k].filter(x=>x!==n)})});const need=GYMN.filter(n=>!cur.includes(n));if(need.length||GYMN.some(n=>Object.keys(d.inv).some(k=>k!==g.id&&(d.inv[k]||[]).includes(n))))d.inv[g.id]=[...cur,...need]})}catch(e){}};
+ const ens2=a=>{try{gymFix(a)}catch(e){}try{if(!window.__EXR||!window.__EXR.some(r=>r[14]))return;const V=S.venues;
   DS.forEach(([date,from,to,subj,code])=>{const id='g12on'+date.replace(/-/g,'');if(a.some(x=>x.id===id)||(S.delIds||[]).includes(id))return;
    const by=new Map();window.__EXR.forEach(r=>{if(!r[14])return;const k=rmKey(r[14]);let o=by.get(k);if(!o){o={k,cls:{}};by.set(k,o)}o.cls[r[1]]=(o.cls[r[1]]||0)+1});
    const sess=[];let n=0;by.forEach(o=>{const v=V.find(x=>rmKey(x.name)===o.k);if(!v)return;Object.keys(o.cls).sort().forEach(c=>sess.push({id:id+'s'+(++n),v:v.id,cls:c,n:o.cls[c],subj,code,from,to,ty:'Electronic',rm:1,ek:''}))});
