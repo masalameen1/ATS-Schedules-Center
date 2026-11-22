@@ -3221,3 +3221,32 @@ html[data-ul=en] #v_exam .tmsg .ar,html[data-ul=en] #v_exam .tmsg>.ar{display:no
 #etBig.etTint.etDark .etTop img{filter:drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 3px #fff) drop-shadow(0 0 7px rgba(255,255,255,.85))!important}
 #etBig.etTint .etTb th{background:rgba(15,118,110,.88)!important;color:#fff!important}
 #etBig.etTint.etDark .etTb th{background:rgba(255,255,255,.2)!important;color:#fff!important}
+
+/* timer: bigger logo, panels and info for the classroom screen */
+#etBig .etTop{flex-direction:column;gap:calc(var(--u)*.6);margin-bottom:calc(var(--u)*1.2)}
+#etBig .etTop img{height:calc(var(--u)*13)}
+#etBig .etTop span{font-size:calc(var(--u)*3.6);font-weight:800;letter-spacing:.05em}
+#etBig .etCols{max-width:min(2600px,100%)}
+#etBig .etL,#etBig .etR{padding:calc(var(--u)*3)}
+#etBig .etTiles{grid-template-columns:repeat(auto-fit,minmax(calc(var(--u)*24),1fr));gap:calc(var(--u)*1.4)}
+#etBig .etTile{padding:calc(var(--u)*1.7) calc(var(--u)*2)}
+#etBig .etTile em{font-size:calc(var(--u)*4)}
+#etBig .etTile b{font-size:calc(var(--u)*3.8)}
+#etBig .etTile small{font-size:calc(var(--u)*2.3)}
+#etBig .etExam{font-size:calc(var(--u)*5.4)}
+#etBig .etTb{font-size:calc(var(--u)*3)}
+#etBig .etTb th{font-size:calc(var(--u)*2.3);padding:calc(var(--u)*1.1) calc(var(--u)*1.2)}
+#etBig .etTb td{padding:calc(var(--u)*1.2) calc(var(--u)*1.2)}
+#etBig .etTb td small{font-size:calc(var(--u)*2)}
+#etBig .etPp{font-size:calc(var(--u)*3);padding:calc(var(--u)*.8) calc(var(--u)*1.6)}
+#etBig .etPp small{font-size:calc(var(--u)*2.1)}
+#etBig .etNote{font-size:calc(var(--u)*2.8)}
+#etBig .etHn{font-size:clamp(30px,calc(var(--u)*8),110px)}
+#etBig .etHz,#etBig .etStat{font-size:clamp(16px,calc(var(--u)*3.6),52px)}
+#etBig .etTop img{height:calc(var(--u)*17)!important}
+#etBig .etPp b,#etBig .etPp span,#etBig .etPp div{font-size:calc(var(--u)*3.2)}
+#etBig .etPp small{font-size:calc(var(--u)*2.2)!important}
+#etBig .etTimes{font-size:clamp(16px,calc(var(--u)*3.1),46px)!important}
+#etBig .etTb td{font-size:calc(var(--u)*2.8)!important}
+#etBig .etTb th{font-size:calc(var(--u)*2.2)!important}
+#etBig .etTb td small{font-size:calc(var(--u)*2)!important}

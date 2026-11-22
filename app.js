@@ -3375,7 +3375,7 @@ function tdraw(){
   sb2.append(hd2('🖥 Clock style'),lsy,hd2('✨ Colour schemes'),lth,hd2('🎨 Colour'),gc,hd2('⬛ Background'),gb);sd.append(tab,sb2);r.append(sd)}
  const cols=el('div','etCols'),L=el('div','etL'),R=el('div','etR');cols.append(L,R);
  const man=ET.mode==='manual';
- const top=el('div','etTop');if(LOGO){const im=el('img');etLogoT(LOGO,im);im.alt='Applied Technology Schools';top.append(im)}top.append(el('span','','Applied Technology High School · Ras Al Khaimah'));r.append(top);
+ const top=el('div','etTop');if(LOGO){const im=el('img');etLogoT(LOGO,im);im.alt='Applied Technology Schools';top.append(im)}top.append(el('span','','Ras Al Khaimah'));r.append(top);
  const hdr=el('div','etHall');hdr.append(el('span','etHn','📍 '+v.name),el('span','etHz',(z?z.name:'')));L.append(hdr);
  const stat=el('div','etStat');stat.id='etStat';L.append(stat);
  const clk=el('div','etClk');clk.id='etClk';L.append(clk);
