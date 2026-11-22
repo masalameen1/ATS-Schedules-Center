@@ -3189,3 +3189,35 @@ html[data-ul=en] #v_exam .tmsg .ar,html[data-ul=en] #v_exam .tmsg>.ar{display:no
 .qwDlTop .qwDlC b{font-size:1rem!important}
 .qwDlTop .qwDlC small{font-size:.74rem!important;opacity:.8}
 .qwDlTop select{flex:0 0 auto;width:auto!important;max-width:220px}
+
+/* timer on a coloured background: translucent panels, clear text, transparent logo */
+#etBig.etTint .etL,#etBig.etTint .etR{background:rgba(255,255,255,.5)!important;border:1px solid rgba(255,255,255,.65)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 10px 36px rgba(0,0,0,.14)}
+#etBig.etTint .etTile{background:rgba(255,255,255,.45)}
+#etBig.etTint .etTb td{background:transparent;border-bottom-color:rgba(15,23,42,.18)}
+#etBig.etTint .etTb .etTot td{background:rgba(255,255,255,.4)}
+#etBig.etTint .etPp{background:rgba(255,255,255,.45)}
+#etBig.etTint .etQc{background:rgba(255,255,255,.45)!important;border-color:rgba(255,255,255,.6)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#etBig.etTint .etQb:not(.go){background:rgba(255,255,255,.55)}
+#etBig.etTint .etTop img{background:transparent!important;padding:0!important;border-radius:0!important;filter:drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 6px rgba(255,255,255,.6))}
+#etBig.etTint.etDark .etL,#etBig.etTint.etDark .etR{background:rgba(255,255,255,.11)!important;border:1px solid rgba(255,255,255,.26)!important;color:#f8fafc}
+#etBig.etTint.etDark .etExam,#etBig.etTint.etDark .etTile b,#etBig.etTint.etDark .etTb td,#etBig.etTint.etDark .etPp,#etBig.etTint.etDark .etTop,#etBig.etTint.etDark .etTile em{color:#f8fafc!important}
+#etBig.etTint.etDark .etTile small,#etBig.etTint.etDark .etTb td small,#etBig.etTint.etDark .etPp small{color:#cbd5e1!important}
+#etBig.etTint.etDark .etTile{background:rgba(255,255,255,.11)}
+#etBig.etTint.etDark .etTb td{border-bottom-color:rgba(255,255,255,.2)}
+#etBig.etTint.etDark .etTb .etTot td{background:rgba(255,255,255,.14);color:#fff!important}
+#etBig.etTint.etDark .etTb .etCode{color:#5eead4!important}
+#etBig.etTint.etDark .etPp{background:rgba(255,255,255,.1)}
+#etBig.etTint.etDark .etQc{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.25)!important;color:#f8fafc}
+#etBig.etTint.etDark .etQc,#etBig.etTint.etDark .etQc span{color:#f8fafc!important}
+#etBig.etTint.etDark .etQb:not(.go){background:rgba(255,255,255,.16);color:#fff!important;border-color:rgba(255,255,255,.35)}
+/* invigilation cards: the header title must stay readable on the blue gradient (also for "Your duty" cards) */
+.tdHall .thd b,.tdHall.mineH .thd b{color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+#etBig.etTint .etTb,#etBig.etTint .etTb tbody,#etBig.etTint .etTb tr,#etBig.etTint .etTb td{background:transparent!important}
+#etBig.etTint .etTb .etTot td{background:rgba(255,255,255,.4)!important}
+#etBig.etTint.etDark .etTb .etTot td{background:rgba(255,255,255,.16)!important}
+#etBig.etTint .etQc .etQb:not(.go){background:rgba(255,255,255,.55)!important}
+#etBig.etTint.etDark .etQc .etQb:not(.go){background:rgba(255,255,255,.16)!important;color:#fff!important;border-color:rgba(255,255,255,.4)!important}
+#etBig.etTint.etDark .etQc .etQb:not(.go) *{color:#fff!important}
+#etBig.etTint.etDark .etTop img{filter:drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 3px #fff) drop-shadow(0 0 7px rgba(255,255,255,.85))!important}
+#etBig.etTint .etTb th{background:rgba(15,118,110,.88)!important;color:#fff!important}
+#etBig.etTint.etDark .etTb th{background:rgba(255,255,255,.2)!important;color:#fff!important}

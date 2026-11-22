@@ -3238,6 +3238,7 @@ function adopt(x){if(x&&Array.isArray(x.days)&&x.days.length&&Array.isArray(x.ve
 })();
 /* =============== ELECTRONIC TIME (exam timer) =============== */
 const ET={mode:'linked',hall:'',m:{},name:'',day:'',idx:0,prac:0,alert:false,full:false,fired:{},style:'analog',color:'#0f766e',dark:false,keep:false,cs:'',ce:'',cd:'',cfg:true,hand:false,hs:0,snd:'cont10',bg:''};
+const _ltc={};function etLogoT(src,im){if(_ltc[src]){im.src=_ltc[src];return}im.src=src;const i=new Image();i.onload=()=>{try{const c=document.createElement('canvas');c.width=i.naturalWidth;c.height=i.naturalHeight;const g=c.getContext('2d');g.drawImage(i,0,0);const d=g.getImageData(0,0,c.width,c.height),a=d.data;for(let k=0;k<a.length;k+=4){const m=Math.min(a[k],a[k+1],a[k+2]);if(m>238)a[k+3]=0;else if(m>205)a[k+3]=Math.round(a[k+3]*(238-m)/33)}g.putImageData(d,0,0);_ltc[src]=c.toDataURL('image/png');im.src=_ltc[src]}catch(e){}};i.src=src}
 const ETBG=[['','Default',''],['night','Night','linear-gradient(160deg,#0b1220,#1e3a8a)',1],['ocean','Ocean','linear-gradient(160deg,#0369a1,#0f766e)',1],['sunset','Sunset','linear-gradient(160deg,#f97316,#be185d)',1],['forest','Forest','linear-gradient(160deg,#14532d,#365314)',1],['royal','Royal','linear-gradient(160deg,#4c1d95,#1e1b4b)',1],['graphite','Graphite','linear-gradient(160deg,#1f2937,#000)',1],['black','Pure black','#000000',1],['carbon','Carbon','linear-gradient(160deg,#18181b,#000)',1],['slate','Slate','linear-gradient(160deg,#0f172a,#020617)',1],['sand','Sand','linear-gradient(160deg,#fef3c7,#fde68a)',0],['mint','Mint','linear-gradient(160deg,#ecfdf5,#a7f3d0)',0],['sky','Sky','linear-gradient(160deg,#eff6ff,#bfdbfe)',0]];
 const ETSND=[['cont10','🔔 جرس متواصل ١٠ ث · Continuous bell 10 s'],['bell','🔔 جرس الحصة · Period bell'],['beeps','📟 صفارات · Beeps'],['chime','🎵 نغمة · Chime'],['siren','🚨 إنذار · Alarm'],['long','📢 صوت طويل · Long tone'],['none','🔇 بدون · None']];
 function playSnd(k,force){try{if(!force&&Date.now()<(window.__quietUntil||0))return;const C=window.__ETA||(window.__ETA=new(window.AudioContext||window.webkitAudioContext)());C.resume&&C.resume();const T0=C.currentTime;const n=(f,t,d,ty,v)=>{const o=C.createOscillator(),g=C.createGain();o.type=ty||'sine';o.frequency.value=f;g.gain.setValueAtTime(v||.3,T0+t);g.gain.exponentialRampToValueAtTime(.001,T0+t+d);o.connect(g);g.connect(C.destination);o.start(T0+t);o.stop(T0+t+d+.05)};
@@ -3347,8 +3348,8 @@ function tdraw(){
  /* big screen */
  const r=el('div','etRoot etS-'+ET.style+(ET.dark?' etDark':'')+(ET.full?' etFull':''));r.id='etBig';if(ET.color)r.style.setProperty('--uc',ET.color);
  {const bp=ETBG.find(x=>x[0]===ET.bg);let im='';if(ET.bg==='img'){try{im=localStorage.getItem('tt_etimg')||''}catch(e){}}
-  if(im){r.style.setProperty('background','linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.5)),url('+im+') center/cover','important');r.classList.add('etDark')}
-  else if(bp&&bp[2]){r.style.setProperty('background',bp[2],'important');if(bp[3])r.classList.add('etDark');else r.classList.remove('etDark')}}
+  if(im){r.style.setProperty('background','linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.5)),url('+im+') center/cover','important');r.classList.add('etDark','etTint')}
+  else if(bp&&bp[2]){r.style.setProperty('background',bp[2],'important');r.classList.add('etTint');if(bp[3])r.classList.add('etDark');else r.classList.remove('etDark')}else r.classList.remove('etTint')}
  {const qc=el('div','etQc');const cs0=T2M(ET.cs||hm(a)),ce0=T2M(ET.ce||hm(b)),man=!!(ET.cs||ET.ce||ET.cd||ET.prac||ET.hs);
   const nowM=()=>{const n=new Date(Date.now()+4*36e5);return n.getUTCHours()*60+n.getUTCMinutes()};
   const q=(t,f,c)=>{const x=el('button','etQb'+(c?' '+c:''),t);x.type='button';x.onclick=()=>{ET.prac=0;ET.fired={};ET.hs=0;f();savET();tdraw()};return x};
@@ -3374,7 +3375,7 @@ function tdraw(){
   sb2.append(hd2('🖥 Clock style'),lsy,hd2('✨ Colour schemes'),lth,hd2('🎨 Colour'),gc,hd2('⬛ Background'),gb);sd.append(tab,sb2);r.append(sd)}
  const cols=el('div','etCols'),L=el('div','etL'),R=el('div','etR');cols.append(L,R);
  const man=ET.mode==='manual';
- const top=el('div','etTop');if(LOGO){const im=el('img');im.src=LOGO;im.alt='Applied Technology Schools';top.append(im)}top.append(el('span','','Applied Technology High School · Ras Al Khaimah'));r.append(top);
+ const top=el('div','etTop');if(LOGO){const im=el('img');etLogoT(LOGO,im);im.alt='Applied Technology Schools';top.append(im)}top.append(el('span','','Applied Technology High School · Ras Al Khaimah'));r.append(top);
  const hdr=el('div','etHall');hdr.append(el('span','etHn','📍 '+v.name),el('span','etHz',(z?z.name:'')));L.append(hdr);
  const stat=el('div','etStat');stat.id='etStat';L.append(stat);
  const clk=el('div','etClk');clk.id='etClk';L.append(clk);
