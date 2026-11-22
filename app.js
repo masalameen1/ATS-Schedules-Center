@@ -1054,7 +1054,7 @@ function suggest(d,v){
 function mark(){dirty=true;try{guardNew()}catch(e){}try{histPush()}catch(e){}const b=document.getElementById('exSave');if(b){b.disabled=false;b.classList.add('dirty')}stUpd()}
 /* ---- undo / redo / change history (editors only) ---- */
 const HI={u:[],r:[],cur:null,t:0,acts:[],base:0,brk:false};
-const snapS=()=>JSON.stringify({days:S.days,venues:S.venues,zones:S.zones,controllers:S.controllers,rest:S.rest,cat:S.cat,rem:S.rem,hideAll:S.hideAll,sync:S.sync,extraT:S.extraT});
+const snapS=()=>JSON.stringify({days:S.days,venues:S.venues,zones:S.zones,controllers:S.controllers,rest:S.rest,cat:S.cat,rem:S.rem,hideAll:S.hideAll,sync:S.sync,extraT:S.extraT,delIds:S.delIds});
 HI.cur=snapS();
 const dLab=d=>d&&d.date?d.date:'(no date)';
 function describe(a,b){try{const A=JSON.parse(a),B=JSON.parse(b),ad=new Map(A.days.map(d=>[d.id,d])),bd=new Map(B.days.map(d=>[d.id,d])),out=[];
@@ -1076,7 +1076,7 @@ async function hMove(dir){if(!canEd())return;const from=dir<0?HI.u:HI.r;if(!from
  const e=from[from.length-1],aff=S.pubAt?affNames(HI.cur,e.s):[],nm=dir<0?'Undo':'Redo';
  if(aff.length&&!confirm(nm+' "'+e.l+'"?\n\nThis changes the invigilation of '+aff.length+' teacher(s): '+aff.slice(0,8).join(', ')+(aff.length>8?' …':'')+'.\nIt is saved as a new draft change; those teachers are notified after you press Save & publish.'))return;
  from.pop();(dir<0?HI.r:HI.u).push({s:HI.cur,l:e.l,sl:e.sl,ts:Date.now()});
- const o=JSON.parse(e.s);S.days=o.days;S.venues=o.venues;if(o.zones)S.zones=o.zones;S.controllers=o.controllers||S.controllers;S.rest=o.rest||{};S.cat=o.cat||[];if(o.rem)S.rem=o.rem;else delete S.rem;if(o.hideAll)S.hideAll=1;else delete S.hideAll;if(o.sync)S.sync=o.sync;else delete S.sync;S.extraT=o.extraT||S.extraT;
+ const o=JSON.parse(e.s);S.days=o.days;S.venues=o.venues;S.delIds=o.delIds||[];if(o.zones)S.zones=o.zones;S.controllers=o.controllers||S.controllers;S.rest=o.rest||{};S.cat=o.cat||[];if(o.rem)S.rem=o.rem;else delete S.rem;if(o.hideAll)S.hideAll=1;else delete S.hideAll;if(o.sync)S.sync=o.sync;else delete S.sync;S.extraT=o.extraT||S.extraT;
  HI.cur=e.s;HI.k=INVK();HI.brk=true;HI.acts.push({ts:Date.now(),k:0,l:nm+': '+e.l});
  if(!S.days.some(d=>d.id===dayId))dayId=S.days[0].id;dirty=true;window.__exPend=true;draw();await saveQuiet();
  ST.set((dir<0?'↶ Undone: ':'↷ Redone: ')+e.l+(aff.length?' — press Save & publish to notify '+aff.length+' teacher(s)':' — saved as a draft'));undoUpd();stUpd()}
