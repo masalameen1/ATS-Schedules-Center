@@ -2966,7 +2966,7 @@ const dlDays=()=>BK.scope==='all'?[...S.days].sort((a,b)=>a.date.localeCompare(b
 const HDR=['Zone','Supervisor','Hall','Time','Class / section','Subject','Exam type','Students','Invigilators','Exam requirements'];
 const flat=(d)=>{const A=analyse(d),o=[];planRows(d,A).forEach(r=>{const ss=r.ss.length?r.ss:[{cls:'',code:'',n:''}];ss.forEach((x,i)=>o.push([i?'':r.zone,i?'':r.sup,r.hall,r.time,x.cls||'',x.code||'',tyOf(x,d),x.n||'',i?'':(r.inv.join(' / ')||'— none —'),catItems(catFind(x.code)).join(' · ')]))});return o};
 const invReserve=()=>{const days=[...S.days].filter(d=>d.date&&!/^spall/.test(d.id)&&S.venues.some(v=>(d.inv[v.id]||[]).length)).sort((a,b)=>a.date.localeCompare(b.date));const busy={};days.forEach(d=>{const s=new Set();S.venues.forEach(v=>(d.inv[v.id]||[]).forEach(n=>s.add(n)));S.controllers.filter(Boolean).forEach(n=>s.add(n));S.zones.forEach(z=>{if(z.sup)s.add(z.sup)});busy[d.id]=s});
-window.__invRes=invReserve;
+window.__invRes=invReserve;window.__exConn=()=>!!EDB;setTimeout(()=>{try{if(/my-invigilation/.test(location.hash||''))showView('exam')}catch(e){}},2500);
  const out={};days.forEach(d=>out[d.id]=[]);
  [...new Set(names.filter(Boolean))].map(n=>({n,f:days.filter(d=>!busy[d.id].has(n)&&!isRest(n,d))})).filter(x=>x.f.length).sort((a,b)=>a.f.length-b.f.length||a.n.localeCompare(b.n)).forEach(c=>{let best=null;c.f.forEach(d=>{if(!best||out[d.id].length<out[best.id].length)best=d});out[best.id].push(c.n)});
  Object.keys(out).forEach(k=>out[k].sort((a,b)=>a.localeCompare(b)));return out};
@@ -3017,7 +3017,7 @@ function invPages(days){
  const termTxt=()=>{let t='';try{t=(JSON.parse(localStorage.getItem('tt_pl_set')||'{}').term||'')}catch(e){}return t||'الفصل الأول 2026–2027 · Term 1 2026–2027'};
  const gradeSum=()=>{const G={};(dayInfo.rows||[]).forEach(r=>r.ss.forEach(s=>{const m=/^[A-Za-z]*(\d{1,2})/.exec(String(s.cls||''));const k=m?'G'+(+m[1]):'—';const o=G[k]||(G[k]={n:0,s:0});o.n+=(+s.n||0);o.s++}));return Object.keys(G).sort().map(k=>k+': '+G[k].s+' sec · '+G[k].n+' stds').join('   |   ')};
  const banner=(g,d,di)=>{const BH=372;const gr=g.createLinearGradient(0,0,W,BH);gr.addColorStop(0,'#34568a');gr.addColorStop(.55,'#4d7cae');gr.addColorStop(1,'#93b6d8');g.fillStyle=gr;g.fillRect(0,0,W,BH);
-  g.fillStyle='#fff';g.beginPath();g.arc(M+130,BH/2,118,0,7);g.fill();try{if(logo&&logo.naturalWidth){const k=Math.min(190/logo.naturalWidth,190/logo.naturalHeight);const w=logo.naturalWidth*k,h=logo.naturalHeight*k;g.drawImage(logo,M+130-w/2,BH/2-h/2,w,h)}}catch(e){}
+  g.fillStyle='rgba(255,255,255,.3)';g.beginPath();g.arc(M+130,BH/2,118,0,7);g.fill();try{if(logo&&logo.naturalWidth){const k=Math.min(190/logo.naturalWidth,190/logo.naturalHeight);const w=logo.naturalWidth*k,h=logo.naturalHeight*k;g.globalAlpha=.6;g.drawImage(logo,M+130-w/2,BH/2-h/2,w,h);g.globalAlpha=1}}catch(e){g.globalAlpha=1}
   const x0=M+290;g.textAlign='left';g.fillStyle='#dbeafe';g.font='500 24px '+FNT;g.fillText('APPLIED TECHNOLOGY HIGH SCHOOL · RAS AL KHAIMAH',x0,38);
   g.fillStyle='#fff';g.font='500 62px '+FNT;g.fillText('Invigilation Schedule',x0,104);
   g.fillStyle='#f1e2b6';g.font='500 38px '+FNT;g.fillText(FMT(d.date),x0,164);
@@ -3082,8 +3082,8 @@ function xlsxBuild(sheets){const reg={f:[],fl:[],x:[]};const idx=(a,k)=>{let i=a
  const sty=o=>{o=o||{};const f=idx(reg.f,[o.sz||12,o.b?1:0,o.i?1:0,o.c||'111827'].join('|')),fl=o.bg?2+idx(reg.fl,o.bg):0,b=o.bd===false?0:1;return idx(reg.x,[f,fl,b,o.al||'left',o.va||'center',o.wrap?1:0].join('|'))};
  sty({});const xe=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
  const colL=j=>{let s='';j++;while(j>0){const m=(j-1)%26;s=String.fromCharCode(65+m)+s;j=Math.floor((j-1)/26)}return s};
- const sheetXml=sh=>{const rowsX=sh.rows.map((r,i)=>{const ht=sh.heights&&sh.heights[i];return'<row r="'+(i+1)+'"'+(ht?' ht="'+ht+'" customHeight="1"':'')+'>'+r.map((c,j)=>{if(!c)return'';const s=sty(c.s);return c.v===''||c.v==null?'<c r="'+colL(j)+(i+1)+'" s="'+s+'"/>':(typeof c.v==='number'?'<c r="'+colL(j)+(i+1)+'" s="'+s+'"><v>'+c.v+'</v></c>':'<c r="'+colL(j)+(i+1)+'" s="'+s+'" t="inlineStr"><is><t xml:space="preserve">'+xe(c.v)+'</t></is></c>')}).join('')+'</row>'}).join('');
-  return'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr'+(sh.code?' codeName="'+sh.code+'"':'')+'><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="1">'+(sh.freeze?'<pane ySplit="'+sh.freeze+'" topLeftCell="A'+(sh.freeze+1)+'" activePane="bottomLeft" state="frozen"/>':'')+'</sheetView></sheetViews><sheetFormatPr defaultRowHeight="22"/><cols>'+sh.cols.map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join('')+'</cols><sheetData>'+rowsX+'</sheetData>'+(sh.merges&&sh.merges.length?'<mergeCells count="'+sh.merges.length+'">'+sh.merges.map(m=>'<mergeCell ref="'+m+'"/>').join('')+'</mergeCells>':'')+(sh.pgrid?'<printOptions gridLines="1"/>':'')+'<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="'+(sh.orient||'landscape')+'" fitToWidth="1" fitToHeight="'+(sh.fitH==null?0:sh.fitH)+'"/></worksheet>'};
+ const sheetXml=sh=>{const rowsX=sh.rows.map((r,i)=>{const ht=sh.heights&&sh.heights[i];return'<row r="'+(i+1)+'"'+(ht?' ht="'+ht+'" customHeight="1"':'')+'>'+r.map((c,j)=>{if(!c)return'';const s=sty(c.s);if(c.f)return'<c r="'+colL(j)+(i+1)+'" s="'+s+'" t="str"><f>'+xe(c.f)+'</f><v>'+xe(c.v)+'</v></c>';return c.v===''||c.v==null?'<c r="'+colL(j)+(i+1)+'" s="'+s+'"/>':(typeof c.v==='number'?'<c r="'+colL(j)+(i+1)+'" s="'+s+'"><v>'+c.v+'</v></c>':'<c r="'+colL(j)+(i+1)+'" s="'+s+'" t="inlineStr"><is><t xml:space="preserve">'+xe(c.v)+'</t></is></c>')}).join('')+'</row>'}).join('');
+  return'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr'+(sh.code?' codeName="'+sh.code+'"':'')+'><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="1">'+(sh.freeze?'<pane ySplit="'+sh.freeze+'" topLeftCell="A'+(sh.freeze+1)+'" activePane="bottomLeft" state="frozen"/>':'')+'</sheetView></sheetViews><sheetFormatPr defaultRowHeight="22"/><cols>'+sh.cols.map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join('')+'</cols><sheetData>'+rowsX+'</sheetData>'+(sh.filter?'<autoFilter ref="'+sh.filter+'"/>':'')+(sh.merges&&sh.merges.length?'<mergeCells count="'+sh.merges.length+'">'+sh.merges.map(m=>'<mergeCell ref="'+m+'"/>').join('')+'</mergeCells>':'')+(sh.pgrid?'<printOptions gridLines="1"/>':'')+'<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="'+(sh.orient||'landscape')+'" fitToWidth="1" fitToHeight="'+(sh.fitH==null?0:sh.fitH)+'"/></worksheet>'};
  const sx=sheets.map(sheetXml);
  const stylesX='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="'+reg.f.length+'">'+reg.f.map(k=>{const [sz,b,i,c]=k.split('|');return'<font>'+(+b?'<b/>':'')+(+i?'<i/>':'')+'<sz val="'+sz+'"/><color rgb="FF'+c.replace('#','')+'"/><name val="Calibri"/></font>'}).join('')+'</fonts><fills count="'+(2+reg.fl.length)+'"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'+reg.fl.map(c=>'<fill><patternFill patternType="solid"><fgColor rgb="FF'+c.replace('#','')+'"/><bgColor indexed="64"/></patternFill></fill>').join('')+'</fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FF64748B"/></left><right style="thin"><color rgb="FF64748B"/></right><top style="thin"><color rgb="FF64748B"/></top><bottom style="thin"><color rgb="FF64748B"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="'+reg.x.length+'">'+reg.x.map(k=>{const [f,fl,b,al,va,w]=k.split('|');return'<xf numFmtId="0" fontId="'+f+'" fillId="'+fl+'" borderId="'+b+'" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="'+al+'" vertical="'+va+'"'+(+w?' wrapText="1"':'')+'/></xf>'}).join('')+'</cellXfs></styleSheet>';
  const names=[];sheets.forEach((s,i)=>{let n=String(s.name).replace(/[\[\]:*?\/\\]/g,'-').slice(0,28)||'Sheet'+(i+1),k=1,b=n;while(names.includes(n))n=b.slice(0,25)+'-'+(++k);names.push(n)});
@@ -3098,35 +3098,41 @@ function xlsxBuild(sheets){const reg={f:[],fl:[],x:[]};const idx=(a,k)=>{let i=a
   cd.push(new Uint8Array([0x50,0x4b,1,2,...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(c),...u32(db.length),...u32(db.length),...u16(nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]),nb);off+=lh.length+nb.length+db.length});
  const cs=cd.reduce((a,x)=>a+x.length,0),end=new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cs),...u32(off),0,0]);
  return new Blob([...parts,...cd,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+const INV_SITE='https://claude.ai/artifact/Rj58xpnKb8sG8PwV5mDw6C#my-invigilation';
+const mixW=(h,k)=>[0,2,4].map(i=>Math.round(parseInt(h.substr(i,2),16)*(1-k)+255*k).toString(16).padStart(2,'0')).join('').toUpperCase();
+function invBar(rows,merges,heights,N){return(txt,s,ht,f)=>{const r=[f?{v:txt,f,s}:{v:txt,s}];for(let k=1;k<N;k++)r.push({v:'',s});rows.push(r);merges.push('A'+rows.length+':K'+rows.length);heights[rows.length-1]=ht}}
+function invLink(bar){const u=(window.__SITE_URL||INV_SITE),tx='🔗  Open your invigilation schedule & timing on your page — click here';bar(tx,{sz:15,b:1,c:'1D4ED8',bg:'E0E7FF',al:'center'},30,'HYPERLINK("'+u+'","'+tx+'")')}
+function invTop(rows,merges,heights,N,title,line3){const hb=(sz,c)=>({sz,b:1,c,bg:'1E3A8A',al:'left',va:'center',bd:false}),wh={bg:'EAF1FF',bd:false};
+ const hrow=(txt,s,ht)=>{const r=[{v:'',s:wh},{v:'',s:wh},{v:'   '+txt,s}];for(let k=3;k<N;k++)r.push({v:'',s});rows.push(r);merges.push('C'+rows.length+':K'+rows.length);heights[rows.length-1]=ht};
+ hrow('APPLIED TECHNOLOGY HIGH SCHOOL · RAS AL KHAIMAH',hb(13,'DBEAFE'),30);hrow(title,hb(28,'FFFFFF'),46);hrow(line3,hb(18,'F1E2B6'),32);merges.push('A1:B3')}
 function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
  const N=11,cols=[20,20,32,20,12,15,27,14,15,24,40],rows=[],merges=[],heights={};
  const T=(v,s)=>({v,s}),blank=s=>({v:'',s});
- const bar=(txt,s,ht)=>{const r=[T(txt,s)];for(let k=1;k<N;k++)r.push(blank(s));rows.push(r);merges.push('A'+rows.length+':'+'K'+rows.length);heights[rows.length-1]=ht};
- {const hb=(sz,c)=>({sz,b:1,c,bg:'1E3A8A',al:'left',va:'center',bd:false}),wh={bg:'FFFFFF',bd:false};
-  const hrow=(txt,s,ht)=>{const r=[T('',wh),T('',wh),T('   '+txt,s)];for(let k=3;k<N;k++)r.push(blank(s));rows.push(r);merges.push('C'+rows.length+':K'+rows.length);heights[rows.length-1]=ht};
-  hrow('APPLIED TECHNOLOGY HIGH SCHOOL · RAS AL KHAIMAH',hb(13,'DBEAFE'),30);hrow('Invigilation Schedule',hb(28,'FFFFFF'),46);hrow(FMT(d.date),hb(18,'F1E2B6'),32);merges.push('A1:B3')}
+ const bar=invBar(rows,merges,heights,N);
+ invTop(rows,merges,heights,N,'Invigilation Schedule',FMT(d.date));
  bar(invTermEn()+'   ·   '+invTitleEn(d),{sz:15,b:1,c:'1E3A8A',bg:'DBEAFE',al:'center'},28);
  {const f0=invMin(d.from),t0=invMin(d.to),du=f0!=null&&t0!=null&&t0>f0?t0-f0:null;
-  if(f0!=null){bar('Start '+invHm(f0)+(t0!=null?'      ·      End '+invHm(t0):'')+(du?'      ·      Duration '+du+' min':'')+'      ·      '+(d.type||'Paper'),{sz:16,b:1,c:'0F172A',bg:'E0F2FE',al:'center'},30);
-   bar('Important: be in the exam hall 15 minutes before the start ('+invHm(Math.max(0,f0-15))+') and make sure the hall is ready for the exam.',{sz:15,b:1,c:'991B1B',bg:'FEE2E2',al:'center'},30)}}
- bar('General controllers: '+(S.controllers.filter(Boolean).join(' & ')||'—')+(d.note?'      Note: '+d.note:''),{sz:15,b:1,c:'92400E',bg:'FEF3C7',al:'center'},28);
+  if(f0!=null)bar('Start '+invHm(f0)+(t0!=null?'      ·      End '+invHm(t0):'')+(du?'      ·      Duration '+du+' min':'')+'      ·      '+(d.type||'Paper'),{sz:16,b:1,c:'0F172A',bg:'E0F2FE',al:'center'},30);
+  bar('Halls '+I.halls+'   ·   Sections '+I.secs+'   ·   Students '+I.studs+'   ·   Invigilators '+I.invN+'   ·   Halls without invigilator '+I.none,{sz:14,b:1,c:I.none?'B91C1C':'047857',bg:'F1F5F9',al:'center'},26);
+  bar('General controllers: '+(S.controllers.filter(Boolean).join(' & ')||'—')+(d.note?'      Note: '+d.note:''),{sz:15,b:1,c:'92400E',bg:'FEF3C7',al:'center'},28);
+  if(f0!=null)bar('Important: be in the exam hall 15 minutes before the start ('+invHm(Math.max(0,f0-15))+') and make sure the hall is ready for the exam.',{sz:15,b:1,c:'991B1B',bg:'FEE2E2',al:'center'},30)}
+ invLink(bar);
  bar(INV_THANKS,{sz:15,b:1,c:'065F46',bg:'D1FAE5',al:'center'},32);
- bar('Halls '+I.halls+'   ·   Sections '+I.secs+'   ·   Students '+I.studs+'   ·   Invigilators '+I.invN+'   ·   Halls without invigilator '+I.none,{sz:14,b:1,c:I.none?'B91C1C':'047857',bg:'F1F5F9',al:'center'},26);
  const HDx=['Zone\nالمنطقة','Exam hall\nقاعة الاختبار','Invigilators\nالمراقبون','Class\nالصف / الشعبة','Students per class\nالعدد من كل صف','Exam\nالاختبار','Subject\nالمادة','Exam type\nنوع الاختبار','Time\nالتوقيت','Supervisor\nالمشرف','Notes\nالملاحظات'];
  rows.push(HDx.map(h=>T(h,{sz:14,b:1,c:'FFFFFF',bg:'0F172A',al:'center',wrap:1})));heights[rows.length-1]=54;const hdrRow=rows.length;
  const supRuns=[];let zs=-1,zname=null,zStart=0;const closeZ=()=>{if(zname!==null&&rows.length>zStart)merges.push('A'+(zStart+1)+':A'+rows.length)};
- I.rows.forEach((r,hi)=>{const z=zCol(r.z),zc=hex(z[0]),zt=hex(z[1]),k=Math.max(1,r.ss.length),base=rows.length;
+ I.rows.forEach((r,hi)=>{const z=zCol(r.z),zc=hex(z[0]),zt=hex(z[1]),rt=hi%2?mixW(zt,.55):zt,k=Math.max(1,r.ss.length),base=rows.length;
   const sv0=r.sup||'—',pv=supRuns[supRuns.length-1],sameSup=!!pv&&pv.sup===sv0&&pv.zone===r.zone;if(sameSup)pv.end=base+k;else supRuns.push({sup:sv0,zone:r.zone,start:base,end:base+k});
   if(r.zone!==zname){closeZ();zname=r.zone;zStart=base}
   const nm=r.inv.length?r.inv.join('\n'):'⚠ none assigned · بلا مراقب';const need0=Math.max(32,Math.ceil((r.inv.length||1)*24/k)+6);
-  for(let j=0;j<k;j++){const s=r.ss[j],row=[];const need=Math.max(need0,s?19*Math.ceil(String(invSubj(s)||'').length/22)+10:0);const tint={sz:14,bg:hi%2?'FFFFFF':zt,wrap:1,va:'center'};
+  for(let j=0;j<k;j++){const s=r.ss[j],row=[];const need=Math.max(need0,s?19*Math.ceil(String(invSubj(s)||'').length/22)+10:0);const tint={sz:14,bg:rt,wrap:1,va:'center'};
    row.push(j===0&&r.zone!==undefined&&base===zStart?T(r.zone,{sz:16,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}):T('',{sz:16,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}));
    row.push(T(j===0?r.hall:'',{sz:17,b:1,bg:zt,wrap:1}));
-   row.push(T(j===0?nm:'',r.inv.length?{sz:15,b:1,c:'0F172A',bg:'FFFFFF',wrap:1}:{sz:15,b:1,c:'B91C1C',bg:'FEE2E2',wrap:1}));
+   row.push(T(j===0?nm:'',r.inv.length?{sz:15,b:1,c:'0F172A',bg:rt,wrap:1}:{sz:15,b:1,c:'B91C1C',bg:'FEE2E2',wrap:1}));
    if(s){const ty=tyOf(s,d),ele=/electr/i.test(ty);row.push(T(s.cls||'',{...tint,sz:15,b:1}));row.push(T(s.n||0,{...tint,al:'center',b:1}));row.push(T(s.code||'',tint));row.push(T(invSubj(s),tint));row.push(T(ele?'Electronic':'Paper',{sz:14,b:1,c:ele?'1D4ED8':'B45309',bg:ele?'DBEAFE':'FEF3C7',al:'center'}))}
    else{for(let q=0;q<5;q++)row.push(T('',tint))}
    row.push(T(j===0?r.time:'',{sz:15,b:1,c:'1E3A8A',bg:zt,al:'center'}));row.push(T(j===0&&!sameSup?sv0:'',{sz:15,b:1,bg:zt,wrap:1,va:'center'}));
-   row.push(T(s?invReqs(s):'',{sz:13,i:1,c:'92400E',bg:hi%2?'FFFFFF':zt,wrap:1}));rows.push(row);heights[rows.length-1]=need}
+   row.push(T(s?invReqs(s):'',{sz:13,i:1,c:'92400E',bg:rt,wrap:1}));rows.push(row);heights[rows.length-1]=need}
   if(k>1){[1,2,8].forEach(c=>merges.push(String.fromCharCode(65+c)+(base+1)+':'+String.fromCharCode(65+c)+(base+k)))}});
  supRuns.forEach(q=>{if(q.end-q.start>1)merges.push('J'+(q.start+1)+':J'+q.end)});closeZ();
  {const rs=invReserve()[d.id];if(rs&&rs.length){rows.push(Array.from({length:N},()=>T('',{bd:false})));heights[rows.length-1]=14;
@@ -3134,12 +3140,29 @@ function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
   const st={sz:13,b:1,c:'4C1D95',bg:'F5F3FF',al:'left'},sp=[[0,1],[2,3],[4,5],[6,7],[8,10]],CL=j=>String.fromCharCode(65+j);
   for(let i=0;i<rs.length;i+=5){const row=Array.from({length:N},()=>T('',st));sp.forEach(([a],k)=>{const n=rs[i+k];if(n)row[a]=T((i+k+1)+'. '+n,st)});rows.push(row);const rn=rows.length;sp.forEach(([a,b])=>merges.push(CL(a)+rn+':'+CL(b)+rn));heights[rn-1]=24}}}
  return{name:(d.date||'Day '+(i+1)),rows,cols,merges,heights,code:'ATSINV'}}
-function teacherSheet(){const rows=[],N=7,T=(v,s)=>({v,s});const data=teacherRows();
- const t=[T('Invigilation by teacher · المراقبون حسب المعلم',{sz:20,b:1,c:'FFFFFF',bg:'1E3A8A',al:'center'})];for(let k=1;k<N;k++)t.push(T('',{bg:'1E3A8A'}));rows.push(t);
- rows.push(['Teacher\nالمعلم','Date\nالتاريخ','Hall / place\nالقاعة','Zone\nالمنطقة','From\nمن','To\nإلى','Role\nالدور'].map(h=>T(h,{sz:13,b:1,c:'FFFFFF',bg:'0F172A',al:'center',wrap:1})));
- const RC={'Invigilator':['DBEAFE','1D4ED8'],'General controller':['FEF3C7','B45309'],'Zone supervisor':['D1FAE5','047857'],'Rest day':['E5E7EB','475569'],'Reserve':['EDE9FE','5B21B6']};
- data.forEach(r=>{const c=RC[r[6]]||['FFFFFF','111827'];rows.push([T(r[0],{sz:13,b:1}),T(r[1],{sz:13}),T(r[2],{sz:13,b:1}),T(r[3],{sz:13}),T(r[4],{sz:13,al:'center'}),T(r[5],{sz:13,al:'center'}),T(r[6],{sz:13,b:1,c:c[1],bg:c[0],al:'center'})])});
- const heights={0:38,1:40};return{name:'By teacher',rows,cols:[28,13,22,24,9,9,20],merges:['A1:G1'],heights,freeze:2}}
+function teacherSheet(){const N=11,cols=[20,20,32,20,13,15,27,14,22,24,40],rows=[],merges=[],heights={},hex=c=>c.replace('#','');
+ const T=(v,s)=>({v,s});const bar=invBar(rows,merges,heights,N);
+ invTop(rows,merges,heights,N,'Invigilation by Teacher',invTermEn());
+ bar('Filter by teacher: use the arrow on the “Invigilator” column header',{sz:15,b:1,c:'1E3A8A',bg:'DBEAFE',al:'center'},28);
+ invLink(bar);bar(INV_THANKS,{sz:15,b:1,c:'065F46',bg:'D1FAE5',al:'center'},32);
+ const HDx=['Zone\nالمنطقة','Exam hall\nقاعة الاختبار','Invigilator\nالمراقب','Class\nالصف / الشعبة','Students per class\nالعدد من كل صف','Exam\nالاختبار','Subject\nالمادة','Exam type\nنوع الاختبار','Date & time\nالتاريخ والتوقيت','Supervisor\nالمشرف','Notes\nالملاحظات'];
+ rows.push(HDx.map(h=>T(h,{sz:14,b:1,c:'FFFFFF',bg:'0F172A',al:'center',wrap:1})));heights[rows.length-1]=54;const hdr=rows.length;
+ const E=[],RV=invReserve(),days=dlDays().filter(d=>d.date);
+ days.forEach(d=>{const I=invData(d);I.rows.forEach(r=>{const ss=r.ss.length?r.ss:[null];r.inv.forEach(n=>ss.forEach((s,j)=>E.push({n,d,r,s,j,k:'inv'})))});
+  S.controllers.filter(Boolean).forEach(n=>E.push({n,d,k:'ctl'}));S.zones.forEach(z=>{if(z.sup)E.push({n:z.sup,d,k:'sup',z})});
+  names.forEach(n=>{if(isRest(n,d))E.push({n,d,k:'rest'})});(RV[d.id]||[]).forEach(n=>E.push({n,d,k:'res'}))});
+ E.sort((a,b)=>a.n.localeCompare(b.n)||a.d.date.localeCompare(b.d.date)||(a.r?a.r.time:'').localeCompare(b.r?b.r.time:'')||a.j-b.j);
+ const RC={ctl:['FEF3C7','B45309','General controller'],sup:['D1FAE5','047857','Zone supervisor'],rest:['E5E7EB','475569','Rest day'],res:['EDE9FE','5B21B6','Reserve']};
+ let prev='',gi=-1;
+ E.forEach(e=>{const key=e.n+'|'+e.d.date;if(key!==prev){prev=key;gi++}const dt=new Date(e.d.date+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+  if(e.k==='inv'){const r=e.r,s=e.s,z=zCol(r.z),zc=hex(z[0]),zt=hex(z[1]),rt=gi%2?mixW(zt,.55):zt,tint={sz:14,bg:rt,wrap:1,va:'center'};
+   const row=[T(r.zone||'',{sz:16,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}),T(r.hall,{sz:17,b:1,bg:zt,wrap:1}),T(e.n,{sz:15,b:1,c:'0F172A',bg:rt,wrap:1})];
+   if(s){const ty=tyOf(s,e.d),ele=/electr/i.test(ty);row.push(T(s.cls||'',{...tint,sz:15,b:1}),T(s.n||0,{...tint,al:'center',b:1}),T(s.code||'',tint),T(invSubj(s),tint),T(ele?'Electronic':'Paper',{sz:14,b:1,c:ele?'1D4ED8':'B45309',bg:ele?'DBEAFE':'FEF3C7',al:'center'}))}else{for(let q=0;q<5;q++)row.push(T('',tint))}
+   row.push(T(dt+'\n'+r.time,{sz:14,b:1,c:'1E3A8A',bg:zt,al:'center',wrap:1}),T(r.sup||'—',{sz:15,b:1,bg:zt,wrap:1,va:'center'}),T(s?invReqs(s):'',{sz:13,i:1,c:'92400E',bg:rt,wrap:1}));rows.push(row);heights[rows.length-1]=Math.max(44,s?19*Math.ceil(String(invSubj(s)||'').length/22)+10:0)}
+  else{const c=RC[e.k],bg=c[0],st={sz:14,bg,wrap:1,va:'center'};const place=e.k==='ctl'?'Control room':e.k==='sup'?e.z.name:e.k==='rest'?'Rest day (no invigilation)':'Reserve (standby)';
+   const tm=e.k==='ctl'||e.k==='sup'?(e.d.from||'')+(e.d.to?'–'+e.d.to:''):'';
+   rows.push([T(c[2],{sz:15,b:1,c:c[1],bg,al:'center',wrap:1}),T(place,{sz:15,b:1,bg,wrap:1}),T(e.n,{sz:15,b:1,c:'0F172A',bg,wrap:1}),T('',st),T('',st),T('',st),T('',st),T('',st),T(dt+(tm?'\n'+tm:''),{sz:14,b:1,c:c[1],bg,al:'center',wrap:1}),T('',st),T(c[2],{sz:13,i:1,c:c[1],bg,wrap:1})]);heights[rows.length-1]=44}});
+ return{name:'By teacher',rows,cols,merges,heights,code:'ATSINV',filter:'A'+hdr+':K'+rows.length}}
 async function dlXlsxV2(){ST.set('Preparing Excel…');try{const sh=dlDays().map((d,i)=>invSheet(d,i));sh.push(teacherSheet());await saveBlob('Invigilation_'+(BK.scope==='all'?'all-days':(day().date||'plan'))+'.xlsx',xlsxBuild(sh))}catch(e){ST.set('Styled Excel failed — using the simple version');try{await dlXlsxOld()}catch(x){}}}
 function csv(d){
  const rows=[['Zone','Zone supervisor','Hall','Class / section','Students','Course','From','To','Exam type','Invigilators','General controllers','Subject name','Exam requirements']];
@@ -4599,7 +4622,7 @@ paintSw();mark();render();window.__shut();var hg=document.getElementById('homeGo
  function invBlock(date){if(ROLE==='student')return null;const box=E('div','fnInv');const I=invOf(date);
   if(!I){box.append(E('span','fnInvT','🛡️ جدول المراقبة غير محمّل بعد · Invigilation data not loaded yet'));return box}
   if(!I.days.length){box.append(E('span','fnInvT','🛡️ لا يوجد يوم مراقبة لهذا التاريخ · No invigilation day yet'));if(canEd())box.append(B('＋ إنشاء يوم المراقبة · Create',()=>createDays([date]),'fnBtn'));return box}
-  box.append(E('span','fnInvT','🛡️ المراقبة · Invigilation: '+I.halls+' قاعة · halls — '+I.inv+' مراقبًا · invigilators'),E('span','fnInvS '+(I.pub?'ok':'dr'),I.pub?'● منشور · Published':'● مسودة · Draft'),B('فتح جدول المراقبة ↗ Open',()=>openInv(I.days[0].id),'fnBtn'));return box}
+  box.append(E('span','fnInvT','🛡️ المراقبة · Invigilation: '+I.halls+' قاعة · halls — '+I.inv+' مراقبًا · invigilators'),E('span','fnInvS '+(I.pub&&!(window.__exConn&&!window.__exConn())?'ok':'dr'),window.__exConn&&!window.__exConn()?'⚠ على هذا الجهاز فقط · This device only — not shared':(I.pub?'● منشور · Published':'● مسودة · Draft')),B('فتح جدول المراقبة ↗ Open',()=>openInv(I.days[0].id),'fnBtn'));return box}
  const goCal=date=>{try{if(window.__occGo)window.__occGo(+date.slice(0,4),mo(date),dm(date));else if(window.__occOpen)window.__occOpen()}catch(e){}};
  /* ---------- status ---------- */
  function stat(date){const t=today(),n=diff(t,date);if(n===0)return['now','● اليوم · Today'];if(n===1)return['soon','⏳ غدًا · Tomorrow'];if(n>1)return[n<=7?'soon':'up','⏳ بعد '+n+' أيام · in '+n+' days'];return['done','✔ انتهى · Done']}
@@ -5123,7 +5146,7 @@ drawSub=function(E){try{if(!SUBS.__di&&!SUBS.mine&&ROLE==='teacher'&&E.rows&&E.r
    const rp='xl/worksheets/_rels/sheet'+k+'.xml.rels',rel='<Relationship Id="rIdAtsLogo" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/atsDrawing'+k+'.xml"/>';
    if(z.file(rp)){let r=await z.file(rp).async('string');z.file(rp,r.replace('</Relationships>',rel+'</Relationships>'))}else z.file(rp,'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+rel+'</Relationships>');
    const iph=Math.min(128,Math.round(256/asp)),ipw=Math.round(iph*asp),dpw=inv?ipw:pw,dph=inv?iph:ph,dco=inv?Math.max(0,Math.round((290-ipw)/2))*E:38100,dro=inv?Math.max(0,Math.round((144-iph)/2))*E:38100;
-   z.file('xl/drawings/atsDrawing'+k+'.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><xdr:oneCellAnchor><xdr:from><xdr:col>0</xdr:col><xdr:colOff>'+dco+'</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>'+dro+'</xdr:rowOff></xdr:from><xdr:ext cx="'+dpw*E+'" cy="'+dph*E+'"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="2" name="ATS logo"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+dpw*E+'" cy="'+dph*E+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor></xdr:wsDr>');
+   z.file('xl/drawings/atsDrawing'+k+'.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><xdr:oneCellAnchor><xdr:from><xdr:col>0</xdr:col><xdr:colOff>'+dco+'</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>'+dro+'</xdr:rowOff></xdr:from><xdr:ext cx="'+dpw*E+'" cy="'+dph*E+'"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="2" name="ATS logo"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="rId1">'+(inv?'<a:alphaModFix amt="38000"/>':'')+'</a:blip><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+dpw*E+'" cy="'+dph*E+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor></xdr:wsDr>');
    z.file('xl/drawings/_rels/atsDrawing'+k+'.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/ats_logo.png"/></Relationships>');
    ct=ct.replace('</Types>','<Override PartName="/xl/drawings/atsDrawing'+k+'.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/></Types>')}
   z.file('[Content_Types].xml',ct);return await z.generateAsync({type:'blob',mimeType:blob.type||'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',compression:'DEFLATE'})}catch(e){return blob}};
