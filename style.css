@@ -3250,3 +3250,9 @@ html[data-ul=en] #v_exam .tmsg .ar,html[data-ul=en] #v_exam .tmsg>.ar{display:no
 #etBig .etTb td{font-size:calc(var(--u)*2.8)!important}
 #etBig .etTb th{font-size:calc(var(--u)*2.2)!important}
 #etBig .etTb td small{font-size:calc(var(--u)*2)!important}
+
+/* timer: school logo as a faint watermark behind the clock and data */
+#etBig{isolation:isolate}
+#etBig .etWm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:-1;overflow:hidden}
+#etBig .etWm img{width:min(62vw,62vh*1.6);max-height:78%;object-fit:contain;opacity:.1;filter:grayscale(.2)}
+#etBig.etDark .etWm img{opacity:.14;filter:brightness(0) invert(1)}
