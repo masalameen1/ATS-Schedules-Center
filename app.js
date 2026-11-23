@@ -5597,7 +5597,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  const EXC=['heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae'],isOwn=()=>!!(window.__isOwner&&window.__isOwner()),excOK=()=>ROLE!=='student'&&(EXC.includes(em())||isOwn()),exView=()=>excOK()||['mohammad.salamin@actvet.gov.ae'].includes(em());
  const lateOK=()=>edOK()&&!cmtOK();
  const edOK=()=>{try{return ROLE!=='student'&&!!(window.__EXD&&window.__EXD.can&&window.__EXD.can())}catch(e){return false}};
- const canAbs=()=>edOK()||cmtOK();
+ const canAbs=()=>edOK()||cmtOK()||(()=>{try{return ROLE!=='student'&&SEE.includes(em())}catch(e){return false}})();
  let ABN={},REMD=null,FIN=false,FD={meta:{},rows:{}};const ST={q:'',gr:'',cls:'',rs:'',all:false,date:'',hall:'',ex:'',inv:''};
  const REAS=[['late','⏰ متأخر · Late'],['sick','🤒 مريض · Sick'],['excuse','📄 عذر · Excuse'],['none','🚫 بلا عذر · No excuse'],['other','✎ أخرى · Other']];
  const rlab=k=>(REAS.find(r=>r[0]===k)||[0,''])[1];
@@ -5657,7 +5657,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  /* entry button for authorised users */
  setInterval(()=>{try{const old=document.querySelector('#homec #absBtn');if(old)old.remove()}catch(e){}},1500);
  window.__absCan=canAbs;window.__absCmt=cmtOK;
- const SEE=['heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae','hatem.talal@actvet.gov.ae','mohammad.salamin@actvet.gov.ae'];window.__absSee=()=>ROLE!=='student'&&(SEE.includes(em())||isOwn()||canAbs()||isAuth8());
+ const SEE=['heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae','hatem.talal@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','alia.omran@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','maryam.alshehhi@actvet.gov.ae'];window.__absSee=()=>ROLE!=='student'&&(SEE.includes(em())||isOwn()||canAbs()||isAuth8());
  window.__finOK=()=>ROLE!=='student'&&(SEE.includes(em())||(typeof ADMINMAIL!=='undefined'&&ADMINMAIL.includes(em()))||isAuth8());
  const FDEF='EOT1 — Final Exam Report · Excused / Unexcused Absence';
  const finRows=()=>absDays().flatMap(rowsOf).filter(r=>!r.late).sort((p,q)=>(+p.g||0)-(+q.g||0)||String(p.cls).localeCompare(String(q.cls),'en',{numeric:true})||String(p.name).localeCompare(String(q.name))||String(p.date).localeCompare(q.date));
