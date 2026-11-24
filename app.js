@@ -17,7 +17,7 @@ let MGR=ROLE==='teacher'&&ADMINMAIL.includes((TMAIL||'').toLowerCase());
 const SALMAIL=['naser.alashab','hatem.hamdeh','hatem.talal','ahmad.debek','tamer.ahmed','abdullah.abbas','abedalla.banihani','furat.jasim','alia.omran','aaesha.alnuaimi','heba.alshehhi','badryya.alshehhi','kalthoom.alkhatri','mohammad.salamin','khawla.alnaqbi','easa.ebrahimouh','fahad.almansoori'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
 function isSal(){try{if(ROLE==='student')return false;const e=String(TMAIL||window.__myEm||'').toLowerCase();return SALMAIL.includes(e)}catch(x){return false}}
 /* the eight people who may change the invigilation and substitution schedules (UI gate; the database itself only accepts writes from Editors) */
-const AUTH8=['abdullah.abbas@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','masalameen@gmail.com','hatem.hamdeh@actvet.gov.ae','hatem.talal@actvet.gov.ae','naser.alashab@actvet.gov.ae','waseem.alhausani@actvet.gov.ae','ahmad.debek@actvet.gov.ae','tamer.ahmed@actvet.gov.ae','furat.jasim@actvet.gov.ae','abedalla.banihani@actvet.gov.ae','anjali.rajan@actvet.gov.ae','mahmoud.yousef@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','alia.omran@actvet.gov.ae','fahad.almansoori@actvet.gov.ae'];
+const AUTH8=['heba.alshehhi@actvet.gov.ae','abdullah.abbas@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','masalameen@gmail.com','hatem.hamdeh@actvet.gov.ae','hatem.talal@actvet.gov.ae','naser.alashab@actvet.gov.ae','waseem.alhausani@actvet.gov.ae','ahmad.debek@actvet.gov.ae','tamer.ahmed@actvet.gov.ae','furat.jasim@actvet.gov.ae','abedalla.banihani@actvet.gov.ae','anjali.rajan@actvet.gov.ae','mahmoud.yousef@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','alia.omran@actvet.gov.ae','fahad.almansoori@actvet.gov.ae'];
 const NOTE_APP='ATS Schedule Center';
 /* ===== one confirmation dialog for every deletion (works even where the browser blocks confirm()) ===== */
 window.__cfm=function(msg,detail){return new Promise(res=>{const old=document.getElementById('cfmOv');if(old)old.remove();
@@ -961,7 +961,7 @@ window.__exDay=()=>{const d=day();return d.id+'@'+d.date};window.__exDays=()=>S.
 window.__exStudio=()=>{try{vm='studio';window.__vmAuto=false;window.__exAdv=true;draw()}catch(e){}};
 window.__EXD={get:()=>S,days:()=>S.days,cur:()=>day(),can:()=>canEd(),addDays:l=>{if(!canEd())return 0;let n=0;l.forEach(x=>{if(!x||!x.date||S.days.some(d=>d.date===x.date))return;S.days=[...S.days,{id:uid(),date:x.date,title:x.title||('Exam day '+x.date),type:x.type||'Paper',from:x.from||'09:00',to:x.to||'11:00',sess:[],inv:{},ovr:{},note:x.note||''}];n++});if(n){mark();try{draw()}catch(e){}saveQuiet()}return n}};
 const exOK=()=>isAuth8();
-const canEd=()=>(!!EDW||window.__gr===true||a8())&&ROLE!=='student'&&document.body.className.indexOf('rs')<0&&exOK();
+const NOED=['heba.alshehhi@actvet.gov.ae'];const canEd=()=>{try{if(NOED.includes(String((typeof TMAIL!=='undefined'&&TMAIL)||window.__myEm||'').toLowerCase()))return false}catch(e){}return (!!EDW||window.__gr===true||a8())&&ROLE!=='student'&&document.body.className.indexOf('rs')<0&&exOK()};
 const day=()=>S.days.find(d=>d.id===dayId)||S.days[0];
 const venue=id=>S.venues.find(v=>v.id===id);
 const zone=id=>S.zones.find(z=>z.id===id);
