@@ -17,7 +17,7 @@ let MGR=ROLE==='teacher'&&ADMINMAIL.includes((TMAIL||'').toLowerCase());
 const SALMAIL=['naser.alashab','hatem.hamdeh','hatem.talal','ahmad.debek','tamer.ahmed','abdullah.abbas','abedalla.banihani','furat.jasim','alia.omran','aaesha.alnuaimi','heba.alshehhi','badryya.alshehhi','kalthoom.alkhatri','mohammad.salamin','khawla.alnaqbi','easa.ebrahimouh','fahad.almansoori'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
 function isSal(){try{if(ROLE==='student')return false;const e=String(TMAIL||window.__myEm||'').toLowerCase();return SALMAIL.includes(e)}catch(x){return false}}
 /* the eight people who may change the invigilation and substitution schedules (UI gate; the database itself only accepts writes from Editors) */
-const AUTH8=['heba.alshehhi@actvet.gov.ae','abdullah.abbas@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','masalameen@gmail.com','hatem.hamdeh@actvet.gov.ae','hatem.talal@actvet.gov.ae','naser.alashab@actvet.gov.ae','waseem.alhausani@actvet.gov.ae','ahmad.debek@actvet.gov.ae','tamer.ahmed@actvet.gov.ae','furat.jasim@actvet.gov.ae','abedalla.banihani@actvet.gov.ae','anjali.rajan@actvet.gov.ae','mahmoud.yousef@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','alia.omran@actvet.gov.ae','fahad.almansoori@actvet.gov.ae'];
+const AUTH8=['maryam.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae','heba.alshehhi@actvet.gov.ae','abdullah.abbas@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','masalameen@gmail.com','hatem.hamdeh@actvet.gov.ae','hatem.talal@actvet.gov.ae','naser.alashab@actvet.gov.ae','waseem.alhausani@actvet.gov.ae','ahmad.debek@actvet.gov.ae','tamer.ahmed@actvet.gov.ae','furat.jasim@actvet.gov.ae','abedalla.banihani@actvet.gov.ae','anjali.rajan@actvet.gov.ae','mahmoud.yousef@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','alia.omran@actvet.gov.ae','fahad.almansoori@actvet.gov.ae'];
 const NOTE_APP='ATS Schedule Center';
 /* ===== one confirmation dialog for every deletion (works even where the browser blocks confirm()) ===== */
 window.__cfm=function(msg,detail){return new Promise(res=>{const old=document.getElementById('cfmOv');if(old)old.remove();
@@ -961,7 +961,7 @@ window.__exDay=()=>{const d=day();return d.id+'@'+d.date};window.__exDays=()=>S.
 window.__exStudio=()=>{try{vm='studio';window.__vmAuto=false;window.__exAdv=true;draw()}catch(e){}};
 window.__EXD={get:()=>S,days:()=>S.days,cur:()=>day(),can:()=>canEd(),addDays:l=>{if(!canEd())return 0;let n=0;l.forEach(x=>{if(!x||!x.date||S.days.some(d=>d.date===x.date))return;S.days=[...S.days,{id:uid(),date:x.date,title:x.title||('Exam day '+x.date),type:x.type||'Paper',from:x.from||'09:00',to:x.to||'11:00',sess:[],inv:{},ovr:{},note:x.note||''}];n++});if(n){mark();try{draw()}catch(e){}saveQuiet()}return n}};
 const exOK=()=>isAuth8();
-const NOED=['heba.alshehhi@actvet.gov.ae'];const canEd=()=>{try{if(NOED.includes(String((typeof TMAIL!=='undefined'&&TMAIL)||window.__myEm||'').toLowerCase()))return false}catch(e){}return (!!EDW||window.__gr===true||a8())&&ROLE!=='student'&&document.body.className.indexOf('rs')<0&&exOK()};
+const NOED=['heba.alshehhi@actvet.gov.ae','maryam.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae'];const canEd=()=>{try{if(NOED.includes(String((typeof TMAIL!=='undefined'&&TMAIL)||window.__myEm||'').toLowerCase()))return false}catch(e){}return (!!EDW||window.__gr===true||a8())&&ROLE!=='student'&&document.body.className.indexOf('rs')<0&&exOK()};
 const day=()=>S.days.find(d=>d.id===dayId)||S.days[0];
 const venue=id=>S.venues.find(v=>v.id===id);
 const zone=id=>S.zones.find(z=>z.id===id);
@@ -2405,9 +2405,12 @@ function paint1(){bx.innerHTML='';const hd=el('div','pkH');hd.append(btn('‹ ر
   const sel=(opts,key,all)=>{const s=el('select');const a=el('option','',all);a.value='';s.append(a);opts.forEach(x=>{const o=el('option','',x);o.value=x;s.append(o)});s.value=F[key];s.onchange=()=>{F[key]=s.value;paint()};fxb.append(s)};
   let rows=[];if(F.all){const hm2={};S.venues.forEach(v=>d.sess.filter(z=>z.v===v.id).forEach(z=>{hm2[saKey(z.cls)]=v.name}));saRoster().forEach((r,i)=>rows.push({id:i,g:r[0],cls:r[1],name:r[2],tch:r[3],act:r[4],room:r[5],str:r[6],note:r[7],hallName:hm2[saKey(r[1])]||'—',seat:''}))}
   else H.forEach(h=>h.seats.forEach(s=>rows.push({...s,hallName:h.v.name})));
+  const mhH=F.all?[]:H.filter(h=>{try{const P=saSplit(d,h.v.id);return P.multi&&P.me}catch(e){return false}});
+  if(mhH.length&&F.ss==='mine'){const ids=new Set(),mn=new Set(mhH.map(h=>h.v.name));mhH.forEach(h=>saSplit(d,h.v.id).mine.forEach(s=>ids.add(s.id)));rows=rows.filter(r=>!mn.has(r.hallName)||ids.has(r.id))}
   sel([...new Set(rows.map(r=>String(r.g)))].sort(),'gr','الصف · Grade');sel([...new Set(rows.map(r=>r.cls))].sort(),'cls','الشعبة · Class');
   const st=el('select');[['all','الكل · All'],['p','حاضر · Present'],['a','غائب · Absent']].forEach(([v,t])=>{const o=el('option','',t);o.value=v;st.append(o)});st.value=F.st;st.onchange=()=>{F.st=st.value;paint()};fxb.append(st);
   const sc=el('label','saChk');const ck=el('input');ck.type='checkbox';ck.checked=F.all;ck.onchange=()=>{F.all=ck.checked;paint()};sc.append(ck,el('span','',' كل طلاب الموقع · All school students'));fxb.append(sc);bx.append(fl,fx);
+  if(mhH.length){const sg=el('div','saBar');sg.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin:6px 0';[['mine','👤 صفّي فقط · My class only'],['all','🏫 كل القاعة · Whole hall']].forEach(([k,tx])=>{const b=btn(tx,()=>{F.ss=k;paint()},'sm');if((F.ss||'all')===k)b.classList.add('on');sg.append(b)});bx.append(sg)}
   const tb=el('div','saTbW'),list=el('div','saRows');
   let curR=[];const draw2=()=>{list.innerHTML='';const qq=q.value.trim().toLowerCase();F.q=q.value;let R=rows.filter(r=>(!F.gr||String(r.g)===F.gr)&&(!F.cls||r.cls===F.cls)&&(F.st==='all'||(F.st==='a')===saAbs(d,r.id))&&(!qq||[r.name,r.cls,r.tch,r.act,r.str,r.hallName].join(' ').toLowerCase().includes(qq)));
    curR=R;const hdr=el('div','saR saRH');['#','الطالب · Student','الصف','الشعبة','المسار','النشاط','المعلم','القاعة · المقعد','الحالة'].forEach(t=>hdr.append(el('span','',t)));list.append(hdr);
@@ -5653,7 +5656,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  const CMT=['heba.alshehhi','aaesha.alnuaimi','sheikha.alkeebali','hatem.talal','mohammad.salamin','easa.ebrahimouh','alia.omran','fahad.almansoori','sara.alboodi','omar.almansoori'].map(x=>x+'@actvet.gov.ae');window.__cmtAdd=e=>{if(!CMT.includes(e))CMT.push(e)};
  const em=()=>String(TMAIL||window.__myEm||'').toLowerCase();
  const cmtOK=()=>ROLE!=='student'&&(CMT.includes(em())||!!(window.__isOwner&&window.__isOwner())||!!(window.__isCoord&&window.__isCoord()));
- const EXC=['heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae'],isOwn=()=>!!(window.__isOwner&&window.__isOwner()),excOK=()=>ROLE!=='student'&&(EXC.includes(em())||isOwn()),exView=()=>excOK()||['mohammad.salamin@actvet.gov.ae'].includes(em());
+ const EXC=['maryam.alshehhi@actvet.gov.ae','alia.omran@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','hatem.hamdeh@actvet.gov.ae','naser.alashab@actvet.gov.ae','fahad.almansoori@actvet.gov.ae','heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae'],isOwn=()=>!!(window.__isOwner&&window.__isOwner()),excOK=()=>ROLE!=='student'&&(EXC.includes(em())||isOwn()),exView=()=>excOK()||['mohammad.salamin@actvet.gov.ae'].includes(em());
  const lateOK=()=>edOK()&&!cmtOK();
  const edOK=()=>{try{return ROLE!=='student'&&!!(window.__EXD&&window.__EXD.can&&window.__EXD.can())}catch(e){return false}};
  const canAbs=()=>edOK()||cmtOK()||(()=>{try{return ROLE!=='student'&&SEE.includes(em())}catch(e){return false}})();
@@ -5716,7 +5719,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  /* entry button for authorised users */
  setInterval(()=>{try{const old=document.querySelector('#homec #absBtn');if(old)old.remove()}catch(e){}},1500);
  window.__absCan=canAbs;window.__absCmt=cmtOK;
- const SEE=['heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae','hatem.talal@actvet.gov.ae','mahmoud.yousef@actvet.gov.ae','waseem.alhausani@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','alia.omran@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','maryam.alshehhi@actvet.gov.ae'];window.__absSee=()=>ROLE!=='student'&&(SEE.includes(em())||isOwn()||canAbs()||isAuth8());
+ const SEE=['hatem.hamdeh@actvet.gov.ae','naser.alashab@actvet.gov.ae','fahad.almansoori@actvet.gov.ae','heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae','hatem.talal@actvet.gov.ae','mahmoud.yousef@actvet.gov.ae','waseem.alhausani@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','alia.omran@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','maryam.alshehhi@actvet.gov.ae'];window.__absSee=()=>ROLE!=='student'&&(SEE.includes(em())||isOwn()||canAbs()||isAuth8());
  window.__finOK=()=>ROLE!=='student'&&(SEE.includes(em())||(typeof ADMINMAIL!=='undefined'&&ADMINMAIL.includes(em()))||isAuth8());
  const FDEF='EOT1 — Final Exam Report · Excused / Unexcused Absence';
  const finRows=()=>absDays().flatMap(rowsOf).filter(r=>!r.late).sort((p,q)=>(+p.g||0)-(+q.g||0)||String(p.cls).localeCompare(String(q.cls),'en',{numeric:true})||String(p.name).localeCompare(String(q.name))||String(p.date).localeCompare(q.date));
