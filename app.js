@@ -879,7 +879,7 @@ const _render=render;render=function(){_render();eds.forEach(e=>e.draw())};
   try{if(user){const m=await user.me();const em=((m&&m.email)||'').toLowerCase();if(ROLE!=='student'&&(!TMAIL||ADMINMAIL.includes(String(TMAIL).toLowerCase()))&&(ADMINMAIL.includes(em)||(await user.isOwner())))MGR=true;window.__myEm=TMAIL?String(TMAIL).toLowerCase():em}}catch(e){}
   if(ROLE==='student')MGR=false;EDW=MGR;SUBOK=(MGR||window.__gr===true||a8())&&isAuth8();window.__platEdit=plat;
   eds.forEach(E=>{E.msg(EDW?(plat?'Administration team: editing and saving are available, and the data is shared with everyone':'Administration team member — shared saving also needs edit access on this page (ask the owner to add you from Share)'):'View only — the administration team edits this data');
-   db.doc('coord/'+E.cfg.n).onSnapshot(s=>{if(E.cfg.n==='sub')window.__subLoaded=true;if(!E.dirty){const d=s.exists?s.data():null;E.rows=d&&Array.isArray(d.rows)?d.rows.map(r=>({...r})):[];E.setBase();E.draw()}},()=>{E.msg('Could not load the shared data')})});
+   db.doc('coord/'+E.cfg.n).onSnapshot(s=>{if(E.cfg.n==='sub')window.__subLoaded=true;if(!E.dirty){const d=s.exists?s.data():null;E.rows=d&&Array.isArray(d.rows)?d.rows.map(r=>({...r})):[];E.setBase();E.draw();if(E.cfg.n==='sub'){clearTimeout(window.__arcT);window.__arcT=setTimeout(()=>{try{window.__subArchive&&window.__subArchive.auto&&window.__subArchive.auto()}catch(e){}},2500)}}},()=>{E.msg('Could not load the shared data')})});
  }else{EDW=MGR;SUBOK=(MGR||window.__gr===true||a8())&&isAuth8();eds.forEach(E=>{try{E.rows=JSON.parse(localStorage.getItem('tt_'+E.cfg.n)||'[]')}catch(e){E.rows=[]}E.msg('Shared saving is not available here — data is saved on this device only');E.draw()})}
  eds.forEach(E=>E.draw());window.__edReady=true;
 })();
@@ -8234,7 +8234,8 @@ mark.plH{background:#fde047;color:#14213d;border-radius:4px;padding:0 2px}
  const eligible=()=>{try{if(ROLE==='student')return false;const m=myNames();return E.rows.some(r=>r.date&&r.subst&&m.has(r.subst))}catch(e){return false}};
  const stOf=r=>r.del?['d','🗑 حُذفت من الجدول · Removed']:r.ac==='res'?['i','📚 غرفة المصادر · Resource room']:r.ac==='merge'?['i','🔀 دمج · Merged']:r.sb?['','✔ مغطاة · Covered']:['w','⚠ بدون بديل · Unassigned'];
  const subjT=r=>{try{return r.k?subjOf({k:r.k,act:''}):''}catch(e){return r.k||''}};
- async function load(){if(TM){const m=myNames(),dp=new Set([...m].map(n=>TDEPT[n]).filter(x=>x&&x!=='na').map(gk));const out=[];E.rows.filter(r=>r.absent&&r.date&&(+r.per||0)>0).forEach(r=>{const n={id:idOf(r),...recOf(r)};if(m.has(n.ab)||m.has(n.sb)||depsOf(n).some(k=>dp.has(k)))out.push(n)});out.sort((a,b)=>b.d.localeCompare(a.d)||a.p-b.p||a.ab.localeCompare(b.ab));ARC=out;return}
+ async function load(){if(TM){const m=myNames(),dp=new Set([...m].map(n=>TDEPT[n]).filter(x=>x&&x!=='na').map(gk));const out=[];E.rows.filter(r=>r.absent&&r.date&&(+r.per||0)>0).forEach(r=>{const n={id:idOf(r),...recOf(r)};if(m.has(n.ab)||m.has(n.sb)||depsOf(n).some(k=>dp.has(k)))out.push(n)});try{const seen=new Set(out.map(x=>x.id)),ix=(await rd(IDX))||{months:[]};for(const mo of (ix.months||[])){const dd=await rd(MP(mo));if(dd&&dd.recs)Object.entries(dd.recs).forEach(([id,r])=>{if(seen.has(id))return;const n={id,...r};if(m.has(n.ab)||m.has(n.sb)||depsOf(n).some(k=>dp.has(k)))out.push(n)})}}catch(e){}
+  out.sort((a,b)=>b.d.localeCompare(a.d)||a.p-b.p||a.ab.localeCompare(b.ab));ARC=out;return}
   const ix=(await rd(IDX))||{months:[]};const out=[];for(const m of (ix.months||[])){const d=await rd(MP(m));if(d&&d.recs)Object.entries(d.recs).forEach(([id,r])=>out.push({id,...r}))}out.sort((a,b)=>b.d.localeCompare(a.d)||a.p-b.p||a.ab.localeCompare(b.ab));ARC=out}
  const view=()=>ARC.filter(r=>(!F.from||r.d>=F.from)&&(!F.to||r.d<=F.to)&&(!F.t||r.ab===F.t||r.sb===F.t)&&(!F.ty||(F.ty==='cov'?(!r.del&&r.sb&&!r.ac):F.ty==='un'?(!r.del&&!r.sb&&!r.ac):F.ty==='res'?r.ac==='res':F.ty==='mg'?r.ac==='merge':!!r.del))&&(F.day===''||dayIdx(r.d)===+F.day)&&(!F.cl||r.c===F.cl)&&(!F.sj||subjT(r)===F.sj)&&(!F.dp||depsOf(r).includes(F.dp))&&(!F.q||Object.values(r).join(' ').toLowerCase().includes(F.q.toLowerCase())));
  const rowsX=L=>L.map(r=>[r.d,DAYS[dayIdx(r.d)]||'',r.p+(r.sp>1?'–'+(r.p+r.sp-1):''),r.c,subjT(r),r.rm,r.ab,r.sb||'—',[r.tp,r.nt].filter(Boolean).join(' · '),stOf(r)[1].replace(/^\S+\s/,'')]);
@@ -8281,15 +8282,15 @@ mark.plH{background:#fde047;color:#14213d;border-radius:4px;padding:0 2px}
   if(!bd.children.length){const tr=el('tr'),td=el('td','saE','لا توجد سجلات في الأرشيف بهذه المرشحات · No archived records for these filters');td.colSpan=11;tr.append(td);bd.append(tr)}
   {const th0=tb.querySelector('th');if(th0&&th0.textContent==='☐'){th0.textContent='';const ca=el('input');ca.type='checkbox';ca.title='تحديد المعروض · Select shown';const sh=L.slice(0,600);ca.checked=sh.length>0&&sh.every(r=>SEL.has(r.id));ca.onchange=()=>{sh.forEach(r=>ca.checked?SEL.add(r.id):SEL.delete(r.id));draw()};th0.append(ca)}}
   B.append(tb);M.append(B);if(SEL.size)M.append(el('div','saN','☑ '+SEL.size+' محدد — التصدير يشمل المحدد فقط · exports only the selected rows'));
-  M.append(el('div','saN','🔒 يطابق جدول الإشغال: أي صف تحذفه يُحذف من الأرشيف أيضًا، ويظهر للمصرح لهم فقط · Mirrors the schedule — a row you delete is removed from the archive too; visible to authorised staff only.'))}
+  M.append(el('div','saN','🔒 أرشيف دائم: لا يُمسح أي إشغال سابق، والصف المحذوف من الجدول يبقى هنا بحالة «حُذفت من الجدول»، ويظهر للمصرح لهم فقط · Permanent archive — nothing is erased; a row removed from the schedule stays here marked “Removed”; visible to authorised staff only.'))}
  function close(){if(ov){ov.remove();ov=null}}
  async function open(){
   TM=!SUBOK;if(TM&&!eligible())return;
   close();ov=el('div');ov.id='saOv';const M=el('div','saM');M.append(el('div','saE','…'));ov.append(M);ov.onclick=e=>{if(e.target===ov)close()};document.body.append(ov);
   if(!TM){try{await sync()}catch(e){}}await load();draw()}
- window.__subArchive={open,sync,load:()=>ARC};
+ const auto=async()=>{try{if(TM||ROLE==='student'||!SUBOK||E.dirty)return 0;return await sync()}catch(e){return 0}};window.__subArchive={open,sync,auto,load:()=>ARC};
   window.__subArcRows=()=>{const live=new Set(E.rows.map(r=>idOf(r)));return ARC.filter(r=>!r.del&&r.ab&&r.d&&!live.has(r.id||[r.d,r.ab,r.p,r.c].join('|'))).map(r=>({date:r.d,absent:r.ab,per:r.p,span:r.sp,subst:r.sb,act:r.ac,cls:r.c,__arc:1}))};
-  const arcBg=async()=>{try{if(TM||ROLE==='student'||(EDB&&!window.__subLoaded))return;const n0=ARC.length;await load();if(ARC.length!==n0)E.draw()}catch(e){}};setTimeout(arcBg,6000);setInterval(arcBg,180000);
+  const arcBg=async()=>{try{if(TM||ROLE==='student'||(EDB&&!window.__subLoaded))return;await auto();const n0=ARC.length;await load();if(ARC.length!==n0)E.draw()}catch(e){}};setTimeout(arcBg,6000);setInterval(arcBg,180000);
  /* button */
  function addBtn(){try{const bar=document.querySelector('#subCtl .subModes');if(!bar||bar.querySelector('.saBtn'))return;if(!SUBOK&&!eligible())return;const b=el('button','chip subMini saBtn',SUBOK?'🗄 أرشيف الإشغال · Archive':'🗄 إشغالاتي وقسمي · My & dept');b.type='button';b.title='Permanent substitution archive — authorised staff only';b.onclick=open;bar.append(b)}catch(e){}}
  const od=E.draw;E.draw=function(){const r=od.apply(this,arguments);addBtn();return r};
