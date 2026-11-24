@@ -2179,7 +2179,7 @@ function openSeatView(d,vid,tm){const v=S.venues.find(x=>x.id===vid);if(!d||!v)r
  const sec=el('div','saHall');sec.append(el('div','saFront',tm?'BOARD — FRONT':'السبورة · BOARD — الأمام FRONT'));const LY=saLay(h,d),C=LY.C,g=el('div','saGrid');g.style.gridTemplateColumns='repeat('+C+',minmax(0,1fr))'; const fillSeats=()=>{g.innerHTML='';const qq=sq.value.trim().toLowerCase();const hit=h.seats.filter(s=>(!fc||s.cls===fc)&&(!qq||(s.name+' '+s.cls+' '+s.seat).toLowerCase().includes(qq)));const full=!fc&&!qq&&LY.rtl;g.style.direction=full?'rtl':'';if(!hit.length)g.append(el('p','tdEmpty','لا نتائج · No results'));(full?LY.cells:hit).forEach((s,ix)=>{if(!s){const e0=el('div','saSeat');e0.style.cssText='visibility:hidden;direction:ltr';g.append(e0);return}const col=saCol(s.cls),c=el('div','saSeat');c.style.direction='ltr';c.style.borderColor=col;c.style.background=saTint(col,.14);const n=el('i','',s.seat);n.style.background=col;n.style.color=saInk(col);const t=el('b','',s.name),k=el('small','',(s.div||s.cls)+(s.sid?' · #'+s.sid:''));k.style.color=saDark(col);c.append(n,t,k);g.append(c)})};sq.oninput=fillSeats;fillSeats();sec.append(g);sec.append((()=>{const dr=el('div','saDoorRow');dr.append(el('div','saDoor',tm?'🚪 DOOR':'🚪 الباب · DOOR'));return dr})());bx.append(sec)}
 window.__hallStu=(did,vid)=>{const d=S.days.find(x=>x.id===did);if(d)openHallStudents(d,vid)};window.__saTake=(did,vid)=>{const d=S.days.find(x=>x.id===did);if(d)openTake(d,vid)};window.__saSeatView=(did,vid)=>{const d=S.days.find(x=>x.id===did);if(d)openSeatView(d,vid)};
 
-const saCanView=()=>canEd()||(typeof isAuth8==='function'&&isAuth8())||!!(window.__absCan&&window.__absCan());
+const saCanView=()=>canEd()||(typeof isAuth8==='function'&&isAuth8())||!!(window.__absCan&&window.__absCan())||!!(window.__absSee&&window.__absSee());
 
 const saEm=()=>{try{return localStorage.getItem('tt_saem')==='1'}catch(e){return false}};window.__saEm=saEm;
 window.__emChk=cb=>{const l=document.createElement('label');l.className='saEmL';const c=document.createElement('input');c.type='checkbox';c.checked=saEm();c.onchange=()=>{try{localStorage.setItem('tt_saem',c.checked?'1':'0')}catch(e){}cb&&cb(c.checked)};l.append(c,document.createTextNode(' 📧 إظهار البريد الإلكتروني في الكشوف · Show e-mail in exports'));return l};
@@ -2643,9 +2643,19 @@ function tdClockEl(a,compact,withBtn){const t0=ms(a.date,a.from),t1=ms(a.date,a.
   else if(n<t0){big.textContent=f2(t0-n);sub.textContent='متبقي على البدء · until start';bar.style.width='0'}
   else{big.textContent=f2(t1-n);sub.textContent='متبقي على الانتهاء · until end';bar.style.width=Math.min(100,(n-t0)/Math.max(1,t1-t0)*100)+'%'}};tick();
  const iv=setInterval(()=>{if(!wrap.isConnected&&wrap.__seen){clearInterval(iv);return}if(wrap.isConnected)wrap.__seen=1;tick()},1000);wrap.__box=box;return wrap}
+function viewerBar(){const d=day();const tb=el('div','qwTb');tb.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin:8px 0';
+ const hs=S.venues.filter(v=>d.sess.some(z=>z.v===v.id)||(d.inv[v.id]||[]).length);
+ const mine=btn('👤 مراقباتي · My invigilation',()=>{BK.tScopeU=1;BK.tScope=BK.tScope==='me'?'all':'me';draw()},'');if(BK.tScope==='me')mine.classList.add('on');grn(mine);
+ const tm=btn('⏱ المؤقت · Timer',()=>{window.__ETHALL&&window.__ETHALL(d.id,'');showView('etimer')},'');grn(tm);
+ const sa1=btn('🪑 مخطط الجلوس · Seating plan',()=>openSA(d,'seat'),''),sa3=btn('✍ كشف التوقيع · Sign-in sheet',()=>openSA(d,'sig'),''),sa2=btn('✅ الحضور · Attendance',()=>openSA(d,'att'),'');sa1.disabled=sa2.disabled=sa3.disabled=!hs.length||!saCanView();
+ const fd=btn('🔎 بحث عن طالب · Find a student',()=>openFind(),'');
+ tb.append(mine,sa1,sa3,sa2,fd);
+ if(window.__absSee&&window.__absSee()&&window.__absOpen){const ab=btn('🚫 كشف الغياب · Absentees',()=>window.__absOpen(),'');[['background','var(--accT,#eef2ff)'],['color','var(--accD,#1e3a8a)'],['border-color','color-mix(in srgb,var(--acc,#2f6fe4) 30%,#fff)']].forEach(([k,v])=>ab.style.setProperty(k,v,'important'));tb.append(ab)}
+ if(window.__finOK&&window.__finOK()&&window.__finalReport){const fnB=btn('📑 التقرير النهائي · Final Exam Report',()=>window.__finalReport(),'');[['background','var(--accT,#eef2ff)'],['color','var(--accD,#1e3a8a)'],['border-color','color-mix(in srgb,var(--acc,#2f6fe4) 30%,#fff)']].forEach(([k,v])=>fnB.style.setProperty(k,v,'important'));tb.append(fnB)}
+ tb.append(tm);const w=el('div','');w.append(tb,dlTop());return w}
 function teacherCard(o){const ed=!!(o&&o.ed)||canEd();
  const c=el('section','tcard');c.id='tcard';
- const h2=el('h2','tch',ed?'📋 جداول المراقبة المُعدّة · Prepared invigilations':'📣 Latest Published Invigilation Schedule');if(!ed)h2.append(el('span','tcha',' | أحدث جدول للمراقبة'));c.append(h2);
+ const h2=el('h2','tch',ed?'📋 جداول المراقبة المُعدّة · Prepared invigilations':'📣 Latest Published Invigilation Schedule');if(!ed)h2.append(el('span','tcha',' | أحدث جدول للمراقبة'));c.append(h2);if(!ed&&ROLE!=='student'&&((window.__absSee&&window.__absSee())||isAuth8())){try{c.append(viewerBar())}catch(e){}}
  {const dn=window.__docsRender&&window.__docsRender('inv');if(dn)c.append(dn)}
  const fbar=el('div','');fbar.id='fbar';fbar.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 6px';c.append(fbar);
  c.onclick=e=>{if(ed)return;const t=e.target.closest&&e.target.closest('.tit');if(!t||e.target.closest('button,a,input,select,textarea'))return;
