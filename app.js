@@ -2651,10 +2651,14 @@ function cntCheck(){const RR=saRoster(),out=[],td=todayDubai();if(!RR||!RR.lengt
   if(placed.length)to=pool.filter(r=>rm(r)===rmKey(v.name)).length;
   else if(d.sess.filter(y=>!y.rm&&saKey(y.cls)===k&&(y.ek||'')===ek).length===1)to=pool.length;else return;
   if(to!==+z.n)out.push({d,z,v,from:+z.n||0,to})})});return out}
+function cntTot(L){const RR=saRoster(),td=todayDubai(),fx=new Map((L||[]).map(x=>[x.z,x.to])),bad=[];
+ S.days.forEach(d=>{if(!d.date||d.date<td)return;const G=new Map();d.sess.forEach(z=>{if(z.rm||!z.cls)return;const k=saKey(z.cls)+'|'+(z.ek||'');if(!G.has(k))G.set(k,{c:z.cls,ek:z.ek||'',n:0});G.get(k).n+=(fx.has(z)?fx.get(z):(+z.n||0))});
+  G.forEach((g,k)=>{const kk=saKey(g.c),pool=RR.filter(r=>saKey(r[1])===kk&&(!g.ek||r[12]===g.ek)).length;if(pool&&pool!==g.n)bad.push({d:d.date,c:g.c,n:g.n,pool})})});return bad}
 function cntFix(){const L=cntCheck();if(L===null){alert('لم يُرفع كشف الطلاب بعد · The student roster is not loaded yet');return}
- if(!L.length){alert('✔ أعداد الطلاب مطابقة لكشف الطلاب في كل القاعات والأيام القادمة · All student counts match the roster');return}
+ const B=cntTot(L),bt=B.length?'\n\n⚠ مجموع طلاب الشعبة في القاعات لا يساوي عددها في الكشف ('+B.length+') — يلزم توزيعها يدويًا:\n'+B.slice(0,15).map(x=>x.d+' · '+x.c+': '+x.n+' ≠ '+x.pool).join('\n'):'';
+ if(!L.length){alert((B.length?'لا فروق على مستوى القاعة':'✔ أعداد الطلاب مطابقة لكشف الطلاب في كل القاعات والأيام القادمة · All student counts match the roster')+bt);return}
  const tx=L.slice(0,25).map(x=>x.d.date+' · '+x.v.name+' · '+x.z.cls+': '+x.from+' → '+x.to).join('\n');
- if(!confirm('أعداد تختلف عن كشف الطلاب ('+L.length+'):\n'+tx+(L.length>25?'\n…':'')+'\n\nهل تعدّلها؟ · Apply these corrections?'))return;
+ if(!confirm('أعداد تختلف عن كشف الطلاب ('+L.length+'):\n'+tx+(L.length>25?'\n…':'')+bt+'\n\nهل تعدّلها؟ · Apply these corrections?'))return;
  L.forEach(x=>{x.z.n=x.to});mark();draw();try{delBar('✔ عُدّل عدد الطلاب في '+L.length+' شعبة — اضغط «حفظ ونشر» · Student counts corrected — save & publish')}catch(e){}}
 function viewerBar(){const d=day();const tb=el('div','qwTb');tb.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin:8px 0';
  const hs=S.venues.filter(v=>d.sess.some(z=>z.v===v.id)||(d.inv[v.id]||[]).length);
