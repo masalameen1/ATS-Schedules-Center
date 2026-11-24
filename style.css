@@ -3292,3 +3292,8 @@ img,canvas,svg,video{max-width:100%}
 @media(hover:none){a,button{-webkit-tap-highlight-color:rgba(37,99,235,.15)}}
 body>div[style*="position:fixed"][style*="left:50%"]{width:max-content;max-width:94vw!important;box-sizing:border-box}
 @media(max-width:600px){body>div[style*="position:fixed"][style*="left:50%"]{font-size:12px!important;padding:8px 12px!important}}
+
+body>div[style*="left: 50%"][style*="bottom"]{width:max-content;max-width:94vw!important;box-sizing:border-box}
+@media(max-width:600px){body>div[style*="left: 50%"][style*="bottom"]{font-size:12px!important;padding:8px 12px!important}}
+
+@media(max-width:600px){body>div[style*="left: 50%"][style*="bottom"] small{display:none}body>div[style*="left: 50%"][style*="bottom"]{line-height:1.35!important}}
