@@ -11,13 +11,13 @@ const escH=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 let save={};try{save=JSON.parse(localStorage.getItem('tt')||'{}')}catch(e){}
 let ROLE='',TMAIL='';try{ROLE=sessionStorage.getItem('tt_role')||'';TMAIL=sessionStorage.getItem('tt_mail')||''}catch(e){}
 /* administration team: the only accounts that can edit exam invigilation, substitutions, meetings, Zero Period and the other schedules */
-const ADMINMAIL=['mohammad.salamin'+'@actvet.gov.ae','hatem.hamdeh','hatem.talal','naser.alashab','fahad.almansoori','ahmad.debek','tamer.ahmed','furat.jasim','abedalla.banihani','waseem.alhausani','mohammad.salamin','mahmoud.yousef','anjali.rajan','heba.alshehhi'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
+const ADMINMAIL=['mohammad.salamin'+'@actvet.gov.ae','hatem.hamdeh','hatem.talal','naser.alashab','fahad.almansoori','ahmad.debek','tamer.ahmed','furat.jasim','abedalla.banihani','waseem.alhausani','mohammad.salamin','mahmoud.yousef','anjali.rajan','heba.alshehhi','easa.ebrahimouh','alia.omran'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
 let MGR=ROLE==='teacher'&&ADMINMAIL.includes((TMAIL||'').toLowerCase());
 /* the authorized-teachers list is visible only to the 16 named coordinators (screen button and page) */
 const SALMAIL=['naser.alashab','hatem.hamdeh','hatem.talal','ahmad.debek','tamer.ahmed','abdullah.abbas','abedalla.banihani','furat.jasim','alia.omran','aaesha.alnuaimi','heba.alshehhi','badryya.alshehhi','kalthoom.alkhatri','mohammad.salamin','khawla.alnaqbi','easa.ebrahimouh','fahad.almansoori'].map(x=>x+'@actvet.gov.ae').concat(['masalameen@gmail.com']);
 function isSal(){try{if(ROLE==='student')return false;const e=String(TMAIL||window.__myEm||'').toLowerCase();return SALMAIL.includes(e)}catch(x){return false}}
 /* the eight people who may change the invigilation and substitution schedules (UI gate; the database itself only accepts writes from Editors) */
-const AUTH8=['heba.alshehhi@actvet.gov.ae','abdullah.abbas@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','masalameen@gmail.com','hatem.hamdeh@actvet.gov.ae','hatem.talal@actvet.gov.ae','naser.alashab@actvet.gov.ae','waseem.alhausani@actvet.gov.ae','ahmad.debek@actvet.gov.ae','tamer.ahmed@actvet.gov.ae','furat.jasim@actvet.gov.ae','abedalla.banihani@actvet.gov.ae','anjali.rajan@actvet.gov.ae'];
+const AUTH8=['heba.alshehhi@actvet.gov.ae','abdullah.abbas@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','masalameen@gmail.com','hatem.hamdeh@actvet.gov.ae','hatem.talal@actvet.gov.ae','naser.alashab@actvet.gov.ae','waseem.alhausani@actvet.gov.ae','ahmad.debek@actvet.gov.ae','tamer.ahmed@actvet.gov.ae','furat.jasim@actvet.gov.ae','abedalla.banihani@actvet.gov.ae','anjali.rajan@actvet.gov.ae','mahmoud.yousef@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','alia.omran@actvet.gov.ae','fahad.almansoori@actvet.gov.ae'];
 const NOTE_APP='ATS Schedule Center';
 /* ===== one confirmation dialog for every deletion (works even where the browser blocks confirm()) ===== */
 window.__cfm=function(msg,detail){return new Promise(res=>{const old=document.getElementById('cfmOv');if(old)old.remove();
