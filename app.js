@@ -5017,8 +5017,8 @@ function openPanel(){if(!cur||!sample)return;panel.innerHTML='';panel.style.disp
    d.innerHTML='<div class="ogE">'+(g?g[1]:'🎉')+'</div><div class="ogT">Today · اليوم</div><div class="ogN"></div><div class="ogA"></div><div class="ogS"></div>';
    d.querySelector('.ogN').textContent=o.n;d.querySelector('.ogA').textContent=g?g[2]:'نبارك لكم هذه المناسبة، ونتمنى لكم يومًا مليئًا بالخير والمعرفة والنجاح';
    d.querySelector('.ogS').textContent=g?g[3]:'Warm wishes to everyone on this occasion — may it be a day of goodness, learning and joy.';box.append(d)});
-  box.querySelector('.ogX').onclick=()=>{box.classList.remove('on');try{localStorage.setItem('tt_ogHide',iso)}catch(e){}};box.classList.add('on')}
- setTimeout(show,600);setInterval(show,600000);window.__occGreet=show;
+  box.querySelector('.ogX').onclick=()=>{box.classList.remove('on');try{localStorage.setItem('tt_ogHide',iso)}catch(e){}clearTimeout(window.__ogT)};box.classList.add('on');clearTimeout(window.__ogT);window.__ogT=setTimeout(()=>{box.classList.remove('on')},7000)}
+ setTimeout(show,600);window.__occGreet=show;
 })();
 
 /* student wording: Exam Invigilation -> Final Exams */
