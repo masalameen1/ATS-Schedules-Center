@@ -3299,7 +3299,6 @@ body>div[style*="left: 50%"][style*="bottom"]{width:max-content;max-width:94vw!i
 @media(max-width:600px){body>div[style*="left: 50%"][style*="bottom"] small{display:none}body>div[style*="left: 50%"][style*="bottom"]{line-height:1.35!important}}
 
 /* exam timer v2: bigger boxes, clock fills its box, actions in the data box */
-#etBig .etCtl .etFsB{display:none!important}
 #etBig .etCols{max-width:1800px}
 #etBig .etL{container-type:inline-size}
 #etBig .etL .etDg{font-size:clamp(46px,17cqw,360px);line-height:1.05}
