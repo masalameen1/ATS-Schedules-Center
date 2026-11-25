@@ -5745,7 +5745,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  const REAS=[['late','⏰ متأخر · Late'],['sick','🤒 مريض · Sick'],['excuse','📄 عذر · Excuse'],['none','🚫 بلا عذر · No excuse'],['other','✎ أخرى · Other']];
  const rlab=k=>(REAS.find(r=>r[0]===k)||[0,''])[1];
  function sub(){if(!EDB||sub.done)return;sub.done=1;try{EDB.doc('coord/absnotes').onSnapshot(s=>{ABN=s.exists?s.data()||{}:{};const m=document.getElementById('absM');if(m&&m.classList.contains('on'))paint()},()=>{})}catch(e){}
-  if(!edOK()){try{EDB.doc('coord/exam2').onSnapshot(s=>{const d=s.exists?s.data():null;REMD=d&&d.data&&Array.isArray(d.data.days)?d.data.days:null;const m=document.getElementById('absM');if(m&&m.classList.contains('on'))paint()},()=>{})}catch(e){}}}
+  if(!edOK()){try{EDB.doc('coord/exam2').onSnapshot(s=>{const d=s.exists?s.data():null;REMD=d&&d.data&&Array.isArray(d.data.days)?d.data.days.filter(z=>!z.hid):null;const m=document.getElementById('absM');if(m&&m.classList.contains('on'))paint()},()=>{})}catch(e){}}}
  const days=()=>{try{return edOK()?(window.__EXD.days()||[]):(REMD||(window.__EXD&&window.__EXD.days&&window.__EXD.days())||[])}catch(e){return[]}};
  const absDays=()=>{const L=days().filter(d=>d.date&&((d.sess&&d.sess.length)||(window.__absHas?window.__absHas(d):(d.abs&&Object.keys(d.abs).some(k=>d.abs[k])))));const have=new Set(L.map(d=>d.date));try{(window.__attDates?window.__attDates():[]).forEach(dt=>{if(!have.has(dt))L.push({date:dt,title:'📦 أرشيف · Archive',ghost:1})})}catch(e){}return L.sort((a,b)=>String(a.date).localeCompare(String(b.date)))};
  const rowsOf=d=>{let L=[];try{L=d.ghost?window.__absRowsAtt(d.date):(window.__absList?window.__absList(d):[]);if(!d.ghost&&window.__absRowsAtt){const sn=new Set(L.map(r=>r.id));window.__absRowsAtt(d.date).forEach(r=>{if(!sn.has(r.id))L.push(r)})}}catch(e){}try{L=L.concat(window.__lateRowsAtt?window.__lateRowsAtt(d.date):[])}catch(e){}const nt=(ABN[d.date]||{});return L.map(r=>({...r,d,date:d.date,title:d.title||'',n:nt[r.id]||null}))};
@@ -5781,6 +5781,19 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
   if(cmtOK())ex.append(h('small','','✎ يمكنك إضافة عذر أو تعليق لكل طالب · You can add an excuse / comment per student'));
   else{[...ex.querySelectorAll('button')].forEach(b=>b.remove());ex.append(h('small','',lateOK()?'⏰ يمكنك تسجيل «متأخر» فقط. العذر والتنزيل لمسؤولي الغياب · You can mark “Late” only; excuses and downloads are for the absence team':'عرض فقط · View only'))}
   c.append(ex);
+  try{const A0=window.__ATT||{},SX=(window.__EXD&&window.__EXD.get&&window.__EXD.get())||{venues:[],days:[]},vn={};(SX.venues||[]).forEach(v=>vn[v.id]=v.name);
+   const dd=ST.all?ds.slice(-1):ds,rows=[];
+   dd.forEach(d=>{const e=A0[d.date]||{},hh=e.h||{},sd=(SX.days||[]).find(x=>x.date===d.date&&!x.sp)||d,ids=[...new Set((sd.sess||[]).map(z=>z.v))];Object.keys(hh).forEach(k=>{if(!ids.includes(k))ids.push(k)});ids.forEach(v=>{const r=hh[v];rows.push({date:d.date,hall:(r&&r.hn)||vn[v]||v,inv:(r&&r.iv)||((sd.inv||{})[v]||[]).join('، '),r})})});
+   if(rows.length){rows.sort((a,b)=>String(a.date).localeCompare(b.date)||String(a.hall).localeCompare(String(b.hall),'en',{numeric:true}));
+    const done=rows.filter(x=>x.r&&x.r.st>0).length,bx=h('details');bx.open=true;bx.style.cssText='margin:8px 0;border:1px solid #cbd5e1;border-radius:12px;padding:6px 10px;background:#f8fafc';
+    const sm=h('summary','','📋 حالة أخذ الحضور بالقاعات · Hall attendance status — '+done+'/'+rows.length+' ✔');sm.style.cssText='cursor:pointer;font-weight:800';bx.append(sm);
+    const tb=h('table');tb.style.cssText='width:100%;border-collapse:collapse;font-size:13px;margin-top:6px';
+    const hr=h('tr');['القاعة · Hall','المراقبون · Invigilators','الحالة · Status','أخذه · Taken by','الوقت · Time','حاضر (يشمل المتأخر) · Present','غائب · Absent','متأخر · Late','الإجمالي · Total'].forEach(x=>{const th=h('th','',x);th.style.cssText='text-align:start;padding:4px 6px;background:#e2e8f0';hr.append(th)});tb.append(hr);
+    rows.forEach(x=>{const r=x.r,tk=r&&r.st>0,tr=h('tr');tr.style.borderTop='1px solid #e2e8f0';if(!tk)tr.style.background='#fff7ed';
+     const tm=r&&r.t?new Date(r.t+4*36e5).toISOString().slice(11,16):'';
+     const vals=[x.hall,x.inv||'—',tk?(r.st<r.tot?'⚠ ناقص · Incomplete ('+r.st+'/'+r.tot+')':'✅ تم · Done'):'⏳ لم يُؤخذ · Not taken',tk?(r.by||'—'):'—',tm,tk?Math.max(0,r.st-(r.n||0)):'—',tk?(r.n||0):'—',tk?(r.lt||0):'—',r?r.tot:'—'];
+     vals.forEach((v,i)=>{const td=h('td','',String(v));td.style.padding='4px 6px';if(i===0)td.style.fontWeight='800';tr.append(td)});tb.append(tr)});
+    bx.append(tb);c.append(bx)}}catch(e){}
   const lw=h('div','abl');c.append(lw);
   function list(){lw.innerHTML='';const RR=filt(all),hr=h('div','abr abrh');HEAD.forEach(t=>hr.append(h('span','',t)));lw.append(hr);
    if(!RR.length)lw.append(h('p','abe','لا يوجد غائبون · No absentees'));
