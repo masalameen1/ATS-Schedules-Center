@@ -5822,7 +5822,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  const SEE=['hatem.hamdeh@actvet.gov.ae','naser.alashab@actvet.gov.ae','fahad.almansoori@actvet.gov.ae','heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae','hatem.talal@actvet.gov.ae','mahmoud.yousef@actvet.gov.ae','waseem.alhausani@actvet.gov.ae','mohammad.salamin@actvet.gov.ae','alia.omran@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','maryam.alshehhi@actvet.gov.ae'];window.__absSee=()=>ROLE!=='student'&&(SEE.includes(em())||isOwn()||canAbs()||isAuth8());
  window.__finOK=()=>ROLE!=='student'&&(SEE.includes(em())||(typeof ADMINMAIL!=='undefined'&&ADMINMAIL.includes(em()))||isAuth8());
  const FDEF='EOT1 — Final Exam Report · Excused / Unexcused Absence';
- const finRows=()=>absDays().flatMap(rowsOf).filter(r=>!r.late).sort((p,q)=>(+p.g||0)-(+q.g||0)||String(p.cls).localeCompare(String(q.cls),'en',{numeric:true})||String(p.name).localeCompare(String(q.name))||String(p.date).localeCompare(q.date));
+ const finRows=()=>absDays().filter(d=>!FD.sel||FD.sel==='*'||d.date===FD.sel).flatMap(rowsOf).filter(r=>!r.late).sort((p,q)=>(+p.g||0)-(+q.g||0)||String(p.cls).localeCompare(String(q.cls),'en',{numeric:true})||String(p.name).localeCompare(String(q.name))||String(p.date).localeCompare(q.date));
  const stK=k=>k==='excuse'||k==='sick'?'excuse':k==='none'?'none':'';
  const fKey=r=>r.date+'|'+r.id,fGet=r=>FD.rows[fKey(r)]||{k:(r.n&&r.n.k)||'',t:(r.n&&r.n.t)||''},fLab=k=>stK(k)==='excuse'?'Excused':stK(k)==='none'?'UNExcused':'Pending';
  const myBy=()=>(window.__getMyName&&window.__getMyName())||em().split('@')[0];
@@ -5831,13 +5831,14 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  async function finExport(R){const X=finX(R);const nE=X.filter(x=>x.exc==='Excused').length,nU=X.filter(x=>x.exc==='UNExcused').length,dts=[...new Set(X.map(x=>x.date))].sort(),M=FD.meta;
   const blob=window.__scXlsxAbs({title:M.title||FDEF,l2:'Exam days: '+dts.length+'   |   Date: '+(dts.length>1?dts[0]+' → '+dts[dts.length-1]:dts[0]),by:M.by||myBy(),sum:['Absent: '+X.length,'Excused: '+nE+'   ·   Unexcused: '+nU+'   ·   Pending: '+(X.length-nE-nU)],
    cols:[['sid','ID',14],['name','Name',34],['cls','Class',18],['str','Cluster',12],['subj','Subject',26],['date','DATE',13],['exc','Excused / UNExcused',20],['day','Day',12],['time','Time',13],['c1','contact #',14],['c2','contact #',14],['c3','contact #',14],['hall','Hall',12],['cmt','Comment',34]],rows:X,band:'gb',unit:'student',note:(M.note?M.note+' — ':'')+'Confidential — contains student information. For authorised staff only.'});
-  await window.__dl('ATS_EOT_Final_Exam_Report.xlsx',blob)}
+  await window.__dl('ATS_EOT_Final_Exam_Report_'+((FD.sel&&FD.sel!=='*')?FD.sel:'all_days')+'.xlsx',blob)}
  async function finSave(R){const by=myBy(),c0=await EDB.doc('coord/absnotes').get(),o=c0.exists?{...c0.data()}:{};
   R.forEach(r=>{const dr=FD.rows[fKey(r)];if(!dr)return;const dd={...(o[r.date]||{})};if(!dr.k&&!dr.t)delete dd[r.id];else dd[r.id]={k:dr.k||'other',t:dr.t||'',by,at:Date.now()};o[r.date]=dd});
   o._fin={title:FD.meta.title||'',by:FD.meta.by||'',note:FD.meta.note||'',at:Date.now()};await EDB.doc('coord/absnotes').set(o);ABN=o;FD.rows={};FD.dirty=0}
- function paintFin(){const st=c.scrollTop;c.innerHTML='';const R=finRows(),M=FD.meta,canS=excOK(),canC=cmtOK(),canAny=canS||canC;
+ function paintFin(){const st=c.scrollTop;c.innerHTML='';if(!FD.sel){try{FD.sel=pickDay(absDays())||'*'}catch(e){FD.sel='*'}}const R=finRows(),M=FD.meta,canS=excOK(),canC=cmtOK(),canAny=canS||canC;
   const hd=h('div','abh'),bk=h('button','btn','‹ رجوع · Back');bk.onclick=close;hd.append(bk,h('h3','','📑 التقرير النهائي للاختبار · Final Exam Report'),h('span','abc','('+R.length+')'));c.append(hd);
-  c.append(h('small','hsCnt','راجع البيانات واملأ ما يلزم ثم احفظ ثم صدّر · Review the data, fill in what is needed, save, then export'));
+  c.append(h('small','hsCnt','راجع البيانات واملأ ما يلزم ثم احفظ ثم صدّر — يصدر التقرير لليوم المحدد فقط · Review, save, then export — the report covers only the selected day'));
+  {const dl=h('label','','📅 اليوم · Day ');const ds2=h('select');const td0=(typeof todayDubai==='function')?todayDubai():'';absDays().forEach(d=>{const n=rowsOf(d).filter(r=>!r.late).length;const o=h('option','',(d.date===td0?'📍 ':(d.date<td0?'📦 ':''))+d.date+(d.title?' · '+d.title:'')+' — '+n);o.value=d.date;ds2.append(o)});const oa=h('option','','📦 الأرشيف: كل الأيام · Archive: all days');oa.value='*';ds2.append(oa);ds2.value=FD.sel;ds2.onchange=()=>{FD.sel=ds2.value;paintFin()};dl.append(ds2);c.append(dl)}
   const sv=h('button','btn','💾 حفظ · Save'),ex=h('button','btn','📊 تصدير Excel · Export');sv.type=ex.type='button';sv.disabled=!canAny;
   const mf=h('div','abf'),mi=(lab,key)=>{const l=h('label','',lab+' ');const i=h('input');i.type='text';i.value=M[key]||'';i.disabled=!canAny;i.oninput=()=>{M[key]=i.value;FD.dirty=1};l.append(i);return l};
   mf.append(mi('العنوان · Title','title'),mi('أعدّه · Prepared by','by'),mi('ملاحظات · Notes','note'));c.append(mf);
@@ -5846,14 +5847,14 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
   sv.onclick=async()=>{sv.textContent='…';try{await finSave(R);msg.textContent='✔ تم الحفظ · Saved';paintFin()}catch(e){msg.textContent='✖ تعذّر الحفظ · Could not save'}sv.textContent='💾 حفظ · Save'};
   ex.onclick=async()=>{ex.textContent='…';try{await finExport(R);msg.textContent='✔ Excel'}catch(e){msg.textContent='✖ تعذّر · Failed'}ex.textContent='📊 تصدير Excel · Export'};
   bar.append(sv,ex,msg);if(!canAny)bar.append(h('small','','عرض وتصدير فقط · View and export only'));c.append(bar);
-  try{const d0=absDays(),pd=pickDay(d0),b0=hallBox(d0.filter(d=>d.date===pd));if(b0)c.append(b0)}catch(e){}
+  try{const d0=absDays(),pd=(FD.sel&&FD.sel!=='*')?FD.sel:pickDay(d0),b0=hallBox(d0.filter(d=>d.date===pd));if(b0)c.append(b0)}catch(e){}
   if(!R.length){c.append(h('p','abe','لا توجد غيابات مسجّلة بعد · No absences recorded yet'))}
   const wrap=h('div','');wrap.style.cssText='overflow:auto;margin-top:8px';const tb=h('table','stuT');tb.style.width='100%';const th=h('tr');['#','ID','الطالب · Name','الشعبة · Class','المادة · Subject','التاريخ · Date','عذر · Status','القاعة · Hall','التعليق · Comment'].forEach(t=>th.append(h('th','',t)));tb.append(th);
   R.forEach((r,i)=>{const tr=h('tr');[String(i+1),r.sid||'',r.name,r.cls,r.subj||r.title||'',r.date].forEach(t=>tr.append(h('td','',t)));
    const s=h('select');[['','معلّق · Pending'],['excuse','بعذر · Excused'],['none','بلا عذر · Unexcused']].forEach(([v,t])=>{const o=h('option','',t);o.value=v;s.append(o)});s.value=stK(fGet(r).k);s.disabled=!canS;s.onchange=()=>{FD.rows[fKey(r)]={...fGet(r),k:s.value};FD.dirty=1;cnt()};const t1=h('td');t1.append(s);tr.append(t1);
    tr.append(h('td','',r.hall||''));const ti=h('input');ti.type='text';ti.value=fGet(r).t||'';ti.disabled=!canC;ti.style.minWidth='160px';ti.oninput=()=>{FD.rows[fKey(r)]={...fGet(r),t:ti.value};FD.dirty=1};const t2=h('td');t2.append(ti);tr.append(t2);tb.append(tr)});
   wrap.append(tb);c.append(wrap);cnt();c.scrollTop=st}
- window.__finalReport=async()=>{FIN=true;FD={meta:{title:FDEF,by:myBy(),note:''},rows:{},dirty:0};sub();try{const s=await EDB.doc('coord/absnotes').get();if(s.exists){ABN=s.data()||ABN;const f=(s.data()||{})._fin;if(f)['title','by','note'].forEach(k=>{if(f[k])FD.meta[k]=f[k]})}}catch(e){}m.classList.add('on');paintFin()};
+ window.__finalReport=async()=>{FIN=true;FD={meta:{title:FDEF,by:myBy(),note:''},rows:{},dirty:0,sel:''};sub();try{const s=await EDB.doc('coord/absnotes').get();if(s.exists){ABN=s.data()||ABN;const f=(s.data()||{})._fin;if(f)['title','by','note'].forEach(k=>{if(f[k])FD.meta[k]=f[k]})}}catch(e){}m.classList.add('on');paintFin()};
 })();
 /* ===== school logo on every page ===== */
 (function(){const src=()=>((document.querySelector('header.top .logo img')||{}).src||'');
