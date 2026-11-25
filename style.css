@@ -3321,3 +3321,10 @@ body>div[style*="left: 50%"][style*="bottom"]{width:max-content;max-width:94vw!i
 #etBig.etFull .etL{justify-content:center}
 #etBig.etFull .etL .etDg{font-size:clamp(60px,min(19cqw,calc(var(--u)*34)),420px)}
 #etBig.etFull .etR{justify-content:space-between}
+
+/* exam timer v3: quick-control buttons stay on one line, full-screen button sits among them */
+#etBig .etQc{flex-wrap:nowrap;max-width:none;width:max-content;min-width:0;margin-inline:auto;gap:6px;overflow:visible}
+#etBig .etQc .etQb{white-space:nowrap;padding:6px 10px;font-size:13px;flex:0 0 auto}
+#etBig .etQc .etQs{white-space:nowrap;font-size:13px;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;max-width:22ch}
+#etBig{overflow-x:hidden}
+@media(max-width:900px){#etBig .etQc{flex-wrap:wrap;width:auto;justify-content:center}}
