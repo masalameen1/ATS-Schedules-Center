@@ -3559,6 +3559,7 @@ function tick(){
  const rem=ph==='wait'?1:1-frac;
  const html=clockHtml(ET.style,H,M,S2,ph==='wait'?1:ph==='end'?0:1-frac,ph);
  if(k.dataset.h!==html){k.innerHTML=html;k.dataset.h=html}
+ if((ph==='run'||ph==='warn'||ph==='crit')&&frac>=.5&&frac<.53&&!ET.fired.m){ET.fired.m=1;ET.midU=now+90000;if(ET.alert)playSnd('bell')}if(ET.midU&&now<ET.midU&&(ph==='run'||ph==='warn'||ph==='crit'))txt='🔔 انتصف وقت الاختبار — مضى نصف الوقت · Halfway point — half of the exam time has passed';
  s.textContent=txt;r.dataset.ph=ph;r.classList.toggle('etKeep',!!(ET.color&&(ph==='run'||ph==='wait'||ET.keep)));
  p.firstChild.style.width=(rem*100)+'%';
  if(ET.alert){const f=ET.fired;if(ph==='warn'&&!f.w){f.w=1;beep(2)}if(ph==='crit'&&!f.c){f.c=1;beep(3)}}
@@ -4447,6 +4448,8 @@ const SND={
  ping:(c,t,k)=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(k==='start'?1400:900,t);o.frequency.exponentialRampToValueAtTime(k==='start'?1000:600,t+1.2);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+1.6);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+1.7)},
  none:()=>{}
 };
+function exPer(){try{const d=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai'}).format(new Date());return d>='2026-11-24'&&d<='2026-12-11'}catch(e){return false}}
+window.__exPer=exPer;
 function ring(kind,force){if(BELL.mute)return;if(!force&&Date.now()<(window.__quietUntil||0))return;const c=ctxGet();if(!c)return;try{navigator.vibrate&&navigator.vibrate(kind==='start'?[200,100,200]:[300])}catch(e){}const t0=c.currentTime+.05,st=kind==='start'?BELL.sS:BELL.sE;(SND[st]||SND.bell)(c,t0,kind)}
 function bellUI(){const b=$('bb'),m=$('bm');b.classList.toggle('on',BELL.on);b.innerHTML=(BELL.on?'🔔':'🔕')+' <small>'+(BELL.on?'Bell on':'Bell off')+'</small>';
  m.classList.toggle('muted',BELL.mute);m.innerHTML=(BELL.mute?'🔇':'🔊')+' <small>'+(BELL.mute?'Muted':'Sound')+'</small>';m.style.opacity=BELL.on?1:.55}
@@ -4480,7 +4483,7 @@ function tick(){
  if(BELL.last!==null&&n.s>BELL.last){
   const bs=[];sc.forEach(it=>{if(!it.br){bs.push({s:it.a,k:'start',m:'Started '+lblOf(it)});bs.push({s:it.b,k:'end',m:'Ended '+lblOf(it)})}});
   const hit=bs.filter(b=>b.s>BELL.last&&b.s<=n.s&&n.s-b.s<=10).sort((x,y)=>(y.k==='start')-(x.k==='start'))[0];
-  if(hit){const lastP=sc.filter(it=>!it.br).slice(-1)[0],firstP=sc.filter(it=>!it.br)[0];if(hit.k==='end'&&lastP&&hit.s===lastP.b)hit.m=MSG.end(n.d);else if(hit.k==='start'&&firstP&&hit.s===firstP.a)hit.m=MSG.start(sc);BELL.msg=hit.m;BELL.until=Date.now()+9000;if(BELL.on){ring(hit.k);bellToast(hit.m,hit.k)}}
+  if(hit&&!exPer()){const lastP=sc.filter(it=>!it.br).slice(-1)[0],firstP=sc.filter(it=>!it.br)[0];if(hit.k==='end'&&lastP&&hit.s===lastP.b)hit.m=MSG.end(n.d);else if(hit.k==='start'&&firstP&&hit.s===firstP.a)hit.m=MSG.start(sc);BELL.msg=hit.m;BELL.until=Date.now()+9000;if(BELL.on){ring(hit.k);bellToast(hit.m,hit.k)}}
  }
  BELL.last=n.s;
  const i=sc.findIndex(it=>n.s>=it.a&&n.s<it.b);
