@@ -2722,7 +2722,7 @@ body.rs #tb .bsl,body.rs .bsTone{display:none!important}
 
 .saAsk{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0;padding:10px 14px;border-radius:14px;background:linear-gradient(180deg,#eef4ff,#e3ecfd);border:1px solid #c7d7f7;position:sticky;top:0;z-index:5}
 .saAsk b{flex:1 1 220px;color:#10285c;font-size:14px}
-.saSgT{display:grid;grid-template-columns:34px 54px 90px minmax(160px,1.6fr) 54px 1fr 1fr 1fr;border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;font-size:13px;margin:6px 0 14px}
+.saSgT{display:grid;grid-template-columns:70px 90px minmax(160px,1.6fr) 54px 1fr 1fr 1fr;border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;font-size:13px;margin:6px 0 14px}
 .saSgT span{padding:7px 8px;border-bottom:1px solid #e2e8f0;border-inline-end:1px solid #eef2f7;min-height:30px;color:#0b1220}
 .saSgT .h{background:#10285c;color:#fff;font-weight:800}.saSgT .nm{font-weight:800}
 
