@@ -5734,7 +5734,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
 /* ===== كشف الغائبين + تعليقات الأعذار ===== */
 (function(){
  /* من يحق له إضافة تعليق (عذر / مريض / نص): هبة الشحي وعائشة النعيمي وحاتم طلال — مريم: تُضاف بريدها هنا عند تزويدي به */
- const CMT=['heba.alshehhi','aaesha.alnuaimi','sheikha.alkeebali','hatem.talal','mohammad.salamin','easa.ebrahimouh','alia.omran','fahad.almansoori','sara.alboodi','omar.almansoori'].map(x=>x+'@actvet.gov.ae');window.__cmtAdd=e=>{if(!CMT.includes(e))CMT.push(e)};
+ const CMT=['heba.alshehhi','aaesha.alnuaimi','sheikha.alkeebali','hatem.talal','mohammad.salamin','easa.ebrahimouh','alia.omran','fahad.almansoori','sara.alboodi','omar.almansoori','maryam.alshehhi'].map(x=>x+'@actvet.gov.ae');window.__cmtAdd=e=>{if(!CMT.includes(e))CMT.push(e)};
  const em=()=>String(TMAIL||window.__myEm||'').toLowerCase();
  const cmtOK=()=>ROLE!=='student'&&(CMT.includes(em())||!!(window.__isOwner&&window.__isOwner())||!!(window.__isCoord&&window.__isCoord()));
  const EXC=['maryam.alshehhi@actvet.gov.ae','alia.omran@actvet.gov.ae','easa.ebrahimouh@actvet.gov.ae','hatem.hamdeh@actvet.gov.ae','naser.alashab@actvet.gov.ae','fahad.almansoori@actvet.gov.ae','heba.alshehhi@actvet.gov.ae','aaesha.alnuaimi@actvet.gov.ae','sheikha.alkeebali@actvet.gov.ae'],isOwn=()=>!!(window.__isOwner&&window.__isOwner()),excOK=()=>ROLE!=='student'&&(EXC.includes(em())||isOwn()),exView=()=>excOK()||['mohammad.salamin@actvet.gov.ae'].includes(em());
@@ -5758,6 +5758,19 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  async function save(r,k,t,by){try{const c=await EDB.doc('coord/absnotes').get(),o=c.exists?{...c.data()}:{};const dd={...(o[r.date]||{})};if(!k&&!t)delete dd[r.id];else dd[r.id]={k:k||'other',t:t||'',by,at:Date.now()};o[r.date]=dd;await EDB.doc('coord/absnotes').set(o);ABN=o;return true}catch(e){return false}}
  const m=h('div');m.id='absM';const c=h('div');c.id='absC';m.append(c);document.body.append(m);
  const close=()=>{FIN=false;m.classList.remove('on')};m.onclick=e=>{if(e.target===m)close()};
+  const hallBox=dd=>{const A0=window.__ATT||{},SX=(window.__EXD&&window.__EXD.get&&window.__EXD.get())||{venues:[],days:[]},vn={};(SX.venues||[]).forEach(v=>vn[v.id]=v.name);
+   const rows=[];
+   dd.forEach(d=>{const e=A0[d.date]||{},hh=e.h||{},sd=(SX.days||[]).find(x=>x.date===d.date&&!x.sp)||d,ids=[...new Set((sd.sess||[]).map(z=>z.v))];Object.keys(hh).forEach(k=>{if(!ids.includes(k))ids.push(k)});ids.forEach(v=>{const r=hh[v];rows.push({date:d.date,hall:(r&&r.hn)||vn[v]||v,inv:(r&&r.iv)||((sd.inv||{})[v]||[]).join('، '),r})})});
+   if(rows.length){rows.sort((a,b)=>String(a.date).localeCompare(b.date)||String(a.hall).localeCompare(String(b.hall),'en',{numeric:true}));
+    const done=rows.filter(x=>x.r&&x.r.st>0).length,bx=h('details');bx.open=true;bx.style.cssText='margin:8px 0;border:1px solid #cbd5e1;border-radius:12px;padding:6px 10px;background:#f8fafc';
+    const sm=h('summary','','📋 حالة أخذ الحضور بالقاعات · Hall attendance status — '+done+'/'+rows.length+' ✔');sm.style.cssText='cursor:pointer;font-weight:800';bx.append(sm);
+    const tb=h('table');tb.style.cssText='width:100%;border-collapse:collapse;font-size:13px;margin-top:6px';
+    const hr=h('tr');['القاعة · Hall','المراقبون · Invigilators','الحالة · Status','أخذه · Taken by','الوقت · Time','حاضر (يشمل المتأخر) · Present','غائب · Absent','متأخر · Late','الإجمالي · Total'].forEach(x=>{const th=h('th','',x);th.style.cssText='text-align:start;padding:4px 6px;background:#e2e8f0';hr.append(th)});tb.append(hr);
+    rows.forEach(x=>{const r=x.r,tk=r&&r.st>0,tr=h('tr');tr.style.borderTop='1px solid #e2e8f0';if(!tk)tr.style.background='#fff7ed';
+     const tm=r&&r.t?new Date(r.t+4*36e5).toISOString().slice(11,16):'';
+     const vals=[x.hall,x.inv||'—',tk?(r.st<r.tot?'⚠ ناقص · Incomplete ('+r.st+'/'+r.tot+')':'✅ تم · Done'):'⏳ لم يُؤخذ · Not taken',tk?(r.by||'—'):'—',tm,tk?Math.max(0,r.st-(r.n||0)):'—',tk?(r.n||0):'—',tk?(r.lt||0):'—',r?r.tot:'—'];
+     vals.forEach((v,i)=>{const td=h('td','',String(v));td.style.padding='4px 6px';if(i===0)td.style.fontWeight='800';tr.append(td)});tb.append(tr)});
+    bx.append(tb);return bx}return null}
  function paint(){if(FIN){paintFin();return}const st=c.scrollTop;c.innerHTML='';const ds=cur(),all=ds.flatMap(rowsOf),R=filt(all);
   const hd=h('div','abh');const bk=h('button','btn','‹ رجوع · Back');bk.onclick=close;hd.append(bk,h('h3','','🚫 الغائبون · Absentees'),h('span','abc','('+R.length+'/'+all.length+')'));c.append(hd);
   {const A0=window.__ATT||{};let mk=0;ds.forEach(d=>{const e=A0[d.date];if(e&&e.a)mk+=Object.keys(e.a).filter(k=>e.a[k]).length});const st=h('small','hsCnt','☁ '+(typeof EDB!=='undefined'&&EDB?'متصل بالخادم · Connected':'⚠ غير متصل بالخادم · Not connected to the server')+' — سجلات الغياب المستلمة · Absence records received: '+mk+(window.__attErr?' — ⚠ '+window.__attErr:''));const rf=h('button','btn sm','🔄 تحديث · Refresh');rf.type='button';rf.onclick=()=>{try{attSub.done=0;attSub()}catch(e){}setTimeout(paint,700)};hd.append(rf);c.append(st)}
@@ -5781,19 +5794,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
   if(cmtOK())ex.append(h('small','','✎ يمكنك إضافة عذر أو تعليق لكل طالب · You can add an excuse / comment per student'));
   else{[...ex.querySelectorAll('button')].forEach(b=>b.remove());ex.append(h('small','',lateOK()?'⏰ يمكنك تسجيل «متأخر» فقط. العذر والتنزيل لمسؤولي الغياب · You can mark “Late” only; excuses and downloads are for the absence team':'عرض فقط · View only'))}
   c.append(ex);
-  try{const A0=window.__ATT||{},SX=(window.__EXD&&window.__EXD.get&&window.__EXD.get())||{venues:[],days:[]},vn={};(SX.venues||[]).forEach(v=>vn[v.id]=v.name);
-   const dd=ST.all?ds.slice(-1):ds,rows=[];
-   dd.forEach(d=>{const e=A0[d.date]||{},hh=e.h||{},sd=(SX.days||[]).find(x=>x.date===d.date&&!x.sp)||d,ids=[...new Set((sd.sess||[]).map(z=>z.v))];Object.keys(hh).forEach(k=>{if(!ids.includes(k))ids.push(k)});ids.forEach(v=>{const r=hh[v];rows.push({date:d.date,hall:(r&&r.hn)||vn[v]||v,inv:(r&&r.iv)||((sd.inv||{})[v]||[]).join('، '),r})})});
-   if(rows.length){rows.sort((a,b)=>String(a.date).localeCompare(b.date)||String(a.hall).localeCompare(String(b.hall),'en',{numeric:true}));
-    const done=rows.filter(x=>x.r&&x.r.st>0).length,bx=h('details');bx.open=true;bx.style.cssText='margin:8px 0;border:1px solid #cbd5e1;border-radius:12px;padding:6px 10px;background:#f8fafc';
-    const sm=h('summary','','📋 حالة أخذ الحضور بالقاعات · Hall attendance status — '+done+'/'+rows.length+' ✔');sm.style.cssText='cursor:pointer;font-weight:800';bx.append(sm);
-    const tb=h('table');tb.style.cssText='width:100%;border-collapse:collapse;font-size:13px;margin-top:6px';
-    const hr=h('tr');['القاعة · Hall','المراقبون · Invigilators','الحالة · Status','أخذه · Taken by','الوقت · Time','حاضر (يشمل المتأخر) · Present','غائب · Absent','متأخر · Late','الإجمالي · Total'].forEach(x=>{const th=h('th','',x);th.style.cssText='text-align:start;padding:4px 6px;background:#e2e8f0';hr.append(th)});tb.append(hr);
-    rows.forEach(x=>{const r=x.r,tk=r&&r.st>0,tr=h('tr');tr.style.borderTop='1px solid #e2e8f0';if(!tk)tr.style.background='#fff7ed';
-     const tm=r&&r.t?new Date(r.t+4*36e5).toISOString().slice(11,16):'';
-     const vals=[x.hall,x.inv||'—',tk?(r.st<r.tot?'⚠ ناقص · Incomplete ('+r.st+'/'+r.tot+')':'✅ تم · Done'):'⏳ لم يُؤخذ · Not taken',tk?(r.by||'—'):'—',tm,tk?Math.max(0,r.st-(r.n||0)):'—',tk?(r.n||0):'—',tk?(r.lt||0):'—',r?r.tot:'—'];
-     vals.forEach((v,i)=>{const td=h('td','',String(v));td.style.padding='4px 6px';if(i===0)td.style.fontWeight='800';tr.append(td)});tb.append(tr)});
-    bx.append(tb);c.append(bx)}}catch(e){}
+  try{const b0=hallBox(ST.all?ds.slice(-1):ds);if(b0)c.append(b0)}catch(e){}
   const lw=h('div','abl');c.append(lw);
   function list(){lw.innerHTML='';const RR=filt(all),hr=h('div','abr abrh');HEAD.forEach(t=>hr.append(h('span','',t)));lw.append(hr);
    if(!RR.length)lw.append(h('p','abe','لا يوجد غائبون · No absentees'));
@@ -5824,7 +5825,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  const finX=R=>R.map(r=>{const g=fGet(r);return{gb:'Grade '+String(+r.g||r.g).padStart(2,'0'),sid:r.sid||'',name:r.name,cls:r.cls,str:r.str||'',subj:r.subj||(r.title||''),date:r.date,exc:fLab(g.k),day:WDY(r.date),time:r.time||'',hall:r.hall||'',cmt:g.t||''}});
  async function finExport(R){const X=finX(R);const nE=X.filter(x=>x.exc==='Excused').length,nU=X.filter(x=>x.exc==='UNExcused').length,dts=[...new Set(X.map(x=>x.date))].sort(),M=FD.meta;
   const blob=window.__scXlsxAbs({title:M.title||FDEF,l2:'Exam days: '+dts.length+'   |   Date: '+(dts.length>1?dts[0]+' → '+dts[dts.length-1]:dts[0]),by:M.by||myBy(),sum:['Absent: '+X.length,'Excused: '+nE+'   ·   Unexcused: '+nU+'   ·   Pending: '+(X.length-nE-nU)],
-   cols:[['sid','ID',14],['name','Name',34],['cls','Class',18],['str','Cluster',12],['subj','Subject',26],['date','DATE',13],['exc','Excused / UNExcused',20],['day','Day',12],['time','Time',13],['hall','Hall',12],['cmt','Comment',34]],rows:X,band:'gb',unit:'student',note:(M.note?M.note+' — ':'')+'Confidential — contains student information. For authorised staff only.'});
+   cols:[['sid','ID',14],['name','Name',34],['cls','Class',18],['str','Cluster',12],['subj','Subject',26],['date','DATE',13],['exc','Excused / UNExcused',20],['day','Day',12],['time','Time',13],['c1','contact #',14],['c2','contact #',14],['c3','contact #',14],['hall','Hall',12],['cmt','Comment',34]],rows:X,band:'gb',unit:'student',note:(M.note?M.note+' — ':'')+'Confidential — contains student information. For authorised staff only.'});
   await window.__dl('ATS_EOT_Final_Exam_Report.xlsx',blob)}
  async function finSave(R){const by=myBy(),c0=await EDB.doc('coord/absnotes').get(),o=c0.exists?{...c0.data()}:{};
   R.forEach(r=>{const dr=FD.rows[fKey(r)];if(!dr)return;const dd={...(o[r.date]||{})};if(!dr.k&&!dr.t)delete dd[r.id];else dd[r.id]={k:dr.k||'other',t:dr.t||'',by,at:Date.now()};o[r.date]=dd});
@@ -5840,6 +5841,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
   sv.onclick=async()=>{sv.textContent='…';try{await finSave(R);msg.textContent='✔ تم الحفظ · Saved';paintFin()}catch(e){msg.textContent='✖ تعذّر الحفظ · Could not save'}sv.textContent='💾 حفظ · Save'};
   ex.onclick=async()=>{ex.textContent='…';try{await finExport(R);msg.textContent='✔ Excel'}catch(e){msg.textContent='✖ تعذّر · Failed'}ex.textContent='📊 تصدير Excel · Export'};
   bar.append(sv,ex,msg);if(!canAny)bar.append(h('small','','عرض وتصدير فقط · View and export only'));c.append(bar);
+  try{const d0=absDays(),pd=pickDay(d0),b0=hallBox(d0.filter(d=>d.date===pd));if(b0)c.append(b0)}catch(e){}
   if(!R.length){c.append(h('p','abe','لا توجد غيابات مسجّلة بعد · No absences recorded yet'))}
   const wrap=h('div','');wrap.style.cssText='overflow:auto;margin-top:8px';const tb=h('table','stuT');tb.style.width='100%';const th=h('tr');['#','ID','الطالب · Name','الشعبة · Class','المادة · Subject','التاريخ · Date','عذر · Status','القاعة · Hall','التعليق · Comment'].forEach(t=>th.append(h('th','',t)));tb.append(th);
   R.forEach((r,i)=>{const tr=h('tr');[String(i+1),r.sid||'',r.name,r.cls,r.subj||r.title||'',r.date].forEach(t=>tr.append(h('td','',t)));
