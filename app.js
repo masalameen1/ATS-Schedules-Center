@@ -5793,7 +5793,7 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
     const X=rows.slice().sort((p,q)=>String(p.date).localeCompare(q.date)||String(p.hall).localeCompare(String(q.hall),'en',{numeric:true})||String(p.g).localeCompare(String(q.g))||String(p.cls).localeCompare(String(q.cls))||String(p.name).localeCompare(String(q.name))).map(r=>({date:r.date,exam:r.title||'',name:r.name,sid:r.sid||'',em:em2?(r.em||''):'',g:r.g,cls:r.cls,str:r.str||'',act:r.act||'',tch:r.tch||'',hall:r.hall||'',seat:r.seat||'',time:r.time||'',dur:r.dur||'',inv:r.inv||'',subj:r.subj||'',type:r.type||'',status:r.late?'Late':'Absent',late:r.late?r.late+' min':'',exc:(r.n&&(r.n.k==='excuse'||r.n.k==='sick'))?'Excused':(r.n&&r.n.k==='none'?'Unexcused':'Pending'),reason:r.n&&r.n.k&&r.n.k!=='none'?(EN[r.n.k]||''):'',cmt:r.n?(r.n.t||''):'',by:r.n?(r.n.by||''):''}));
     const nA=X.filter(x=>x.status==='Absent').length,nL=X.length-nA,nE=X.filter(x=>x.exc==='Excused').length,nU=X.filter(x=>x.exc==='Unexcused').length;
     const dts=[...new Set(X.map(x=>x.date))].sort(),by0=(window.__getMyName&&window.__getMyName())||em().split('@')[0];
-    const blob=window.__scXlsxAbs({title:'Student Absence Report',l2:'Exam days: '+dts.length+'   |   Date: '+(dts.length>1?dts[0]+' → '+dts[dts.length-1]:dts[0]),by:by0,sum:['Absent: '+nA,'Late: '+nL,'Excused: '+nE+'   ·   Unexcused: '+nU+'   ·   Pending: '+(X.length-nE-nU)],
+    const blob=window.__scXlsxAbs({title:'Student Absence Report',l2:'Exam days: '+dts.length+'   |   Date: '+(dts.length>1?dts[0]+' → '+dts[dts.length-1]:(dts[0]||'—')),by:by0,sum:['Absent: '+nA,'Late: '+nL,'Excused: '+nE+'   ·   Unexcused: '+nU+'   ·   Pending: '+(X.length-nE-nU)],
      cols:[['date','Date',13],['exam','Exam',22],['name','Student',32],['sid','Student ID',14],['em','Email',30],['g','Grade',8],['cls','Class',16],['str','Stream',14],['act','Activity',14],['tch','Class Teacher',22],['hall','Hall',12],['seat','Seat',8],['time','Time',13],['dur','Duration',10],['inv','Invigilator',26],['subj','Subject',24],['type','Type',10],['status','Status',11],['late','Late By',10],['exc','Excuse',12],['reason','Reason',12],['cmt','Comment',34],['by','Recorded By',20]],
      rows:X,band:'date',note:'Confidential — contains student information. For authorised staff only.'});
     await window.__dl('ATS_Absentees_'+(ds.length===1?ds[0].date:'all')+'.xlsx',blob);msg.textContent='✔ Excel'}catch(e){msg.textContent='✖ تعذّر'}}),msg);
@@ -5830,8 +5830,8 @@ document.addEventListener('click',ev=>{try{const b=ev.target&&ev.target.closest&
  const WDY=dt=>{try{return new Date(dt+'T12:00:00+04:00').toLocaleDateString('en-GB',{timeZone:'Asia/Dubai',weekday:'long'})}catch(e){return ''}};
  const finX=R=>R.map(r=>{const g=fGet(r);return{gb:'Grade '+String(+r.g||r.g).padStart(2,'0'),sid:r.sid||'',name:r.name,cls:r.cls,str:r.str||'',subj:r.subj||(r.title||''),date:r.date,exc:fLab(g.k),day:WDY(r.date),time:r.time||'',hall:r.hall||'',cmt:g.t||''}});
  async function finExport(R){const X=finX(R);const nE=X.filter(x=>x.exc==='Excused').length,nU=X.filter(x=>x.exc==='UNExcused').length,dts=[...new Set(X.map(x=>x.date))].sort(),M=FD.meta;
-  const blob=window.__scXlsxAbs({title:M.title||FDEF,l2:'Exam days: '+dts.length+'   |   Date: '+(dts.length>1?dts[0]+' → '+dts[dts.length-1]:dts[0]),by:M.by||myBy(),sum:['Absent: '+X.length,'Excused: '+nE+'   ·   Unexcused: '+nU+'   ·   Pending: '+(X.length-nE-nU)],
-   cols:[['sid','ID',14],['name','Name',34],['cls','Class',18],['str','Cluster',12],['subj','Subject',26],['date','DATE',13],['exc','Excused / UNExcused',20],['day','Day',12],['time','Time',13],['c1','contact #',14],['c2','contact #',14],['c3','contact #',14],['hall','Hall',12],['cmt','Comment',34]],rows:X,band:'gb',unit:'student',note:(M.note?M.note+' — ':'')+'Confidential — contains student information. For authorised staff only.'});
+  const blob=window.__scXlsxAbs({title:M.title||FDEF,l2:'Exam days: '+dts.length+'   |   Date: '+(dts.length>1?dts[0]+' → '+dts[dts.length-1]:(dts[0]||'—')),by:M.by||myBy(),sum:['Absent: '+X.length,'Excused: '+nE+'   ·   Unexcused: '+nU+'   ·   Pending: '+(X.length-nE-nU)],
+   cols:[['sid','ID',14],['name','Name',34],['cls','Class',18],['str','Cluster',12],['subj','Subject',26],['date','DATE',13],['exc','Excused / UNExcused',20],['day','Day',12],['time','Time',13],['c1','contact #',14],['c2','contact #',14],['c3','contact #',14],['hall','Hall',12],['cmt','Comment',34]],rows:X,band:'gb',unit:'student',tpl:'eot',keep:true,note:(M.note?M.note+' — ':'')+'Confidential — contains student information. For authorised staff only.'});
   await window.__dl('ATS_EOT_Final_Exam_Report_'+((FD.sel&&FD.sel!=='*')?FD.sel:'all_days')+'.xlsx',blob)}
  async function finSave(R){const by=myBy(),c0=await EDB.doc('coord/absnotes').get(),o=c0.exists?{...c0.data()}:{};
   R.forEach(r=>{const dr=FD.rows[fKey(r)];if(!dr)return;const dd={...(o[r.date]||{})};if(!dr.k&&!dr.t)delete dd[r.id];else dd[r.id]={k:dr.k||'other',t:dr.t||'',by,at:Date.now()};o[r.date]=dd});
@@ -8620,7 +8620,7 @@ mark.plH{background:#fde047;color:#14213d;border-radius:4px;padding:0 2px}
    ['xl/_rels/workbook.xml.rels','<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'],
    ['xl/styles.xml',sty],['xl/worksheets/sheet1.xml',sh]])}
  window.__scXlsx=xlsxPretty;
- window.__scXlsxAbs=function(cfg){const R=cfg.rows,CD=cfg.cols.filter(c=>['name','status','date'].includes(c[0])||R.some(r=>String(r[c[0]]==null?'':r[c[0]]).trim())).slice(0,26),COLS=CD.map(c=>[c[1],c[2]]),N=CD.length;
+ window.__scXlsxAbs=function(cfg){const R=cfg.rows,CD=(cfg.keep?cfg.cols:cfg.cols.filter(c=>['name','status','date'].includes(c[0])||R.some(r=>String(r[c[0]]==null?'':r[c[0]]).trim()))).slice(0,26),COLS=CD.map(c=>[c[1],c[2]]),N=CD.length;
   const mixc=(h,a)=>{const n=parseInt(h,16),r=n>>16,g=(n>>8)&255,b=n&255,m=v=>Math.round(v*a+255*(1-a)).toString(16).padStart(2,'0');return (m(r)+m(g)+m(b)).toUpperCase()};
   const fonts=['<font><sz val="11"/><color rgb="FF1F2937"/><name val="Tahoma"/></font>'],fills=['<fill><patternFill patternType="none"/></fill>','<fill><patternFill patternType="gray125"/></fill>'],borders=['<border><left/><right/><top/><bottom/><diagonal/></border>'],xfs=['<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'],cache={};
   const ix=(a,x)=>{let i=a.indexOf(x);if(i<0){a.push(x);i=a.length-1}return i};
@@ -8641,13 +8641,31 @@ mark.plH{background:#fde047;color:#14213d;border-radius:4px;padding:0 2px}
   const ctr=c=>(c[2]<=10&&c[0]!=='name')||['no','cnt','tot','n'].includes(c[0]);
   const t3=(c,f)=>S({b:1,sz:15,c,f,bd:0,ro:1,h:'left'});
   const strip=ht=>{if(N<3){full('',S({f:SKY,bd:0}),ht);return}const a3=Math.max(1,Math.floor(N/3)),b3=Math.max(a3+1,Math.floor(2*N/3));span3([['',S({f:SKY,bd:0}),0,a3-1],['',S({f:GRN,bd:0}),a3,b3-1],['',S({f:NAVY,bd:0}),b3,N-1]],ht)};
+  let HR=0;
+  if(cfg.tpl==='eot'){
+   const BKC='000000',OR='F4B183',GRL='E2EFDA',bd0={bc:BKC};
+   full(cfg.title,S({b:1,sz:22,c:NAVY,bd:0,h:'center',ro:1}),40);
+   full('أعدّه · Prepared by: '+(who||'—')+'   |   Issued: '+stampX()+(cfg.l2?'   |   '+cfg.l2:''),S({sz:12,c:'475569',bd:0,h:'center',ro:1}),24);
+   {const sm=(cfg.sum||[]).filter(Boolean);if(sm.length)full(sm.join('   |   '),S({b:1,sz:13,c:NAVY,f:'E2E8F5',bd:0,h:'center',ro:1}),28)}
+   add([],8);
+   const gs={};R.forEach(x=>{(gs[x[cfg.band]]=gs[x[cfg.band]]||[]).push(x)});
+   const keys=[...new Set(['Grade 09','Grade 10','Grade 11','Grade 12',...Object.keys(gs)])].sort();
+   keys.forEach(kk=>{const rows=gs[kk]||[];
+    add(CD.map((c,j)=>cell(j,r,c[1],S({b:1,sz:12,c:'000000',f:OR,bc:BKC,h:'center'}))),24);
+    full(String(kk).replace(/^Grade\s*/i,'G'),S({b:0,sz:20,c:'000000',f:GRL,bc:BKC,h:'center'}),34);
+    rows.forEach(x=>{add(CD.map((c,j)=>{const k=c[0],v=x[k];let o={sz:11,b:(k==='exc'||k==='cls')?1:0,c:'000000',h:(k==='name'||k==='cmt'||k==='subj')?'left':'center',bc:BKC,ro:1};
+      if(k==='exc')o.c=v==='Excused'?'047857':v==='UNExcused'||v==='Unexcused'?'B91C1C':'64748B';
+      return cell(j,r,v,S(o))}),Math.max(22,Math.ceil(Math.max(String(x.name||'').length/(((CD.find(c=>c[0]==='name'))||CD[0])[2]*.95),String(x.cmt||'').length/32,String(x.subj||'').length/24))*17+8))});
+    if(!rows.length)add(CD.map((c,j)=>cell(j,r,'',S({sz:11,bc:BKC}))),22);
+    add([],14)});
+  }else{
   full(cfg.title,S({b:1,sz:24,c:'FFFFFF',f:NAVY,bd:0,h:'left'}),46);
   full(cfg.l2,S({b:1,sz:15,c:'FFFFFF',f:SKY,bd:0,ro:1,h:'left'}),32);
   full('أعدّه · Prepared by: '+(who||'—')+'   |   Issued: '+stampX(),S({b:1,sz:14,c:'FFFFFF',f:MID,bd:0,ro:1,h:'left'}),30);
   strip(8);
   {const sm=(cfg.sum||[]).filter(Boolean);if(N<3||sm.length<2)full(sm.join('   |   '),t3(NAVY,'E2E8F5'),34);else{const a3=Math.max(1,Math.floor(N/3)),b3=Math.max(a3+1,Math.floor(2*N/3));span3([[sm[0],t3('156CA0','DCEEF9'),0,a3-1],[sm[1],t3('2E7D32','E3F3DF'),a3,b3-1],[sm[2]||'',t3(NAVY,'E2E8F5'),b3,N-1]],34)}}
   add([],8);
-  add(CD.map((c,j)=>cell(j,r,c[1],S({b:1,sz:14,c:'FFFFFF',f:NAVY,bc:NAVY,h:ctr(c)?'center':'left'}))),36);const HR=r-1;
+  add(CD.map((c,j)=>cell(j,r,c[1],S({b:1,sz:14,c:'FFFFFF',f:NAVY,bc:NAVY,h:ctr(c)?'center':'left'}))),36);HR=r-1;
   let lastB=null,zi=0;
   const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const bandTxt=(v,cnt)=>{const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(String(v));let t=String(v);if(m){const d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3],12));t=DAYS[d.getUTCDay()]+'  ·  '+(+m[3])+' '+MON[+m[2]-1]+' '+m[1]}const u=cfg.unit||'record';return t+'   —   '+cnt+' '+u+(cnt>1?'s':'')};
@@ -8658,10 +8676,11 @@ mark.plH{background:#fde047;color:#14213d;border-radius:4px;padding:0 2px}
     if(k==='exc')o=Object.assign(o,v==='Excused'?{c:'047857',f:'ECFDF5',bc:'10B981',b:1}:v==='Unexcused'?{c:'B91C1C',f:'FEF2F2',bc:'EF4444',b:1}:{c:'64748B'});
     if(k==='name'||k==='sid')o.c=NAVY;
     return cell(j,r,v,S(o))}),Math.max(30,Math.ceil(Math.max(String(x.name).length/((CD.find(c=>c[0]==='name')||CD[0])[2]*.95),String(x.cmt||'').length/30,String(x.inv||'').length/24,String(x.subj||'').length/22,...CD.map(c=>String(x[c[0]]==null?'':x[c[0]]).length/(c[2]*.66))))*19+10))});
+  }
   add([],10);
   if(cfg.note)full(cfg.note,S({b:1,sz:13,c:NAVY,f:'EAF6E7',h:'left',ro:1,bc:GRN}),36);
   add([],6);strip(8);
-  const sh='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr codeName="ATSP'+S({b:1,sz:26,c:'1B3F86',h:'center',bd:0})+'_'+N+'"><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView showGridLines="0" workbookViewId="0"><pane ySplit="'+HR+'" topLeftCell="A'+(HR+1)+'" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="22"/><cols>'+COLS.map((c,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+c[1]+'" customWidth="1"/>').join('')+'</cols><sheetData>'+out.join('')+'</sheetData><mergeCells count="'+mg.length+'">'+mg.map(m=>'<mergeCell ref="'+m+'"/>').join('')+'</mergeCells><printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>';
+  const sh='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr codeName="ATSP'+S({b:1,sz:26,c:'1B3F86',h:'center',bd:0})+'_'+N+'"><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView showGridLines="0" workbookViewId="0">'+(HR?'<pane ySplit="'+HR+'" topLeftCell="A'+(HR+1)+'" activePane="bottomLeft" state="frozen"/>':'')+'</sheetView></sheetViews><sheetFormatPr defaultRowHeight="22"/><cols>'+COLS.map((c,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+c[1]+'" customWidth="1"/>').join('')+'</cols><sheetData>'+out.join('')+'</sheetData><mergeCells count="'+mg.length+'">'+mg.map(m=>'<mergeCell ref="'+m+'"/>').join('')+'</mergeCells><printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>';
   const sty='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="'+fonts.length+'">'+fonts.join('')+'</fonts><fills count="'+fills.length+'">'+fills.join('')+'</fills><borders count="'+borders.length+'">'+borders.join('')+'</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="'+xfs.length+'">'+xfs.join('')+'</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
   return zip([['[Content_Types].xml','<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'],
    ['_rels/.rels','<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
