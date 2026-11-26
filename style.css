@@ -3328,3 +3328,6 @@ body>div[style*="left: 50%"][style*="bottom"]{width:max-content;max-width:94vw!i
 #etBig .etQc .etQs{white-space:nowrap;font-size:13px;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;max-width:22ch}
 #etBig{overflow-x:hidden}
 @media(max-width:900px){#etBig .etQc{flex-wrap:wrap;width:auto;justify-content:center}}
+
+/* home: remove the Open timetable button */
+#homeGo,.homeGo,.key#homeGo{display:none!important}
