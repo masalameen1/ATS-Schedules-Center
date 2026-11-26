@@ -3205,16 +3205,16 @@ function invSheet(d,i){const I=invData(d),hex=c=>c.replace('#','');
  I.rows.forEach((r,hi)=>{const z=zCol(r.z),zc=hex(z[0]),zt=hex(z[1]),rt=hi%2?mixW(zt,.55):zt,k=Math.max(1,r.ss.length),base=rows.length;
   const sv0=r.sup||'—',pv=supRuns[supRuns.length-1],sameSup=!!pv&&pv.sup===sv0&&pv.zone===r.zone;if(sameSup)pv.end=base+k;else supRuns.push({sup:sv0,zone:r.zone,start:base,end:base+k});
   if(r.zone!==zname){closeZ();zname=r.zone;zStart=base}
-  const nm=r.inv.length?r.inv.map(n=>{const ic=r.inv.length>1?iaOf(d,r.v.id,n):null;return ic?n+'\n   ↳ '+ic.map(x=>x[0]+' ('+x[1]+')').join(' · '):n}).join('\n'):'⚠ none assigned · بلا مراقب';const need0=Math.max(46,Math.ceil(nm.split('\n').length*21/k)+6),hTot=r.ss.reduce((a,z)=>a+(+z.n||0),0);
+  const nm=r.inv.length?r.inv.join('\n'):'⚠ none assigned · بلا مراقب';let lab=null;if(r.inv.length>1&&r.ss.length){const q={};let okI=true;r.inv.forEach(n=>{const ic=iaOf(d,r.v.id,n);if(!ic||!ic.length)okI=false;else q[n]=ic.map(x=>x[0])});if(okI){const L=r.ss.map(s=>{const w=[];r.inv.forEach(n=>{const i=q[n].indexOf(s.cls);if(i>=0){w.push(n);q[n].splice(i,1)}});return w.join('\n')});if(L.every(x=>x))lab=L}}const need0=lab?46:Math.max(46,Math.ceil(nm.split('\n').length*21/k)+6),hTot=r.ss.reduce((a,z)=>a+(+z.n||0),0);
   for(let j=0;j<k;j++){const s=r.ss[j],row=[];const need=Math.max(need0,s?19*Math.ceil(String(invSubj(s)||'').length/22)+10:0);const tint={sz:14,bg:rt,wrap:1,va:'center'};
    row.push(j===0&&r.zone!==undefined&&base===zStart?T(r.zone,{sz:16,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}):T('',{sz:16,b:1,c:'FFFFFF',bg:zc,al:'center',wrap:1}));
    row.push(T(j===0?r.hall+(r.ss.length?'\n👥 '+hTot+' students':''):'',{sz:17,b:1,bg:zt,wrap:1}));
-   row.push(T(j===0?nm:'',r.inv.length?{sz:15,b:1,c:'0F172A',bg:rt,wrap:1}:{sz:15,b:1,c:'B91C1C',bg:'FEE2E2',wrap:1}));
+   row.push(T(lab?((j===0||lab[j]!==lab[j-1])?lab[j]:''):(j===0?nm:''),r.inv.length?{sz:15,b:1,c:'0F172A',bg:rt,wrap:1}:{sz:15,b:1,c:'B91C1C',bg:'FEE2E2',wrap:1}));
    if(s){const ty=tyOf(s,d),ele=/electr/i.test(ty);row.push(T(s.cls||'',{...tint,sz:15,b:1}));row.push(T(s.n||0,{...tint,al:'center',b:1}));row.push(T(s.code||'',tint));row.push(T(invSubj(s),{...tint,b:1}));row.push(T(ele?'Electronic':'Paper',{sz:14,b:1,c:ele?'1D4ED8':'B45309',bg:ele?'DBEAFE':'FEF3C7',al:'center'}))}
    else{for(let q=0;q<5;q++)row.push(T('',tint))}
    row.push(T(j===0?r.time:'',{sz:15,b:1,c:'1E3A8A',bg:zt,al:'center'}));row.push(T(j===0&&!sameSup?sv0:'',{sz:15,b:1,bg:zt,wrap:1,va:'center'}));
    row.push(T(s?invReqs(s):'',{sz:13,i:1,c:'92400E',bg:rt,wrap:1}));rows.push(row);heights[rows.length-1]=need}
-  if(k>1){[1,2,8].forEach(c=>merges.push(String.fromCharCode(65+c)+(base+1)+':'+String.fromCharCode(65+c)+(base+k)))}});
+  if(k>1){[1,8].forEach(c=>merges.push(String.fromCharCode(65+c)+(base+1)+':'+String.fromCharCode(65+c)+(base+k)));if(lab){let a=0;for(let j=1;j<=k;j++){if(j===k||lab[j]!==lab[a]){if(j-a>1)merges.push('C'+(base+a+1)+':C'+(base+j));a=j}}}else merges.push('C'+(base+1)+':C'+(base+k))}});
  supRuns.forEach(q=>{if(q.end-q.start>1)merges.push('J'+(q.start+1)+':J'+q.end)});closeZ();
  {const rs=invReserve()[d.id];if(rs&&rs.length){rows.push(Array.from({length:N},()=>T('',{bd:false})));heights[rows.length-1]=14;
   bar('Reserve list ('+rs.length+') — teachers without invigilation on this day. Each teacher is on reserve on one day only.',{sz:15,b:1,c:'FFFFFF',bg:'6D28D9',al:'center'},30);
