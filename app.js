@@ -5063,8 +5063,8 @@ function openPanel(){if(!cur||!sample)return;panel.innerHTML='';panel.style.disp
   items.slice(0,2).forEach(({o,g})=>{const d=document.createElement('div');d.className='ogI';
    const en=o.n.replace(/[؀-ۿ]/g,'').trim()?o.n:'';
    d.innerHTML='<div class="ogE">'+(g?g[1]:'🎉')+'</div><div class="ogT">Today · اليوم</div><div class="ogN"></div><div class="ogA"></div><div class="ogS"></div>';
-   d.querySelector('.ogN').textContent=o.n;d.querySelector('.ogA').textContent=g?g[2]:'نبارك لكم هذه المناسبة، ونتمنى لكم يومًا مليئًا بالخير والمعرفة والنجاح';
-   d.querySelector('.ogS').textContent=g?g[3]:'Warm wishes to everyone on this occasion — may it be a day of goodness, learning and joy.';box.append(d)});
+   d.querySelector('.ogN').textContent=o.n;d.querySelector('.ogA').textContent=g?g[2]:'';
+   d.querySelector('.ogS').textContent=g?g[3]:'';if(!g){d.querySelector('.ogA').remove();d.querySelector('.ogS').remove()}box.append(d)});
   box.querySelector('.ogX').onclick=()=>{box.classList.remove('on');try{localStorage.setItem('tt_ogHide',iso)}catch(e){}clearTimeout(window.__ogT)};box.classList.add('on');clearTimeout(window.__ogT);window.__ogT=setTimeout(()=>{box.classList.remove('on')},7000)}
  setTimeout(show,600);window.__occGreet=show;
 })();
