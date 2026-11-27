@@ -3351,6 +3351,6 @@ header.top .brand .logo{order:-1;margin-left:0!important}
  #homec .hxTxt .hrak{position:absolute!important;top:86px;left:14px;z-index:4;font-size:12px!important}
  #homec .hxB{width:clamp(84px,9vw,128px)}
 }
-.tmChips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
-.tmCh{border:1.5px solid var(--line,#d0d7e6);background:var(--bg,#fff);color:inherit;border-radius:999px;padding:8px 14px;font:700 13px Inter,Cairo,sans-serif;cursor:pointer}
+.tmChips{display:flex;flex-direction:column;gap:6px;align-items:stretch;margin:4px 6px 8px}
+.tmCh{border:1.5px solid var(--line,#d0d7e6);background:var(--bg,#fff);color:inherit;border-radius:999px;padding:6px 10px;font:700 12px Inter,Cairo,sans-serif;cursor:pointer;text-align:center}
 .tmCh:hover{box-shadow:0 4px 12px rgba(30,64,175,.2)}
