@@ -5087,7 +5087,7 @@ function openPanel(){if(!cur||!sample)return;panel.innerHTML='';panel.style.disp
  const todayI=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai'}).format(new Date());
  function show(){const iso=todayI();let hid='';try{hid=localStorage.getItem('tt_ogHide')||''}catch(e){}
   if(!window.__occOn){box.classList.remove('on');return}
-  const list=window.__occOn(iso).filter(o=>!o.ev&&!/Charter/.test(o.n));if(!list.length||hid===iso){box.classList.remove('on');return}
+  const list=window.__occOn(iso).filter(o=>!o.ev&&!/Charter/.test(o.n)&&!/exam|اختبار|امتحان/i.test(o.n));if(!list.length||hid===iso){box.classList.remove('on');return}
   const seenN=new Set(),items=[];list.forEach(o=>{if(seenN.has(o.n))return;seenN.add(o.n);const g=G.find(x=>x[0].test(o.n));items.push({o,g})});
   box.innerHTML='<button class="ogX" title="Close" aria-label="Close">✕</button>';
   items.slice(0,2).forEach(({o,g})=>{const d=document.createElement('div');d.className='ogI';
