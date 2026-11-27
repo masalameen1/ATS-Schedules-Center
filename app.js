@@ -7396,7 +7396,7 @@ window.__aiJson=aiJson;
  const wrap=el('div','hxWrap');wrap.append(L,R);hc.append(hex,wrap);hc.classList.add('hx');
  /* orbit buttons = every screen the person may open */
  let sig='';
- function build(){const nbs=[...document.querySelectorAll('.nb[data-view]')],ids=ORDER.filter(id=>(ROLE==='student'||(window.__isOwner&&window.__isOwner()))&&(id!=='roster'||isSal())&&id!=='timing'&&(!['exs','charter','meet'].includes(id)||(window.__privOK&&window.__privOK()))&&!(ROLE==='student'&&['sub','msg','meet','me','roster','plans'].includes(id))&&nbs.some(n=>n.dataset.view===id)&&(typeof VIEWS!=='undefined'&&VIEWS[id]));const s=ids.join();if(s===sig)return;sig=s;
+ function build(){const nbs=[...document.querySelectorAll('.nb[data-view]')],ids=ORDER.filter(id=>(id!=='roster'||isSal())&&(!['exs','charter','timing'].includes(id)||(ROLE!=='student'&&window.__isOwner&&window.__isOwner()))&&(id!=='meet'||(window.__privOK&&window.__privOK()))&&!(ROLE==='student'&&['sub','msg','meet','me','roster','plans'].includes(id))&&nbs.some(n=>n.dataset.view===id)&&(typeof VIEWS!=='undefined'&&VIEWS[id]));const s=ids.join();if(s===sig)return;sig=s;
   org.innerHTML='';org.append(el('i','hxRing'));
   const W=org.clientWidth||1000,H=org.clientHeight||600,rx=.46*W,ry=.42*H,N=720,cum=[0];let px=0,py=-ry;for(let k=1;k<=N;k++){const t=-Math.PI/2+2*Math.PI*k/N,x=rx*Math.cos(t),y=ry*Math.sin(t);cum.push(cum[k-1]+Math.hypot(x-px,y-py));px=x;py=y}
   const TL=cum[N];const at=f=>{const d=f*TL;let k=0;while(k<N&&cum[k+1]<d)k++;return -Math.PI/2+2*Math.PI*(k+(d-cum[k])/((cum[k+1]-cum[k])||1))/N};
