@@ -3333,7 +3333,9 @@ body>div[style*="left: 50%"][style*="bottom"]{width:max-content;max-width:94vw!i
 #homeGo,.homeGo,.key#homeGo{display:none!important}
 /* v20261127h */
 .ttEn::before{content:attr(data-t)}
-#clk .cHj{display:block;text-align:center;font:700 12px Cairo,Inter,sans-serif;opacity:.9;margin-top:2px}
+header.top .hdrCk{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+header.top .hdrCk #occ{transform:scale(.8);transform-origin:right center;margin:0!important;max-width:230px}
+header.top .hdrCk #clk{margin:0!important}
 header.top{direction:ltr!important}
 header.top .brand{direction:ltr!important;flex-direction:row!important;justify-content:flex-start!important;margin-right:auto}
 header.top .brand .logo{order:-1;margin-left:0!important}
