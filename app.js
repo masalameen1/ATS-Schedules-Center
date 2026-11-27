@@ -7765,7 +7765,7 @@ return {QV,HD,PO,WS,ST,QT,NW,DL,QZ,OC};
  const newSeg=k=>({id:rid(),k,on:true,stus:[],i:0,lead:'',leadEn:'',body:'',en:'',src:'',ed:false});
  const mig=s=>{if(s.stu&&!s.stus)s.stus=[Object.assign({rl:'p'},s.stu)];delete s.stu;if(!s.stus)s.stus=[]};
  const DEF=['intro','quran','hadith','poem','wisdom','news','quote','talk','quiz','closing'];
- const ALLK=['intro','quran','hadith','poem','wisdom','story','play','joke','news','quote','talk','quiz','word','dyk','anthem','minute','closing'];
+ const ALLK=['intro','quran','hadith','poem','wisdom','story','play','joke','news','quote','talk','quiz','word','dyk','anthem','closing'];
  const emptyP=()=>{const d=new Date(Date.now()+4*36e5).toISOString().slice(0,10);return {id:rid(),date:d,oc:occFor(d),pres:'',tch:nameOf(),title:'',cls:'',en:true,segs:DEF.map(newSeg)}};
  let P=emptyP();try{const o=JSON.parse(localStorage.getItem('tt_bcdraft')||'null');if(o&&o.segs&&o.segs.length){o.segs.forEach(mig);P=o}}catch(e){}
  const saveDraft=()=>{try{localStorage.setItem('tt_bcdraft',JSON.stringify(P))}catch(e){}};
@@ -7895,7 +7895,7 @@ return {QV,HD,PO,WS,ST,QT,NW,DL,QZ,OC};
  window.__bcExp={pdf:exportPDF,docx:exportDOCX,build:buildPage};
  /* ---- editor ---- */
  let step=1,PCLS='';
- const ensureAll=()=>{P.segs.forEach(mig);if(P.en===undefined)P.en=true;ALLK.forEach((k,i)=>{if(P.segs.some(x=>x.k===k))return;const z=newSeg(k);z.on=false;let j=P.segs.findIndex(x=>ALLK.indexOf(x.k)>i);if(j<0||k==='closing')j=P.segs.length;P.segs.splice(j,0,z)});const ci=P.segs.findIndex(x=>x.k==='closing');if(ci>=0&&ci!==P.segs.length-1){const [c]=P.segs.splice(ci,1);P.segs.push(c)}};
+ const ensureAll=()=>{P.segs=P.segs.filter(x=>x.k!=='minute');P.segs.forEach(mig);if(P.en===undefined)P.en=true;ALLK.forEach((k,i)=>{if(P.segs.some(x=>x.k===k))return;const z=newSeg(k);z.on=false;let j=P.segs.findIndex(x=>ALLK.indexOf(x.k)>i);if(j<0||k==='closing')j=P.segs.length;P.segs.splice(j,0,z)});const ci=P.segs.findIndex(x=>x.k==='closing');if(ci>=0&&ci!==P.segs.length-1){const [c]=P.segs.splice(ci,1);P.segs.push(c)}};
  const go=(n,bx)=>{if(n>1&&!P.segs.some(x=>x.on)){msg=T('اختر فقرة واحدة على الأقل.','Tick at least one segment.');msgEr=true;step=1;render();return}if(n>=2)refill();step=n;saveDraft();render()};
  function stepBar(b){const sb=el('div','bcTabs');sb.style.padding='0';[[1,'① '+T('اختر الفقرات','Choose segments')],[2,'② '+T('المقترح','Suggestion')],[3,'③ '+T('الطلاب','Students')],[4,'④ '+T('التنزيل','Download')]].forEach(([k,l])=>{const x=el('button',k===step?'on':'',l);x.onclick=()=>go(k);sb.append(x)});b.append(sb)}
  const navBtns=(b,prev,next,nl)=>{const r=el('div','bcAct');if(prev){const x=el('button','bcB','→ '+T('السابق','Back'));x.onclick=()=>go(prev);r.append(x)}if(next){const y=el('button','bcB pr',nl+' ←');y.onclick=()=>go(next);r.append(y)}b.append(r)};
