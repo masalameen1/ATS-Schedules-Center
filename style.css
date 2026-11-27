@@ -3331,3 +3331,24 @@ body>div[style*="left: 50%"][style*="bottom"]{width:max-content;max-width:94vw!i
 
 /* home: remove the Open timetable button */
 #homeGo,.homeGo,.key#homeGo{display:none!important}
+/* v20261127h */
+.ttEn::before{content:attr(data-t)}
+header.top{direction:ltr!important}
+header.top .brand{direction:ltr!important;flex-direction:row!important;justify-content:flex-start!important;margin-right:auto}
+header.top .brand .logo{order:-1;margin-left:0!important}
+header.top .hdrCol #clk,header.top #clk{transform:scale(.82);transform-origin:right center}
+#homec .hxPill,#homec .hxTtl,#homec .hxSub{display:none!important}
+@media(min-width:900px){
+ #homec .hxWrap{grid-template-columns:minmax(0,1fr)!important;justify-items:center;gap:14px}
+ #homec .hxArt{width:min(100%,1000px);margin-inline:auto}
+ #homec .hxOrb{aspect-ratio:1.5!important;max-height:620px!important}
+ #homec .hxTab{width:34%!important}
+ #homec .hxTxt{width:min(100%,640px);align-items:center;order:2}
+ #homec .hxTxt .hlogo{position:absolute!important;top:14px;left:16px;width:68px!important;height:68px!important;margin:0!important;z-index:4}
+ #homec .hxTxt .hlogo img{width:56px!important}
+ #homec .hxTxt .hrak{position:absolute!important;top:86px;left:14px;z-index:4;font-size:12px!important}
+ #homec .hxB{width:clamp(84px,9vw,128px)}
+}
+.tmChips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.tmCh{border:1.5px solid var(--line,#d0d7e6);background:var(--bg,#fff);color:inherit;border-radius:999px;padding:8px 14px;font:700 13px Inter,Cairo,sans-serif;cursor:pointer}
+.tmCh:hover{box-shadow:0 4px 12px rgba(30,64,175,.2)}

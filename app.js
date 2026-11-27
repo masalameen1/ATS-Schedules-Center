@@ -7396,7 +7396,7 @@ window.__aiJson=aiJson;
  const wrap=el('div','hxWrap');wrap.append(L,R);hc.append(hex,wrap);hc.classList.add('hx');
  /* orbit buttons = every screen the person may open */
  let sig='';
- function build(){const nbs=[...document.querySelectorAll('.nb[data-view]')],ids=ORDER.filter(id=>(id!=='roster'||isSal())&&!(ROLE==='student'&&['sub','msg','meet','me','roster','plans'].includes(id))&&nbs.some(n=>n.dataset.view===id)&&(typeof VIEWS!=='undefined'&&VIEWS[id]));const s=ids.join();if(s===sig)return;sig=s;
+ function build(){const nbs=[...document.querySelectorAll('.nb[data-view]')],ids=ORDER.filter(id=>(id!=='roster'||isSal())&&id!=='timing'&&(!['exs','charter','meet'].includes(id)||(window.__privOK&&window.__privOK()))&&!(ROLE==='student'&&['sub','msg','meet','me','roster','plans'].includes(id))&&nbs.some(n=>n.dataset.view===id)&&(typeof VIEWS!=='undefined'&&VIEWS[id]));const s=ids.join();if(s===sig)return;sig=s;
   org.innerHTML='';org.append(el('i','hxRing'));
   const W=org.clientWidth||1000,H=org.clientHeight||600,rx=.46*W,ry=.42*H,N=720,cum=[0];let px=0,py=-ry;for(let k=1;k<=N;k++){const t=-Math.PI/2+2*Math.PI*k/N,x=rx*Math.cos(t),y=ry*Math.sin(t);cum.push(cum[k-1]+Math.hypot(x-px,y-py));px=x;py=y}
   const TL=cum[N];const at=f=>{const d=f*TL;let k=0;while(k<N&&cum[k+1]<d)k++;return -Math.PI/2+2*Math.PI*(k+(d-cum[k])/((cum[k+1]-cum[k])||1))/N};
@@ -7406,6 +7406,24 @@ window.__aiJson=aiJson;
    if(id==='teachers'){const bd=el('span','hxBd','🗓️');ic.append(bd);ic.classList.add('hxIt')}b.append(ic,lb);b.title=(ROLE==='student'&&id==='teachers')?'Students Timetable · جدول الطلاب':(ROLE==='student'&&id==='exam')?'Exam halls & seats · القاعات والمقاعد':(EN[id]||id)+' · '+(AR[id]||'');b.onclick=()=>{try{showView(id)}catch(e){}};org.append(b)});
   org.dataset.n=ids.length}
  build();setInterval(build,2500);let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{sig='';build()},200)});
+})();
+
+/* v20261127h: privileged-only screens, fullscreen overlays, English header title, timings chips */
+(function(){
+ window.__privOK=function(){try{return isSal()||(ROLE!=='student'&&!!(window.__EXD&&window.__EXD.can&&window.__EXD.can()))}catch(e){return false}};
+ try{
+  new MutationObserver(ms=>{const fe=document.fullscreenElement||document.webkitFullscreenElement;if(!fe)return;ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1&&n.parentNode===document.body&&fe!==n&&!fe.contains(n)&&/Ov(\s|$)/.test(String(n.className||''))){fe.append(n)}}))}).observe(document.body,{childList:true});
+  document.addEventListener('fullscreenchange',()=>{if(document.fullscreenElement)return;document.querySelectorAll('.pkOv,.shOv').forEach(n=>{if(n.parentNode!==document.body)document.body.append(n)})});
+ }catch(e){}
+ const mk=(t,c)=>{const s=document.createElement('span');s.className='ttEn';s.dataset.t=t;if(c)s.classList.add(c);return s};
+ function fixT(){try{
+  const e=document.querySelector('header.top .eyb');if(e&&!e.querySelector('.ttEn')){e.textContent='';e.append(mk('APPLIED TECHNOLOGY HIGH SCHOOL'))}
+  const h=document.querySelector('header.top h1');if(h&&!h.querySelector('.ttEn')){const em=h.querySelector('em');h.textContent='';h.append(mk('ATS Schedule Center'),document.createTextNode(' '));if(em)h.append(em)}
+  const l=document.querySelector('header.top .loc');if(l&&!l.querySelector('.ttEn')){const sv=l.querySelector('svg');l.textContent='';if(sv)l.append(sv);l.append(mk(' Ras Al Khaimah'))}
+  const priv=window.__privOK();document.querySelectorAll('.nb[data-view="exs"],.nb[data-view="charter"],.nb[data-view="meet"]').forEach(b=>{b.style.display=priv?'':'none'});
+  const v=document.getElementById('v_teachers');if(v&&!v.querySelector('.tmChips')&&document.querySelector('.nb[data-view="timing"]')){const r=document.createElement('div');r.className='tmChips';[['timing','⏱','Period timing · توقيت الحصص'],['ramadan','🌙','Ramadan timing · توقيت رمضان'],['zero','0️⃣','Zero period · الحصة الصفرية']].forEach(([id,ic,tx])=>{if(!document.querySelector('.nb[data-view="'+id+'"]'))return;const b=document.createElement('button');b.type='button';b.className='tmCh';b.textContent=ic+' '+tx;b.onclick=()=>{try{showView(id)}catch(x){}};r.append(b)});const ti=document.getElementById('ti');if(ti&&ti.parentNode===v)ti.after(r);else v.prepend(r)}
+ }catch(e){}}
+ fixT();setInterval(fixT,1500);
 })();
 
 /* hub: highlight the open screen */
