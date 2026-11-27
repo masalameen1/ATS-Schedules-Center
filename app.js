@@ -7584,7 +7584,7 @@ return {QV,HD,PO,WS,ST,QT,NW,OC};
  const arch=()=>{try{return JSON.parse(localStorage.getItem('tt_bcarch')||'[]')}catch(e){return []}};
  const setArch=a=>{try{localStorage.setItem('tt_bcarch',JSON.stringify(a.slice(0,60)))}catch(e){}};
  const clean=p=>{const c=JSON.parse(JSON.stringify(p));c.segs.forEach(s=>{if(s.stu)delete s.stu.sid});return c};
- const stuHash=async id=>{try{return await stuSha(id)}catch(e){return ''}};
+ const stuHash=async id=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(id).trim().replace(/\D/g,'')||String(id).trim()));return [...new Uint8Array(b)].slice(0,8).map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return ''}};
  const rolesOf=(p,h)=>p.segs.filter(s=>s.on&&s.stu&&s.stu.h===h).map(s=>SG[s.k][0]+' · '+SG[s.k][1]);
  async function publish(p){const c=clean(p);c.ts=Date.now();c.by=nameOf();const a=arch().filter(x=>x.id!==c.id);a.unshift(c);setArch(a);let ok=true;
   try{await putPub('radprog/'+c.id,c);const ix=(await getOnce('radprog/_idx'))||{list:[]};const l=(ix.list||[]).filter(x=>x.id!==c.id);l.unshift({id:c.id,date:c.date,oc:occBy(c.oc).ar,oe:occBy(c.oc).en,by:c.by,pres:c.pres,ts:c.ts});await putPub('radprog/_idx',{list:l.slice(0,200)});
@@ -7598,14 +7598,23 @@ return {QV,HD,PO,WS,ST,QT,NW,OC};
  const close=()=>{if(ov){ov.remove();ov=null}};
  const shell=()=>{if(!ov){ov=el('div');ov.id='bcOv';ov.onclick=e=>{if(e.target===ov)close()};const bx=el('div');bx.id='bcBx';ov.append(bx);document.body.append(ov)}const bx=ov.firstChild;bx.textContent='';bx.dir=L()==='en'?'ltr':'rtl';return bx};
  /* ---- student picker ---- */
- function pickStudent(seg,done){const rs=(typeof saRoster==='function'?saRoster():[])||[];const rows=rs.filter(r=>r&&r[2]);const o=el('div','bcPick'),b=el('div','bcPk');o.append(b);o.onclick=e=>{if(e.target===o)o.remove()};b.dir=L()==='en'?'ltr':'rtl';
-  b.append(el('b','','👤 '+T('اختيار الطالب (من أي صف)','Pick a student (any class)')));
-  const f=el('div','bcG');const q=el('input');q.placeholder=T('ابحث بالاسم أو الرقم','Search name or ID');const cs=el('select');cs.append(new Option(T('كل الصفوف','All classes'),''));[...new Set(rows.map(r=>r[1]))].sort((a,c)=>String(a).localeCompare(String(c),'en',{numeric:true})).forEach(c=>cs.append(new Option(c,c)));f.append(q,cs);b.append(f);
+ const ROSTER=()=>{try{const o=JSON.parse(localStorage.getItem('tt_roster')||'null');if(o&&Array.isArray(o.rows)&&o.rows.length)return o.rows}catch(e){}return window.__EXR||[]};
+ const myClasses=()=>{const m=new Set();try{const n=nameOf();ALL.filter(l=>l.t===n).forEach(l=>m.add(String(l.c)))}catch(e){}return m};
+ const sameCls=(set,rc)=>{rc=String(rc);if(set.has(rc))return true;try{const k=saKey(rc);for(const c of set)if(saKey(c)===k)return true}catch(e){}return false};
+ function pickStudent(seg,done){const rows=ROSTER().filter(r=>r&&r[2]&&r[8]);const mine=myClasses();const hasMine=rows.some(r=>sameCls(mine,r[1]));let scope=hasMine?'mine':'all';
+  const o=el('div','bcPick'),b=el('div','bcPk');o.append(b);o.onclick=e=>{if(e.target===o)o.remove()};b.dir=L()==='en'?'ltr':'rtl';
+  b.append(el('b','','👤 '+T('اختيار الطالب','Pick a student')+' ('+rows.length+')'));
+  const sc=el('div','bcSh');const bm=el('button','bcB','🏫 '+T('صفوفي','My classes')),ba=el('button','bcB','🌐 '+T('كل الصفوف','All classes'));sc.append(bm,ba);
+  const f=el('div','bcG');const q=el('input');q.placeholder=T('ابحث بالاسم أو الرقم','Search name or ID');const cs=el('select');f.append(q,cs);b.append(sc,f);
   const lst=el('div','bcPl');b.append(lst);
   const set=async(name,cls,id)=>{const h=await stuHash(id);if(!h){msg=T('رقم الطالب غير صالح.','Invalid student ID.');msgEr=true;o.remove();done();return}seg.stu={n:first2(name),c:String(cls||''),h,sid:String(id)};saveDraft();o.remove();done()};
-  const draw=()=>{lst.textContent='';const k=q.value.trim().toLowerCase(),c=cs.value;let n=0;rows.forEach(r=>{if(n>=60)return;if(c&&String(r[1])!==c)return;if(k&&!(String(r[2]).toLowerCase().includes(k)||String(r[8]||'').includes(k)))return;if(!r[8])return;n++;const x=el('div','bcRow');x.append(el('b','',r[2]),el('small','',String(r[1])+(r[8]?' · '+r[8]:'')));x.onclick=()=>set(r[2],r[1],r[8]);lst.append(x)});if(!n)lst.append(el('small','',rows.length?T('لا نتائج (يظهر الطلاب الذين لديهم رقم طالب).','No results (only students with an ID are listed).'):T('قائمة الطلاب غير محمّلة؛ أدخل الاسم والرقم يدويًا بالأسفل.','The student list is not loaded; enter name and ID manually below.')))};
-  q.oninput=draw;cs.onchange=draw;draw();
-  const mn=el('div','bcG');const a1=el('input');a1.placeholder=T('الاسم (يدويًا)','Name (manual)');const a2=el('input');a2.placeholder=T('الصف','Class');const a3=el('input');a3.placeholder=T('رقم الطالب','Student ID');const go=el('button','bcB pr','＋ '+T('اعتماد','Use'));go.onclick=()=>{if(a1.value.trim()&&a3.value.trim())set(a1.value,a2.value,a3.value.trim())};mn.append(a1,a2,a3,go);b.append(mn);document.body.append(o)}
+  const inScope=r=>scope==='all'||sameCls(mine,r[1]);
+  const fillCls=()=>{const keep=cs.value;cs.textContent='';cs.append(new Option(T('كل الصفوف','All classes')+(scope==='mine'?' ('+T('صفوفي','mine')+')':''),''));[...new Set(rows.filter(inScope).map(r=>r[1]))].sort((a,c)=>String(a).localeCompare(String(c),'en',{numeric:true})).forEach(c=>cs.append(new Option(c+' ('+rows.filter(r=>r[1]===c).length+')',c)));cs.value=[...cs.options].some(x=>x.value===keep)?keep:''};
+  const draw=()=>{bm.className='bcB'+(scope==='mine'?' pr':'');ba.className='bcB'+(scope==='all'?' pr':'');lst.textContent='';const k=q.value.trim().toLowerCase(),c=cs.value;let n=0;rows.forEach(r=>{if(n>=80||!inScope(r))return;if(c&&String(r[1])!==c)return;if(k&&!(String(r[2]).toLowerCase().includes(k)||String(r[8]).includes(k)))return;n++;const x=el('div','bcRow');x.append(el('b','',r[2]),el('small','',String(r[1])));x.onclick=()=>set(r[2],r[1],r[8]);lst.append(x)});if(!n)lst.append(el('small','',rows.length?T('لا نتائج.','No results.'):T('قائمة الطلاب غير متاحة؛ أدخل الاسم والرقم يدويًا بالأسفل.','Student list unavailable; enter name and ID manually below.')));if(scope==='mine'&&n>=80)lst.append(el('small','',T('اكتب للبحث أو اختر صفًا لعرض الباقي.','Type to search or pick a class to see more.')))};
+  bm.onclick=()=>{if(!hasMine){msg=T('لم أجد صفوفًا مسجّلة باسمك؛ استخدم «كل الصفوف».','No classes found under your name; use “All classes”.')}scope=hasMine?'mine':'all';fillCls();draw()};ba.onclick=()=>{scope='all';fillCls();draw()};
+  if(!hasMine)bm.disabled=true;
+  q.oninput=draw;cs.onchange=draw;fillCls();draw();
+  const mn=el('div','bcG');const a1=el('input');a1.placeholder=T('الاسم (يدويًا)','Name (manual)');const a2=el('input');a2.placeholder=T('الصف','Class');const a3=el('input');a3.placeholder=T('رقم الطالب','Student ID');const go=el('button','bcB pr','＋ '+T('اعتماد يدوي','Use manual entry'));go.onclick=()=>{if(a1.value.trim()&&a3.value.trim())set(a1.value,a2.value,a3.value.trim())};mn.append(a1,a2,a3,go);const dt=el('details');dt.append(el('summary','',T('إدخال يدوي','Manual entry')),mn);b.append(dt);document.body.append(o)}
  /* ---- programme rendering (used by preview, archive and student view) ---- */
  function progView(p,mine,back){const bx=shell();const hd=el('div');hd.id='bcHd';hd.append(el('b','','🎙️ '+T('برنامج الإذاعة','Broadcast programme')));
   const pr=el('button','',('🖨 '+T('طباعة','Print')));pr.onclick=()=>window.print();const bk=el('button','','↩ '+T('رجوع','Back'));bk.onclick=back;const x=el('button','','✕');x.onclick=close;hd.append(pr,bk,x);bx.append(hd);
