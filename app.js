@@ -7429,6 +7429,27 @@ window.__aiJson=aiJson;
  fixT();setInterval(fixT,1500);
 })();
 
+/* occasions calendar follows the chosen language (v20261127u) */
+(function(){
+ const MO=[['January','يناير'],['February','فبراير'],['March','مارس'],['April','أبريل'],['May','مايو'],['June','يونيو'],['July','يوليو'],['August','أغسطس'],['September','سبتمبر'],['October','أكتوبر'],['November','نوفمبر'],['December','ديسمبر']];
+ const HJ=[[/Jumada\s*II/g,'جمادى الآخرة'],[/Jumada\s*I\b/g,'جمادى الأولى'],[/Rabi[ʻ'’]?\s*II/g,'ربيع الآخر'],[/Rabi[ʻ'’]?\s*I\b/g,'ربيع الأول'],[/Muharram/g,'محرم'],[/Safar/g,'صفر'],[/Rajab/g,'رجب'],[/Sha[ʻ'’]?ban/g,'شعبان'],[/Ramadan/g,'رمضان'],[/Shawwal/g,'شوال'],[/Dhu[ʻ'’]?l-Qi[ʻ'’]?dah/g,'ذو القعدة'],[/Dhu[ʻ'’]?l-Hijjah/g,'ذو الحجة']];
+ const PH=[['Occasion (Islamic · UAE national · Arabic language · health · environment & climate · ACTVET events)','مناسبة (إسلامية · وطنية إماراتية · اللغة العربية · الصحة · البيئة والمناخ · فعاليات ACTVET)'],['Starts in up to 3 days','تبدأ خلال 3 أيام'],['Glowing gold = today','الإطار الذهبي = اليوم'],['👆 Tap a gold day (or an occasion below) to read a short note about it.','👆 اضغط على يوم مميّز (أو مناسبة بالأسفل) لقراءة نبذة عنها.'],['An occasion observed in the UAE.','مناسبة تُحتفى بها في دولة الإمارات.'],['ACTVET event','فعالية ACTVET'],['Final exam','اختبار نهائي'],['Paper-based from ATS','ورقي من ATS'],['No invigilation day yet.','لا يوجد يوم مراقبة بعد.'],['Notes:','ملاحظات:'],['Physical attendance at school is mandatory for all students.','الحضور الفعلي إلى المدرسة إلزامي لجميع الطلبة.'],['A scientific calculator is permitted in this exam.','يُسمح باستخدام الآلة الحاسبة العلمية في هذا الاختبار.'],['Paper-based exam.','الاختبار ورقي.'],['Teachers are not allowed to read out central exam questions.','لا يُسمح للمعلمين بقراءة أسئلة الاختبار المركزي.'],['Open “Final Exams” for the full schedule.','افتح «الاختبارات النهائية» للاطلاع على الجدول كاملاً.'],['click for details','اضغط للتفاصيل'],['Today','اليوم']];
+ function ar(s){let o=s;
+  PH.forEach(([a,b])=>{if(o.includes(a))o=o.split(a).join(b)});
+  HJ.forEach(([r,b])=>{o=o.replace(r,b)});
+  MO.forEach(([a,b])=>{o=o.replace(new RegExp('\\b'+a+'\\b','g'),b)});
+  [['Monday','الاثنين'],['Tuesday','الثلاثاء'],['Wednesday','الأربعاء'],['Thursday','الخميس'],['Friday','الجمعة'],['Saturday','السبت'],['Sunday','الأحد'],['Mon','الاثنين'],['Tue','الثلاثاء'],['Wed','الأربعاء'],['Thu','الخميس'],['Fri','الجمعة'],['Sat','السبت'],['Sun','الأحد'],['Chemistry','الكيمياء'],['Biology','الأحياء'],['Physics','الفيزياء'],['Mathematics','الرياضيات'],['Islamic Studies','التربية الإسلامية'],['Social Studies','الدراسات الاجتماعية'],['Statistics','الإحصاء'],['Computer Science','الحاسوب'],['English','اللغة الإنجليزية'],['Arabic','اللغة العربية'],['Science','العلوم']].forEach(([a,b])=>{o=o.replace(new RegExp('\\b'+a+'\\b','g'),b)});
+  o=o.replace(/([؀-ۿ][؀-ۿ ]*[؀-ۿ]) · \1/g,'$1').replace(/ — ([؀-ۿ ]+) · \1/g,' — $1');
+  o=o.replace(/\bAH\b/g,'هـ').replace(/\bin (\d+) ?d\b/g,'بعد $1 ي').replace(/Invigilation: (\d+) halls? · (\d+) invigilators? \(published\)/,'المراقبة: $1 قاعة · $2 مراقب (منشورة)').replace(/Invigilation: (\d+) halls? · (\d+) invigilators?/,'المراقبة: $1 قاعة · $2 مراقب').replace(/\bInvigilation\b/g,'المراقبة');
+  return o}
+ function apply(){const M=document.getElementById('calm');if(!M||!M.classList.contains('on'))return;
+  if(window.__UL==='ar'){M.style.direction='rtl';const w=document.createTreeWalker(M,NodeFilter.SHOW_TEXT);let n;const L=[];while((n=w.nextNode()))L.push(n);L.forEach(x=>{if(/[A-Za-z]/.test(x.data)){const v=ar(x.data);if(v!==x.data)x.data=v}});M.querySelectorAll('[title]').forEach(e=>{const t=e.getAttribute('title');if(/[A-Za-z]/.test(t)){const v=ar(t);if(v!==t)e.setAttribute('title',v)}})}
+  else{M.style.direction='';const w=document.createTreeWalker(M,NodeFilter.SHOW_TEXT);let n;const L=[];while((n=w.nextNode()))L.push(n);L.forEach(x=>{if(/[؀-ۿ]/.test(x.data)&&/[A-Za-z0-9]/.test(x.data)){const v=x.data.replace(/[؀-ۿ][؀-ۿ\s،]*/g,'').replace(/\(\s*·\s*/g,'(').replace(/\s*·\s*(?=[·)]|$)/g,'').replace(/\s{2,}/g,' ');if(v!==x.data)x.data=v}})}}
+ let busy=0;const run=()=>{if(busy)return;busy=1;try{apply()}finally{setTimeout(()=>{busy=0},0)}};
+ const hook=()=>{const M=document.getElementById('calm');if(!M)return false;new MutationObserver(()=>run()).observe(M,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});return true};
+ let t=0;const iv=setInterval(()=>{if(hook()||++t>40)clearInterval(iv)},500);
+})();
+
 /* hub: highlight the open screen */
 (function(){const o=window.showView;if(!o||o.__hx)return;const w=function(id){const r=o.apply(this,arguments);try{const cur=document.querySelector('.nb.on');const v=cur&&cur.dataset.view;document.querySelectorAll('#homec .hxB').forEach(b=>b.classList.toggle('on',b.dataset.v===v))}catch(e){}return r};w.__hx=1;window.showView=w;setTimeout(()=>{try{const cur=document.querySelector('.nb.on');if(cur)document.querySelectorAll('#homec .hxB').forEach(b=>b.classList.toggle('on',b.dataset.v===cur.dataset.view))}catch(e){}},600)})();
 

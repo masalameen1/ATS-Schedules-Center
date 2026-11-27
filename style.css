@@ -3353,8 +3353,8 @@ header.top .hdrCol{order:2;flex:0 0 auto}
 /* v20261127s: same height as the search box, gold frame, soft theme-aware calendar */
 #sbar .sbi>#occ,#sbar .sbi>#clk{zoom:1!important;height:46px!important;min-height:0!important;box-sizing:border-box;display:flex!important;flex-direction:row!important;align-items:center;justify-content:center;border:2px solid #e8b923!important;border-radius:16px!important;box-shadow:0 0 0 2px rgba(232,185,35,.25),0 4px 10px -4px rgba(0,0,0,.4)!important;padding:0 14px!important;overflow:hidden;animation:none!important}
 #sbar .sbi>#occ{max-width:300px!important;font-size:13px;gap:8px;justify-content:flex-start!important}
-#calm #cdesc,#calm #cdesc *{color:var(--text)!important}
-#calm #cdesc>*{background:color-mix(in srgb,var(--ac) 9%,var(--panel))!important;border-color:var(--ac)!important}
+#calm #cdesc{background:color-mix(in srgb,var(--ac) 9%,var(--panel))!important;border-color:var(--ac)!important;color:var(--text)!important}
+#calm #cdesc *{color:var(--text)!important;background:transparent!important}
 #sbar .sbi>#occ *{font-size:12.5px!important;line-height:1.2;white-space:nowrap}
 #sbar .sbi>#clk .ca{display:none!important}
 #sbar .sbi>#clk .ckd{zoom:.55!important;margin:0!important}
