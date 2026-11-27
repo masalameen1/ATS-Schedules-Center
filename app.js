@@ -3359,7 +3359,13 @@ function fix27c(){const DT='2026-11-27',d=S.days.find(x=>x.date===DT&&!x.sp);if(
 function fix27d(){const DT='2026-11-27',d=S.days.find(x=>x.date===DT&&!x.sp);if(!d)return false;const {vk,res}=mkRes();const Rm=res('Rami'),ib=res('Ibrahim Alsaghir');
  const g=S.venues.find(x=>vk(x.name)===vk('Gym'));if(g&&d.inv&&d.inv[g.id]){d.inv[g.id]=d.inv[g.id].filter(n=>n!==Rm);const og=d.ia&&d.ia[g.id];if(og){delete og[Rm];if(og[ib])og[ib]=og[ib].map(x=>x[0]==='A10[ENI]/2'?[x[0],27]:x)}}
  S.apv27='p5';mark();try{draw()}catch(e){}return true}
-async function autoPlan27(){try{if(!canEd()||!EDB)return;{const s0=S.apv27;if(s0==='p1'||s0==='p2'||s0==='p3'||s0==='p4'){if(s0==='p1')fix27();if(s0==='p1'||s0==='p2')fix27b();if(s0!=='p4')fix27c();else fix27d();await save();return}}if(applyPlan27(true))await save()}catch(e){}}
+function enf27(){const DT='2026-11-27',d=S.days.find(x=>x.date===DT&&!x.sp);if(!d||!d.inv)return false;const {vk,res}=mkRes();const N=res('Nada'),Rm=res('Rami'),ib=res('Ibrahim Alsaghir');let ch=false;
+ const v=S.venues.find(x=>vk(x.name)===vk('Airplane')),g=S.venues.find(x=>vk(x.name)===vk('Gym'));
+ if(v){const a=d.inv[v.id];if(a){if(a.includes(N)){d.inv[v.id]=[...new Set(a.map(n=>n===N?Rm:n))];ch=true}d.ia=d.ia||{};const o=d.ia[v.id]=d.ia[v.id]||{};if(o[N]){o[Rm]=o[N];delete o[N];ch=true}
+  if(!d.inv[v.id].includes(Rm)){d.inv[v.id]=[...d.inv[v.id],Rm];ch=true}if(!o[Rm]){o[Rm]=[['A12[ENE]/3',23]];ch=true}}}
+ if(g&&d.inv[g.id]&&d.inv[g.id].includes(Rm)){d.inv[g.id]=d.inv[g.id].filter(n=>n!==Rm);ch=true;const og=d.ia&&d.ia[g.id];if(og){delete og[Rm];if(og[ib])og[ib]=og[ib].map(x=>x[0]==='A10[ENI]/2'?[x[0],27]:x)}}
+ if(ch){mark();try{draw()}catch(e){}}return ch}
+async function autoPlan27(){try{if(!canEd()||!EDB)return;if(S.apv27==='p5'){if(enf27())await save();return}{const s0=S.apv27;if(s0==='p1'||s0==='p2'||s0==='p3'||s0==='p4'){if(s0==='p1')fix27();if(s0==='p1'||s0==='p2')fix27b();if(s0!=='p4')fix27c();else fix27d();enf27();await save();return}}if(applyPlan27(true)){enf27();await save()}}catch(e){}}
 function applyIA25(){if(!canEd()||S.ia25)return false;const d=S.days.find(x=>x.date==='2026-11-25'&&!x.sp);if(!d||S.apv25!=='p2')return false;
  const {vk,res}=mkRes(),ia={};
  PLAN25.forEach(([zone,hall,ss,iv])=>{const v=S.venues.find(x=>vk(x.name)===vk(hall)),L=IA25[hall];if(!v||!L)return;const o={};L.forEach(([sn,cl],j)=>{const full=res(iv[j]);if((d.inv[v.id]||[]).includes(full))o[full]=cl.map(x=>[x[0],x[1]])});if(Object.keys(o).length)ia[v.id]=o});
