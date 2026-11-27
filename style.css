@@ -3394,3 +3394,6 @@ header.top .brand .logo{order:-1;margin-left:0!important}
 .tmChips{display:flex;flex-direction:column;gap:6px;align-items:stretch;margin:4px 6px 8px}
 .tmCh{border:1.5px solid var(--line,#d0d7e6);background:var(--bg,#fff);color:inherit;border-radius:999px;padding:6px 10px;font:700 12px Inter,Cairo,sans-serif;cursor:pointer;text-align:center}
 .tmCh:hover{box-shadow:0 4px 12px rgba(30,64,175,.2)}
+
+/* hub: enlarge the tablet inside the oval ring (width comes from the fit script) */
+@media(min-width:701px){#homec .hxTab{width:var(--tw,38%)!important;aspect-ratio:var(--ta,1.5)!important;container-type:inline-size;padding:1.1cqw!important;border-radius:3.2cqw!important}}

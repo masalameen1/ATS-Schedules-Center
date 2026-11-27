@@ -7315,7 +7315,7 @@ window.__aiJson=aiJson;
   if(innerWidth<701||!orb.clientWidth){tab.style.removeProperty('--tw');tab.style.removeProperty('--ta');return}
   const ob=orb.getBoundingClientRect(),cx=ob.left+ob.width/2,cy=ob.top+ob.height/2,rs=[];
   orb.querySelectorAll('.hxB .hxI,.hxB .hxL').forEach(e=>{const b=e.getBoundingClientRect();if(b.width>2&&b.height>2)rs.push(b)});if(!rs.length)return;
-  const M=8,K=1;let best=null;
+  const M=6,K=1;let best=null;
   const ok=(w,h)=>{const hw=w/2/K,hh=h/2/K+h*.05;return !rs.some(b=>!(b.right+M<cx-hw||b.left-M>cx+hw||b.bottom+M<cy-hh||b.top-M>cy+hh))};
   [1.38,1.5,1.62,1.75,1.9].forEach(a=>{let lo=120,hi=ob.width*.9;if(!ok(lo,lo/a))return;for(let i=0;i<14;i++){const m=(lo+hi)/2;if(ok(m,m/a))lo=m;else hi=m}
    const ar=lo*lo/a;if(!best||ar>best.ar)best={w:lo,a,ar}});
